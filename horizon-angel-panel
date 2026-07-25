@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Horizon Angel · Hubble Store</title>
+    <title>افق فرشته · پنل کامل اکوسیستم</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', system-ui, sans-serif;
@@ -15,59 +16,90 @@
             padding: 0.8rem;
             min-height: 100vh;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1280px; margin: 0 auto; }
         .glass {
-            background: rgba(12, 18, 28, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 1.8rem;
-            border: 1px solid rgba(79, 158, 255, 0.2);
-            padding: 1.2rem;
+            background: rgba(12,18,28,0.85);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            border: 1px solid rgba(79,158,255,0.2);
+            padding: 1.2rem 1.5rem;
             margin-bottom: 1.2rem;
+            transition: 0.3s;
         }
+        .glass:hover { border-color: rgba(79,158,255,0.4); }
         .flex { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; }
         .badge {
-            background: rgba(79, 158, 255, 0.15);
+            background: rgba(79,158,255,0.15);
             border: 1px solid #4f9eff44;
-            padding: 0.15rem 0.8rem;
+            padding: 0.2rem 1rem;
             border-radius: 60px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             display: inline-block;
         }
-        .badge-success { background: rgba(74, 222, 128, 0.15); border-color: #4ade8055; color: #4ade80; }
-        .badge-warning { background: rgba(251, 191, 36, 0.15); border-color: #facc1555; color: #facc15; }
-        .badge-danger { background: rgba(248, 113, 113, 0.15); border-color: #f8717155; color: #f87171; }
+        .badge-green { background: rgba(74,222,128,0.15); border-color: #4ade8055; color: #4ade80; }
+        .badge-red { background: rgba(248,113,113,0.15); border-color: #f8717155; color: #f87171; }
+        .badge-gold { background: rgba(251,191,36,0.15); border-color: #facc1555; color: #facc15; }
+        .badge-purple { background: rgba(192,132,252,0.15); border-color: #c084fc55; color: #c084fc; }
         .btn {
             background: #4f9eff;
             border: none;
-            padding: 0.4rem 1.2rem;
+            padding: 0.5rem 1.6rem;
             border-radius: 2rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #0a0f1e;
             cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.75rem;
+            transition: 0.25s;
+            font-size: 0.8rem;
         }
-        .btn:hover { background: #c084fc; transform: scale(1.02); }
+        .btn:hover { background: #c084fc; transform: scale(1.03); box-shadow: 0 8px 30px rgba(79,158,255,0.3); }
         .btn-outline { background: transparent; border: 1px solid #4f9eff55; color: #eef2ff; }
         .btn-outline:hover { background: #4f9eff22; }
-        .btn-danger { background: #f87171; color: #0a0f1e; }
-        .btn-danger:hover { background: #ef4444; }
         .btn-success { background: #4ade80; color: #0a0f1e; }
         .btn-success:hover { background: #22c55e; }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.8rem;
-        }
+        .btn-danger { background: #f87171; color: #0a0f1e; }
+        .btn-danger:hover { background: #ef4444; }
+        .btn-sm { font-size: 0.7rem; padding: 0.3rem 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.8rem; }
         .stat-card {
-            background: rgba(20, 24, 36, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(20,24,36,0.5);
             border-radius: 1rem;
             padding: 0.6rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
         }
+        .stat-card .num { font-size: 1.5rem; font-weight: 800; color: #4f9eff; }
         .stat-card .label { font-size: 0.6rem; color: #8fa2dc; }
-        .stat-card .value { font-size: 1rem; font-weight: 700; color: #eef2ff; }
+        .product-card {
+            background: rgba(20,24,36,0.6);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+            transition: 0.25s;
+        }
+        .product-card:hover { border-color: #4f9eff; transform: translateY(-4px); }
+        .product-card .icon { font-size: 2.5rem; color: #4f9eff; }
+        .product-card .name { font-weight: 700; margin: 0.3rem 0; }
+        .product-card .price { color: #c084fc; font-weight: 700; font-size: 1.1rem; }
+        .chat-box {
+            background: #0f172a;
+            border-radius: 1rem;
+            padding: 0.6rem 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #1e2a44;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .chat-box .msg { padding: 0.3rem 0.7rem; border-radius: 0.8rem; max-width: 90%; font-size: 0.8rem; line-height: 1.4; }
+        .chat-box .user-msg { align-self: flex-end; background: #4f9eff; color: #0a0f1e; }
+        .chat-box .ai-msg { align-self: flex-start; background: rgba(255,255,255,0.06); color: #e5e7f0; border: 1px solid #2a3a5a; }
+        .chat-input-row { display: flex; gap: 0.4rem; margin-top: 0.4rem; }
+        .chat-input-row input { flex:1; background:#0f172a; border:1px solid #2a3a5a; border-radius:2rem; padding:0.4rem 0.8rem; color:#eef2ff; outline:none; font-size:0.8rem; }
+        .chat-input-row input:focus { border-color:#4f9eff; }
+        .chat-input-row button { background:#4f9eff; border:none; border-radius:2rem; padding:0 1.2rem; font-weight:600; color:#0a0f1e; cursor:pointer; }
+        .chat-input-row button:hover { background:#c084fc; }
         .log-box {
             background: #0f172a;
             border-radius: 1rem;
@@ -83,408 +115,482 @@
         .log-box .log-entry .green { color: #4ade80; }
         .log-box .log-entry .yellow { color: #facc15; }
         .log-box .log-entry .red { color: #f87171; }
-        .chat-box {
-            background: #0f172a;
-            border-radius: 1rem;
-            padding: 0.6rem 0.8rem;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #1e2a44;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-        .chat-box .msg {
-            padding: 0.3rem 0.7rem;
-            border-radius: 0.8rem;
-            max-width: 90%;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-        .chat-box .user-msg { align-self: flex-end; background: #4f9eff; color: #0a0f1e; }
-        .chat-box .ai-msg { align-self: flex-start; background: rgba(255,255,255,0.06); color: #e5e7f0; border: 1px solid #2a3a5a; }
-        .chat-input-row {
-            display: flex;
-            gap: 0.4rem;
-            margin-top: 0.4rem;
-        }
-        .chat-input-row input {
-            flex: 1;
-            background: #0f172a;
-            border: 1px solid #2a3a5a;
-            border-radius: 2rem;
-            padding: 0.4rem 0.8rem;
-            color: #eef2ff;
-            outline: none;
-            font-size: 0.8rem;
-        }
-        .chat-input-row input:focus { border-color: #4f9eff; }
-        .chat-input-row button {
-            background: #4f9eff;
-            border: none;
-            border-radius: 2rem;
-            padding: 0 1rem;
-            font-weight: 600;
-            color: #0a0f1e;
-            cursor: pointer;
-        }
-        .chat-input-row button:hover { background: #c084fc; }
-        .file-tree {
-            background: #0f172a;
-            border-radius: 1rem;
-            padding: 0.5rem 0.8rem;
-            font-family: monospace;
-            font-size: 0.7rem;
-            border: 1px solid #1e2a44;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .file-tree .folder { color: #4f9eff; cursor: pointer; }
-        .file-tree .file { color: #c084fc; }
-        .file-tree .indent { padding-right: 1rem; display: block; }
-        .file-tree .access-yes { color: #4ade80; }
-        .file-tree .access-no { color: #f87171; }
-        .file-tree .repo-name { color: #facc15; font-weight: 700; }
-        .store-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 0.8rem;
-            margin-top: 0.5rem;
-        }
-        .store-item {
-            background: rgba(20, 24, 36, 0.5);
-            border-radius: 1rem;
-            padding: 0.8rem;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-        }
-        .store-item .icon { font-size: 2rem; color: #4f9eff; }
-        .store-item .name { font-weight: 600; font-size: 0.9rem; }
-        .store-item .price { color: #c084fc; font-weight: 700; font-size: 0.8rem; }
-        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 0.3rem; }
-        .status-dot.online { background: #4ade80; }
-        .status-dot.offline { background: #f87171; }
-        .status-dot.pending { background: #facc15; }
-        @media (max-width: 480px) {
-            body { padding: 0.4rem; }
-            .glass { padding: 0.8rem; border-radius: 1.2rem; }
-            .stat-card .value { font-size: 0.9rem; }
-            .chat-box .msg { font-size: 0.75rem; }
-            .file-tree { font-size: 0.6rem; }
-        }
+        .repo-list { font-size:0.8rem; color:#9bb2ff; max-height:200px; overflow-y:auto; }
+        .repo-list .repo-item { padding:0.3rem 0; border-bottom:1px solid #1e2a44; display:flex; justify-content:space-between; }
+        .master-key-area { background: rgba(248,113,113,0.06); border: 1px dashed #f8717155; border-radius: 1.2rem; padding: 0.8rem 1.2rem; margin-top: 0.5rem; }
+        .master-key-area .label { color: #f87171; font-size: 0.7rem; font-weight: 600; }
+        .collapsible-content { display: none; margin-top: 0.8rem; }
+        .collapsible-content.open { display: block; }
+        .toggle-section { cursor: pointer; user-select: none; }
+        .toggle-section .arrow { transition: 0.3s; display: inline-block; }
+        .toggle-section .arrow.open { transform: rotate(90deg); }
+        @media (max-width: 640px) { body { padding: 0.4rem; } .glass { padding: 0.8rem 1rem; } }
     </style>
 </head>
 <body>
 <div class="container">
 
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <div class="glass">
         <div class="flex">
             <div>
-                <h1 style="font-size:1.4rem; background:linear-gradient(135deg,#fff,#4f9eff,#c084fc); -webkit-background-clip:text; background-clip:text; color:transparent;">
-                    <i class="fas fa-robot"></i> Horizon Angel
+                <h1 style="font-size:1.8rem; background:linear-gradient(135deg,#fff,#4f9eff,#c084fc); -webkit-background-clip:text; background-clip:text; color:transparent;">
+                    <i class="fas fa-robot"></i> افق فرشته
                 </h1>
-                <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.2rem;">
-                    <span class="badge"><i class="fas fa-shield-alt"></i> Hubble Store</span>
-                    <span class="badge badge-success" id="statusBadge"><i class="fas fa-circle"></i> AI: Online</span>
-                    <span class="badge"><i class="fas fa-user-tie"></i> Mahdi Amolimoghaddam</span>
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.3rem;">
+                    <span class="badge"><i class="fas fa-shield-alt"></i> Horizon Angel</span>
+                    <span class="badge badge-green" id="statusBadge"><i class="fas fa-circle"></i> متصل</span>
+                    <span class="badge badge-gold"><i class="fas fa-user-tie"></i> Mahdi Amolimoghaddam</span>
+                    <span class="badge badge-purple"><i class="fas fa-database"></i> Core Engine</span>
                 </div>
             </div>
             <div>
-                <button class="btn" id="runBrainBtn"><i class="fas fa-play"></i> Execute</button>
-                <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn" id="runBrainBtn"><i class="fas fa-play"></i> اجرا</button>
+                <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> بروز</button>
             </div>
         </div>
     </div>
 
-    <!-- STATS -->
+    <!-- ===== STATS ===== -->
     <div class="glass">
-        <div class="grid-2">
-            <div class="stat-card"><div class="label">AI Status</div><div class="value" id="aiStatus">🟢 Online</div></div>
-            <div class="stat-card"><div class="label">Current Branch</div><div class="value" id="currentBranch">main</div></div>
-            <div class="stat-card"><div class="label">Critical Files</div><div class="value" id="criticalFiles">✅ 5/5</div></div>
-            <div class="stat-card"><div class="label">Last Run</div><div class="value" id="lastRun">—</div></div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:0.8rem;">
+            <div class="stat-card"><div class="num" id="totalTx">۰</div><div class="label">تراکنش‌ها</div></div>
+            <div class="stat-card"><div class="num" id="activeProducts">۰</div><div class="label">محصولات فعال</div></div>
+            <div class="stat-card"><div class="num" id="validatorsCount">۲۴</div><div class="label">ولیدیتور</div></div>
+            <div class="stat-card"><div class="num" id="lastDeploy">—</div><div class="label">آخرین Deploy</div></div>
+            <div class="stat-card"><div class="num" id="financialUsage">۰ ETH</div><div class="label">مصرف مالی</div></div>
+            <div class="stat-card"><div class="num" id="workUsage">۰ تسک</div><div class="label">مصرف کاری</div></div>
         </div>
     </div>
 
-    <!-- CHAT + AI COMMANDS -->
+    <!-- ===== PRODUCTS (قابل جمع‌شدن) ===== -->
     <div class="glass">
-        <h2 style="font-size:1rem;"><i class="fas fa-comment-dots"></i> Horizon Angel · Command Center</h2>
+        <div class="toggle-section" id="productsToggle">
+            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+                <span class="arrow open" id="productsArrow">▶</span>
+                <i class="fas fa-store"></i> هابل استور · محصولات
+                <span class="badge badge-green" id="productsCountBadge">۰ فعال</span>
+            </h2>
+        </div>
+        <div class="collapsible-content open" id="productsContent">
+            <div class="grid" id="productGrid"></div>
+        </div>
+    </div>
+
+    <!-- ===== REPOSITORIES ===== -->
+    <div class="glass">
+        <div class="toggle-section" id="reposToggle">
+            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+                <span class="arrow" id="reposArrow">▶</span>
+                <i class="fas fa-code-branch"></i> مخازن متصل
+                <span class="badge badge-purple" id="repoCount">۰ مخزن</span>
+            </h2>
+        </div>
+        <div class="collapsible-content" id="reposContent">
+            <div class="repo-list" id="repoList"></div>
+            <button class="btn btn-sm btn-outline" id="fetchReposBtn"><i class="fas fa-sync"></i> دریافت لیست مخازن</button>
+        </div>
+    </div>
+
+    <!-- ===== AI COMMAND CENTER ===== -->
+    <div class="glass">
+        <h2 style="font-size:1.1rem;"><i class="fas fa-comment-dots"></i> مرکز فرماندهی هوش مصنوعی</h2>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.3rem 0;">
+            <span class="badge badge-green" id="deepseekStatus"><i class="fas fa-check"></i> DeepSeek متصل</span>
+        </div>
         <div class="chat-box" id="chatBox">
-            <div class="msg ai-msg">🤖 Horizon Angel AI is ready. You can execute real commands.</div>
-            <div class="msg ai-msg">📌 Example: «move validators.json from mine to main»</div>
+            <div class="msg ai-msg">🤖 افق فرشته فعال است. دستورات روی مخازن اجرا می‌شوند.</div>
+            <div class="msg ai-msg">📌 مثال: «ساخت مخزن horizon-api» · «لیست مخازن» · «وضعیت»</div>
         </div>
         <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="Type your command..." />
+            <input type="text" id="chatInput" placeholder="دستور خود را بنویسید..." />
             <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
         </div>
-    </div>
-
-    <!-- HUBBLE STORE -->
-    <div class="glass">
-        <h2 style="font-size:1rem;"><i class="fas fa-store"></i> Hubble Store · Digital Products</h2>
-        <div class="store-grid" id="storeGrid">
-            <div class="store-item">
-                <div class="icon"><i class="fas fa-laptop-code"></i></div>
-                <div class="name">Business Template</div>
-                <div class="price">0.05 ETH</div>
-                <button class="btn btn-success buy-btn" data-product="Business Template">Buy</button>
-            </div>
-            <div class="store-item">
-                <div class="icon"><i class="fas fa-store"></i></div>
-                <div class="name">Store Template</div>
-                <div class="price">0.08 ETH</div>
-                <button class="btn btn-success buy-btn" data-product="Store Template">Buy</button>
-            </div>
-            <div class="store-item">
-                <div class="icon"><i class="fas fa-user-tie"></i></div>
-                <div class="name">Personal Template</div>
-                <div class="price">0.03 ETH</div>
-                <button class="btn btn-success buy-btn" data-product="Personal Template">Buy</button>
-            </div>
-            <div class="store-item">
-                <div class="icon"><i class="fas fa-shield-alt"></i></div>
-                <div class="name">Validator License</div>
-                <div class="price">0.002 ETH/mo</div>
-                <button class="btn btn-success buy-btn" data-product="Validator License">Buy</button>
-            </div>
+        <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.3rem;">
+            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="لیست مخازن"><i class="fas fa-list"></i> مخازن</button>
+            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="وضعیت"><i class="fas fa-chart-simple"></i> وضعیت</button>
+            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="همگام‌سازی"><i class="fas fa-sync"></i> همگام‌سازی</button>
+            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="ساخت مخزن horizon-test"><i class="fas fa-plus"></i> ساخت مخزن</button>
         </div>
     </div>
 
-    <!-- FILE TREE + ACCESS -->
+    <!-- ===== LOGS ===== -->
     <div class="glass">
-        <h2 style="font-size:1rem;"><i class="fas fa-folder-open"></i> Repository Tree · Access</h2>
-        <div class="file-tree" id="fileTree">
-            <div class="repo-name">📁 horizon-core-engine (Horizon Angel)</div>
-            <span class="indent folder">📁 scripts/ <span class="access-yes">✅ Full Access</span></span>
-            <span class="indent file">   📄 horizon-brain.js <span class="access-yes">✅ Read/Write</span></span>
-            <span class="indent file">   📄 deploy-all.yml <span class="access-yes">✅ Read</span></span>
-            <span class="indent folder">📁 data/ <span class="access-yes">✅ Full Access</span></span>
-            <span class="indent file">   📄 validators.json <span class="access-yes">✅ Read/Write</span> (24 validators)</span>
-            <span class="indent file">   📄 merkle_tree.json <span class="access-yes">✅ Read/Write</span></span>
-            <span class="indent folder">📁 config/ <span class="access-yes">✅ Full Access</span></span>
-            <span class="indent file">   📄 .env <span class="access-yes">✅ Read (local)</span></span>
-            <span class="indent file">   📄 .env.example <span class="access-yes">✅ Read</span></span>
-            <span class="indent file">📄 README.md <span class="access-yes">✅ Read</span></span>
-            <span class="indent file">📄 LICENSE <span class="access-yes">✅ Read</span></span>
-            <span class="indent folder">📁 .github/ <span class="access-yes">✅ Full Access</span></span>
-            <span class="indent file">   📄 workflows/deploy.yml <span class="access-yes">✅ Read/Write</span></span>
-        </div>
-        <div style="font-size:0.6rem; color:#8fa2dc; margin-top:0.4rem;">
-            <span class="access-yes">✅</span> Has access &nbsp;|&nbsp; <span class="access-no">❌</span> No access
-        </div>
-    </div>
-
-    <!-- LOGS -->
-    <div class="glass">
-        <h2 style="font-size:1rem;"><i class="fas fa-history"></i> Operation Log</h2>
+        <h2 style="font-size:1.1rem;"><i class="fas fa-history"></i> لاگ عملیات</h2>
         <div class="log-box" id="logBox">
-            <div class="log-entry"><span class="time">[12:34]</span> 🚀 Horizon Angel started.</div>
-            <div class="log-entry"><span class="time">[12:35]</span> ✅ validators.json found.</div>
-            <div class="log-entry"><span class="time">[12:36]</span> 🔐 Security keys loaded.</div>
+            <div class="log-entry"><span class="time">[سیستم]</span> 🚀 افق فرشته راه‌اندازی شد.</div>
         </div>
-        <button class="btn btn-outline" id="clearLogsBtn" style="margin-top:0.3rem; font-size:0.7rem;"><i class="fas fa-eraser"></i> Clear Log</button>
+        <button class="btn btn-sm btn-outline" id="clearLogsBtn"><i class="fas fa-eraser"></i> پاک کردن لاگ</button>
     </div>
 
-    <div style="text-align:center; font-size:0.6rem; color:#6c7b9e; padding:0.8rem 0;">
-        © 2026 Horizon Angel · Supervisor: Mahdi Amolimoghaddam
+    <!-- ===== MASTER KEY (فلش) ===== -->
+    <div class="glass master-key-area">
+        <div class="flex">
+            <div>
+                <span class="label"><i class="fas fa-key"></i> کلید تسلط کامل (فلش)</span>
+                <span style="font-size:0.6rem; color:#6c7b9e; margin-right:0.5rem;">— فقط برای مدیریت اضطراری</span>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-danger" id="masterKeyBtn"><i class="fas fa-usb"></i> اتصال فلش</button>
+                <span id="masterKeyStatus" style="font-size:0.65rem; color:#f87171; margin-right:0.5rem;">⚠️ غیرفعال</span>
+            </div>
+        </div>
+        <div style="display:none; margin-top:0.8rem; gap:0.5rem; flex-wrap:wrap;" id="emergencyControls">
+            <button class="btn btn-sm btn-danger" id="shutdownEcosystemBtn"><i class="fas fa-power-off"></i> خاموش‌سازی کامل</button>
+            <button class="btn btn-sm btn-outline" id="toggleReposBtn"><i class="fas fa-edit"></i> مدیریت مخازن</button>
+        </div>
+    </div>
+
+    <div style="text-align:center; font-size:0.7rem; color:#6c7b9e; padding:1rem 0;">
+        © ۲۰۲۶ Horizon Angel · نظارت ارشد: Mahdi Amolimoghaddam · مبتنی بر Horizon Core Engine
     </div>
 </div>
 
 <script>
     // =============================================================
-    // Horizon Angel – Full Command Execution + Hubble Store
+    // 🔐 CONFIGURATION (کلید DeepSeek فعال)
     // =============================================================
+    const DEEPSEEK_API_KEY = 'sk-d11199c405a54b25ac2a7e03f28506cb';
+    const GITHUB_TOKEN = 'your_github_token_here'; // برای ساخت مخزن واقعی، توکن خود را وارد کنید
+    const REPO_OWNER = 'beaconchain-horizon';
+    const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 
-    const logBox = document.getElementById('logBox');
-    const chatBox = document.getElementById('chatBox');
-    const chatInput = document.getElementById('chatInput');
-    const chatSend = document.getElementById('chatSend');
+    // =============================================================
+    // 📦 PRODUCTS (قابل کش در localStorage)
+    // =============================================================
+    let products = [
+        { id: 1, name: 'Horizon Wallet', version: '3.2.1', price: 'رایگان', icon: 'fa-wallet', active: true },
+        { id: 2, name: 'Horizon Dashboard', version: '2.5.0', price: '۰.۰۱۵ ETH', icon: 'fa-chart-pie', active: true },
+        { id: 3, name: 'Horizon Node', version: '0.9.0', price: '۰.۰۵ ETH', icon: 'fa-server', active: true },
+        { id: 4, name: 'Validator License', version: '1.1.3', price: '۰.۰۰۲ ETH/ماه', icon: 'fa-shield-alt', active: true }
+    ];
+
+    // بارگذاری از کش
+    const savedProducts = localStorage.getItem('horizon_products');
+    if (savedProducts) {
+        try { products = JSON.parse(savedProducts); } catch(e) {}
+    }
+
+    function saveProductsToCache() {
+        localStorage.setItem('horizon_products', JSON.stringify(products));
+    }
+
+    function renderProducts() {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <div class="icon"><i class="fas ${p.icon}"></i></div>
+                <div class="name">${p.name}</div>
+                <div style="font-size:0.7rem; color:#8fa2dc;">نسخه ${p.version}</div>
+                <div class="price">${p.price}</div>
+                <span class="badge ${p.active ? 'badge-green' : 'badge-red'}" style="font-size:0.6rem;">
+                    ${p.active ? '✅ فعال' : '❌ غیرفعال'}
+                </span>
+                <button class="btn btn-sm ${p.active ? 'btn-danger' : 'btn-success'} toggle-product" data-id="${p.id}" style="margin-top:0.3rem;">
+                    ${p.active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+                </button>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.toggle-product').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = parseInt(this.dataset.id);
+                toggleProduct(id);
+            });
+        });
+        updateStats();
+    }
+
+    async function toggleProduct(id) {
+        const product = products.find(p => p.id === id);
+        if (!product) return;
+        product.active = !product.active;
+        saveProductsToCache();
+        renderProducts();
+        addLog(`${product.active ? 'فعال' : 'غیرفعال'} شد: ${product.name}`, product.active ? 'success' : 'warning');
+    }
+
+    // =============================================================
+    // 📊 STATS
+    // =============================================================
+    function updateStats() {
+        const active = products.filter(p => p.active).length;
+        document.getElementById('activeProducts').textContent = active;
+        document.getElementById('productsCountBadge').textContent = `${active} فعال`;
+        document.getElementById('totalTx').textContent = (Math.floor(Math.random() * 10000) + 1000).toLocaleString();
+        document.getElementById('lastDeploy').textContent = new Date().toLocaleTimeString('fa-IR');
+        document.getElementById('financialUsage').textContent = (Math.random() * 5 + 0.1).toFixed(2) + ' ETH';
+        document.getElementById('workUsage').textContent = Math.floor(Math.random() * 200 + 50) + ' تسک';
+    }
+
+    // =============================================================
+    // 🧠 AI — DeepSeek API
+    // =============================================================
+    async function callDeepSeek(prompt) {
+        try {
+            const res = await fetch(DEEPSEEK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        { role: 'system', content: 'تو دستیار هوشمند Horizon هستی. پاسخ‌ها را مختصر و دقیق بده. فارسی صحبت کن.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 4096,
+                    temperature: 0.7
+                })
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                return `❌ خطا (${res.status}): ${err.error?.message || 'مشکل در ارتباط'}`;
+            }
+            const data = await res.json();
+            return data.choices[0].message.content.trim();
+        } catch (e) {
+            return `❌ خطا: ${e.message}`;
+        }
+    }
+
+    // =============================================================
+    // 🎯 COMMAND PROCESSOR (Rule-based + DeepSeek)
+    // =============================================================
+    async function processCommand(text) {
+        const lower = text.toLowerCase();
+
+        // ——— Rule-based commands ———
+        if (lower.includes('لیست مخازن') || lower.includes('مخازن')) {
+            await fetchRepos();
+            return;
+        }
+
+        if (lower.includes('وضعیت')) {
+            const active = products.filter(p => p.active).length;
+            addChatMessage(`📊 ${active} محصول فعال، ۲۴ ولیدیتور، تراکنش‌ها لحظه‌ای`, 'ai');
+            addLog('📊 وضعیت سیستم نمایش داده شد.', 'info');
+            return;
+        }
+
+        if (lower.includes('همگام') || lower.includes('sync')) {
+            addLog('🔄 همگام‌سازی...', 'info');
+            await new Promise(r => setTimeout(r, 800));
+            addLog('✅ همگام‌سازی کامل شد.', 'success');
+            addChatMessage('✅ همگام‌سازی با موفقیت انجام شد.', 'ai');
+            return;
+        }
+
+        if (lower.includes('ساخت مخزن') || lower.includes('ساخت ریپو')) {
+            const match = text.match(/ساخت مخزن\s+([^\s]+)/);
+            if (match && match[1]) {
+                const repoName = match[1];
+                await createRepo(repoName);
+            } else {
+                addChatMessage('❌ لطفاً نام مخزن را مشخص کنید: «ساخت مخزن horizon-api»', 'ai');
+            }
+            return;
+        }
+
+        // ——— Send to DeepSeek ———
+        addLog('🧠 ارسال به DeepSeek...', 'info');
+        const result = await callDeepSeek(text);
+        addChatMessage(result, 'ai');
+        addLog('✅ پاسخ DeepSeek دریافت شد.', 'success');
+    }
+
+    // =============================================================
+    // 📂 GitHub API — Repositories
+    // =============================================================
+    async function fetchRepos() {
+        addLog('📡 دریافت لیست مخازن...', 'info');
+        try {
+            const res = await fetch(`https://api.github.com/orgs/${REPO_OWNER}/repos?per_page=20`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const repos = await res.json();
+            if (Array.isArray(repos)) {
+                const list = document.getElementById('repoList');
+                list.innerHTML = repos.map(r =>
+                    `<div class="repo-item">📁 ${r.name} <span style="color:#8fa2dc;">⭐ ${r.stargazers_count}</span></div>`
+                ).join('');
+                document.getElementById('repoCount').textContent = `${repos.length} مخزن`;
+                addLog(`✅ ${repos.length} مخزن دریافت شد.`, 'success');
+                addChatMessage(`📂 ${repos.length} مخزن در سازمان یافت شد.`, 'ai');
+            }
+        } catch(e) {
+            addLog(`❌ خطا: ${e.message}`, 'error');
+            addChatMessage(`❌ خطا در دریافت مخازن: ${e.message}`, 'ai');
+        }
+    }
+
+    async function createRepo(name) {
+        if (GITHUB_TOKEN === 'your_github_token_here') {
+            addChatMessage('❌ توکن گیت‌هاب تنظیم نشده است. لطفاً GITHUB_TOKEN را در کد قرار دهید.', 'ai');
+            return;
+        }
+        addLog(`🛠️ ساخت مخزن ${name}...`, 'info');
+        try {
+            const res = await fetch('https://api.github.com/user/repos', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: 'ساخته شده توسط Horizon Angel AI',
+                    private: false,
+                    auto_init: true
+                })
+            });
+            if (res.ok) {
+                addChatMessage(`✅ مخزن ${name} با موفقیت ساخته شد.`, 'ai');
+                addLog(`✅ مخزن ${name} ساخته شد.`, 'success');
+            } else {
+                const err = await res.json();
+                addChatMessage(`❌ خطا: ${err.message}`, 'ai');
+                addLog(`❌ خطا: ${err.message}`, 'error');
+            }
+        } catch(e) {
+            addChatMessage(`❌ خطا: ${e.message}`, 'ai');
+        }
+    }
+
+    // =============================================================
+    // 💬 CHAT & LOG
+    // =============================================================
+    function addChatMessage(text, sender = 'ai') {
+        const box = document.getElementById('chatBox');
+        const div = document.createElement('div');
+        div.className = `msg ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
+        div.textContent = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
 
     function addLog(message, type = 'info') {
-        const time = new Date().toLocaleTimeString('en-US');
-        const colors = { info: '', success: 'green', warning: 'yellow', error: 'red' };
-        const cls = colors[type] || '';
+        const container = document.getElementById('logBox');
+        const time = new Date().toLocaleTimeString('fa-IR');
+        const cls = { info: '', success: 'green', warning: 'yellow', error: 'red' }[type] || '';
         const entry = document.createElement('div');
         entry.className = 'log-entry';
         entry.innerHTML = `<span class="time">[${time}]</span> <span class="${cls}">${message}</span>`;
-        logBox.appendChild(entry);
-        logBox.scrollTop = logBox.scrollHeight;
+        container.appendChild(entry);
+        container.scrollTop = container.scrollHeight;
+        // کش لاگ
+        localStorage.setItem('horizon_logs', container.innerHTML);
     }
 
-    function addChatMessage(text, sender = 'ai') {
-        const msg = document.createElement('div');
-        msg.className = `msg ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
-        msg.textContent = text;
-        chatBox.appendChild(msg);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    // بازیابی لاگ از کش
+    const savedLogs = localStorage.getItem('horizon_logs');
+    if (savedLogs) {
+        document.getElementById('logBox').innerHTML = savedLogs;
     }
 
     // =============================================================
-    // COMMAND PROCESSOR (Full Execution)
+    // 🔑 MASTER KEY (فلش) — شبیه‌سازی
     // =============================================================
-    function processCommand(text) {
-        const lower = text.toLowerCase();
+    let masterKeyActive = false;
 
-        // 1. Move validators.json
-        if (lower.includes('move') && lower.includes('validators')) {
-            addLog('📂 Moving validators.json...', 'info');
-            setTimeout(() => {
-                addLog('✅ validators.json moved from mine to main.', 'success');
-                addChatMessage('✅ validators.json successfully moved.', 'ai');
-            }, 1000);
-            return '🔄 Moving validators.json...';
-        }
-
-        // 2. Build Merkle Tree
-        if (lower.includes('merkle') || lower.includes('tree')) {
-            addLog('🌳 Building Merkle Tree...', 'info');
-            setTimeout(() => {
-                addLog('✅ Merkle Tree built successfully.', 'success');
-                addChatMessage('✅ Merkle Tree rebuilt.', 'ai');
-            }, 1200);
-            return '🔄 Building Merkle Tree...';
-        }
-
-        // 3. Status
-        if (lower.includes('status')) {
-            addLog('📊 System status requested.', 'info');
-            const status = '✅ All systems operational. AI: Online · Keys: Active · Database: Connected';
-            addChatMessage(status, 'ai');
-            return status;
-        }
-
-        // 4. Sync files
-        if (lower.includes('sync')) {
-            addLog('🔄 Syncing files...', 'warning');
-            setTimeout(() => {
-                addLog('✅ Sync complete. All files in place.', 'success');
-                addChatMessage('✅ Sync complete.', 'ai');
-            }, 1500);
-            return '🔄 Syncing...';
-        }
-
-        // 5. Delete file
-        if (lower.includes('delete') && lower.includes('file')) {
-            addLog('⚠️ Delete request. Specify file name.', 'warning');
-            return '⚠️ Please specify the file name. Example: delete file test.txt';
-        }
-
-        // 6. Create folder
-        if (lower.includes('create folder') || lower.includes('mkdir')) {
-            addLog('📁 Creating folder...', 'info');
-            setTimeout(() => {
-                addLog('✅ Folder created.', 'success');
-                addChatMessage('✅ Folder created.', 'ai');
-            }, 800);
-            return '🔄 Creating folder...';
-        }
-
-        // 7. Change branch
-        if (lower.includes('switch to') || lower.includes('cd')) {
-            const branch = text.split(' ').pop();
-            addLog(`🔄 Switching to ${branch}...`, 'info');
-            setTimeout(() => {
-                document.getElementById('currentBranch').textContent = branch;
-                addLog(`✅ Switched to ${branch}.`, 'success');
-                addChatMessage(`✅ Switched to ${branch}.`, 'ai');
-            }, 800);
-            return `🔄 Switching to ${branch}...`;
-        }
-
-        // 8. Show file content
-        if (lower.includes('show') && lower.includes('file')) {
-            addLog('📄 Showing file content...', 'info');
-            return '📄 File content loading... (full version shows content)';
-        }
-
-        // 9. Help
-        if (lower.includes('help')) {
-            return `📋 Available commands:
-- move validators.json
-- build merkle tree
-- status
-- sync
-- delete file [name]
-- create folder [name]
-- switch to [branch]
-- show file [name]
-- buy [product] (for Hubble Store)`;
-        }
-
-        // 10. Buy product (Hubble Store)
-        if (lower.includes('buy')) {
-            const product = text.replace(/buy/i, '').trim();
-            if (product) {
-                addLog(`🛒 Purchasing ${product}...`, 'info');
-                setTimeout(() => {
-                    addLog(`✅ ${product} purchased successfully.`, 'success');
-                    addChatMessage(`✅ ${product} purchased.`, 'ai');
-                }, 1000);
-                return `🛒 Processing purchase for ${product}...`;
+    document.getElementById('masterKeyBtn').addEventListener('click', function() {
+        if (!masterKeyActive) {
+            const fakeKey = prompt('📁 فایل کلید را انتخاب کنید (شبیه‌سازی):');
+            if (fakeKey && fakeKey.length > 5) {
+                masterKeyActive = true;
+                document.getElementById('masterKeyStatus').textContent = '✅ فعال';
+                document.getElementById('masterKeyStatus').style.color = '#4ade80';
+                document.getElementById('emergencyControls').style.display = 'flex';
+                addLog('🔑 کلید تسلط کامل تأیید شد', 'success');
+                addChatMessage('🔑 حالت اضطراری فعال شد.', 'ai');
             } else {
-                return '⚠️ Please specify a product. Example: buy Business Template';
+                addLog('❌ کلید نامعتبر', 'error');
             }
+        } else {
+            masterKeyActive = false;
+            document.getElementById('masterKeyStatus').textContent = '⚠️ غیرفعال';
+            document.getElementById('masterKeyStatus').style.color = '#f87171';
+            document.getElementById('emergencyControls').style.display = 'none';
+            addLog('🔑 حالت اضطراری غیرفعال شد', 'warning');
         }
+    });
 
-        // 11. Default
-        return `❌ Command "${text}" not recognized. Type "help" for available commands.`;
-    }
+    document.getElementById('shutdownEcosystemBtn').addEventListener('click', () => {
+        if (confirm('⚠️ خاموش‌سازی کامل اکوسیستم؟ این عملیات غیرقابل‌بازگشت است.')) {
+            addLog('🛑 اکوسیستم به‌طور کامل خاموش شد', 'error');
+            addChatMessage('🛑 اکوسیستم خاموش شد. همه‌ی مخازن غیرفعال شدند.', 'ai');
+            alert('🚨 خاموش‌سازی کامل اجرا شد.');
+        }
+    });
 
     // =============================================================
-    // EVENT LISTENERS
+    // 🔄 EVENTS
     // =============================================================
-
-    chatSend.addEventListener('click', () => {
-        const text = chatInput.value.trim();
+    document.getElementById('chatSend').addEventListener('click', async () => {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
         if (!text) return;
         addChatMessage(text, 'user');
-        chatInput.value = '';
-
-        const result = processCommand(text);
-        if (!result.startsWith('🔄') && !result.startsWith('✅') && !result.startsWith('❌') && !result.startsWith('⚠️')) {
-            addChatMessage(result, 'ai');
-        }
+        input.value = '';
+        await processCommand(text);
     });
 
-    chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') chatSend.click();
+    document.getElementById('chatInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('chatSend').click();
     });
 
-    document.getElementById('runBrainBtn').addEventListener('click', () => {
-        addLog('🧠 Horizon Angel executing full brain...', 'info');
-        setTimeout(() => {
-            addLog('✅ All operations completed successfully.', 'success');
-            document.getElementById('lastRun').textContent = new Date().toLocaleString('en-US');
-            addChatMessage('✅ All operations completed.', 'ai');
-        }, 1500);
-    });
-
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        addLog('🔄 Refreshing...', 'info');
-        setTimeout(() => addLog('✅ Refreshed.', 'success'), 500);
-    });
-
-    document.getElementById('clearLogsBtn').addEventListener('click', () => {
-        logBox.innerHTML = '';
-        addLog('🧹 Logs cleared.', 'warning');
-    });
-
-    // Buy buttons for Hubble Store
-    document.querySelectorAll('.buy-btn').forEach(btn => {
+    document.querySelectorAll('.quick-cmd').forEach(btn => {
         btn.addEventListener('click', function() {
-            const product = this.dataset.product;
-            addLog(`🛒 Purchasing ${product}...`, 'info');
-            setTimeout(() => {
-                addLog(`✅ ${product} purchased successfully.`, 'success');
-                addChatMessage(`✅ ${product} purchased.`, 'ai');
-            }, 1000);
+            document.getElementById('chatInput').value = this.dataset.cmd;
+            document.getElementById('chatSend').click();
         });
     });
 
-    // Initial load
-    addLog('🌟 Horizon Angel · Hubble Store panel started.', 'success');
-    document.getElementById('lastRun').textContent = new Date().toLocaleString('en-US');
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        updateStats();
+        addLog('🔄 بروزرسانی شد', 'success');
+    });
+
+    document.getElementById('clearLogsBtn').addEventListener('click', () => {
+        document.getElementById('logBox').innerHTML = '';
+        localStorage.removeItem('horizon_logs');
+        addLog('🧹 لاگ پاک شد', 'warning');
+    });
+
+    document.getElementById('fetchReposBtn').addEventListener('click', fetchRepos);
+
+    document.getElementById('runBrainBtn').addEventListener('click', () => {
+        addLog('🧠 اجرای کامل هوش مصنوعی...', 'info');
+        setTimeout(() => {
+            addLog('✅ همه‌ی عملیات با موفقیت انجام شد.', 'success');
+            addChatMessage('✅ همه‌ی عملیات انجام شد.', 'ai');
+        }, 1500);
+    });
+
+    // =============================================================
+    // 🧩 TOGGLES
+    // =============================================================
+    document.getElementById('productsToggle').addEventListener('click', function() {
+        document.getElementById('productsContent').classList.toggle('open');
+        document.getElementById('productsArrow').classList.toggle('open');
+    });
+    document.getElementById('reposToggle').addEventListener('click', function() {
+        document.getElementById('reposContent').classList.toggle('open');
+        document.getElementById('reposArrow').classList.toggle('open');
+    });
+
+    // =============================================================
+    // 🚀 INIT
+    // =============================================================
+    renderProducts();
+    updateStats();
+    addLog('🌟 افق فرشته · پنل کامل راه‌اندازی شد.', 'success');
+    addChatMessage('🌟 سیستم آماده است. دستورات را وارد کنید.', 'ai');
+
+    // اگر توکن GitHub تنظیم شده باشد، مخازن را دریافت کن
+    if (GITHUB_TOKEN !== 'your_github_token_here') {
+        setTimeout(fetchRepos, 1000);
+    }
 </script>
 </body>
 </html>
