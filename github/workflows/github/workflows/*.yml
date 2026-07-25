@@ -1,0 +1,226 @@
+#!/bin/bash
+# ============================================================
+# Horizon Core Engine - GitHub Actions Workflow Installer
+# ============================================================
+
+set -e
+
+echo "🚀 Horizon Core Engine - GitHub Actions Setup"
+echo "=============================================="
+
+# 1. ایجاد پوشه workflows
+mkdir -p .github/workflows
+
+# 2. ایجاد فایل build.yml
+cat > .github/workflows/build.yml << 'EOF'
+name: Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./... -v -coverprofile=coverage.out
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out
+EOF
+echo "✅ build.yml created"
+
+# 3. ایجاد فایل deploy.yml
+cat > .github/workflows/deploy.yml << 'EOF'
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Build binary
+        run: |
+          go build -o horizon-core ./cmd/main.go
+          chmod +x horizon-core
+
+      - name: Deploy via SSH (sample)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          echo "$DEPLOY_KEY" > deploy_key
+          chmod 600 deploy_key
+          rsync -avz -e "ssh -i deploy_key -o StrictHostKeyChecking=no" \
+            ./horizon-core \
+            $DEPLOY_USER@$DEPLOY_HOST:/opt/horizon/
+          ssh -i deploy_key -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST \
+            "sudo systemctl restart horizon-core"
+EOF
+echo "✅ deploy.yml created"
+
+# 4. ایجاد فایل security.yml
+cat > .github/workflows/security.yml << 'EOF'
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+EOF
+echo "✅ security.yml created"
+
+# 5. ایجاد فایل release.yml
+cat > .github/workflows/release.yml << 'EOF'
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Build binaries for multiple platforms
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o horizon-core-linux-amd64 ./cmd/main.go
+          GOOS=linux GOARCH=arm64 go build -o horizon-core-linux-arm64 ./cmd/main.go
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            horizon-core-linux-amd64
+            horizon-core-linux-arm64
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+EOF
+echo "✅ release.yml created"
+
+# 6. ایجاد اسکریپت تست محلی (شبیه‌سازی)
+cat > local-test.sh << 'EOF'
+#!/bin/bash
+echo "🧪 Running local tests (simulating GitHub Actions)..."
+echo "====================================================="
+
+# Check Go installation
+if ! command -v go &> /dev/null; then
+    echo "❌ Go is not installed. Please install Go 1.24+"
+    exit 1
+fi
+
+echo "✅ Go version: $(go version)"
+
+# Download dependencies
+echo "📦 Downloading dependencies..."
+go mod download
+
+# Run tests
+echo "🧪 Running tests..."
+go test ./... -v -coverprofile=coverage.out
+
+# Show coverage
+echo "📊 Coverage report:"
+go tool cover -func=coverage.out | grep total
+
+echo "✅ Local test completed successfully."
+EOF
+chmod +x local-test.sh
+echo "✅ local-test.sh created"
+
+# 7. ایجاد فایل تنظیمات Secrets نمونه
+cat > .env.example << 'EOF'
+# GitHub Secrets Sample (برای تنظیم در Settings → Secrets and variables → Actions)
+PAT_TOKEN=your_github_personal_access_token
+DEPLOY_HOST=your_server_ip_or_domain
+DEPLOY_USER=your_ssh_username
+DEPLOY_SSH_KEY=your_private_ssh_key_content
+EOF
+echo "✅ .env.example created"
+
+echo ""
+echo "🎉 All files created successfully!"
+echo ""
+echo "📁 Workflows installed in: .github/workflows/"
+echo "📄 Sample secrets file: .env.example"
+echo "🧪 Local test script: ./local-test.sh"
+echo ""
+echo "🚀 Next steps:"
+echo "  1. Run './local-test.sh' to test locally"
+echo "  2. Commit and push to GitHub:"
+echo "     git add .github/workflows/ .env.example local-test.sh"
+echo "     git commit -m 'feat: add GitHub Actions workflows'"
+echo "     git push origin main"
+echo "  3. Set up secrets in GitHub:"
+echo "     Settings → Secrets and variables → Actions"
+echo "  4. Create a tag to trigger release:"
+echo "     git tag v1.0.0 && git push origin v1.0.0"
