@@ -7,124 +7,123 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ===== RESET & BASE ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: radial-gradient(circle at 10% 20%, #0a0f1e, #03050a);
-            color: #eef2ff;
-            padding: 0.8rem;
-            min-height: 100vh;
+            font-family:'Inter', system-ui, sans-serif;
+            background:radial-gradient(circle at 10% 20%, #0a0f1e, #03050a);
+            color:#eef2ff;
+            padding:0.8rem;
+            min-height:100vh;
         }
-        .container { max-width: 1280px; margin: 0 auto; }
+        .container { max-width:1280px; margin:0 auto; }
         .glass {
-            background: rgba(12,18,28,0.85);
-            backdrop-filter: blur(14px);
-            border-radius: 2rem;
-            border: 1px solid rgba(79,158,255,0.2);
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.2rem;
-            transition: 0.3s;
+            background:rgba(12,18,28,0.85);
+            backdrop-filter:blur(14px);
+            border-radius:2rem;
+            border:1px solid rgba(79,158,255,0.2);
+            padding:1.2rem 1.5rem;
+            margin-bottom:1.2rem;
+            transition:0.3s;
         }
-        .glass:hover { border-color: rgba(79,158,255,0.4); }
-        .flex { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; }
+        .glass:hover { border-color:rgba(79,158,255,0.4); }
+        .flex { display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:space-between; }
         .badge {
-            background: rgba(79,158,255,0.15);
-            border: 1px solid #4f9eff44;
-            padding: 0.2rem 1rem;
-            border-radius: 60px;
-            font-size: 0.7rem;
-            display: inline-block;
+            background:rgba(79,158,255,0.15);
+            border:1px solid #4f9eff44;
+            padding:0.2rem 1rem;
+            border-radius:60px;
+            font-size:0.7rem;
+            display:inline-block;
         }
-        .badge-green { background: rgba(74,222,128,0.15); border-color: #4ade8055; color: #4ade80; }
-        .badge-red { background: rgba(248,113,113,0.15); border-color: #f8717155; color: #f87171; }
-        .badge-gold { background: rgba(251,191,36,0.15); border-color: #facc1555; color: #facc15; }
-        .badge-purple { background: rgba(192,132,252,0.15); border-color: #c084fc55; color: #c084fc; }
+        .badge-green { background:rgba(74,222,128,0.15); border-color:#4ade8055; color:#4ade80; }
+        .badge-red { background:rgba(248,113,113,0.15); border-color:#f8717155; color:#f87171; }
+        .badge-gold { background:rgba(251,191,36,0.15); border-color:#facc1555; color:#facc15; }
+        .badge-purple { background:rgba(192,132,252,0.15); border-color:#c084fc55; color:#c084fc; }
         .btn {
-            background: #4f9eff;
-            border: none;
-            padding: 0.5rem 1.6rem;
-            border-radius: 2rem;
-            font-weight: 700;
-            color: #0a0f1e;
-            cursor: pointer;
-            transition: 0.25s;
-            font-size: 0.8rem;
+            background:#4f9eff;
+            border:none;
+            padding:0.5rem 1.6rem;
+            border-radius:2rem;
+            font-weight:700;
+            color:#0a0f1e;
+            cursor:pointer;
+            transition:0.25s;
+            font-size:0.8rem;
         }
-        .btn:hover { background: #c084fc; transform: scale(1.03); box-shadow: 0 8px 30px rgba(79,158,255,0.3); }
-        .btn-outline { background: transparent; border: 1px solid #4f9eff55; color: #eef2ff; }
-        .btn-outline:hover { background: #4f9eff22; }
-        .btn-success { background: #4ade80; color: #0a0f1e; }
-        .btn-success:hover { background: #22c55e; }
-        .btn-danger { background: #f87171; color: #0a0f1e; }
-        .btn-danger:hover { background: #ef4444; }
-        .btn-sm { font-size: 0.7rem; padding: 0.3rem 1rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.8rem; }
+        .btn:hover { background:#c084fc; transform:scale(1.03); box-shadow:0 8px 30px rgba(79,158,255,0.3); }
+        .btn-outline { background:transparent; border:1px solid #4f9eff55; color:#eef2ff; }
+        .btn-outline:hover { background:#4f9eff22; }
+        .btn-success { background:#4ade80; color:#0a0f1e; }
+        .btn-success:hover { background:#22c55e; }
+        .btn-danger { background:#f87171; color:#0a0f1e; }
+        .btn-danger:hover { background:#ef4444; }
+        .btn-sm { font-size:0.7rem; padding:0.3rem 1rem; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1rem; margin-top:0.8rem; }
         .stat-card {
-            background: rgba(20,24,36,0.5);
-            border-radius: 1rem;
-            padding: 0.6rem 1rem;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
+            background:rgba(20,24,36,0.5);
+            border-radius:1rem;
+            padding:0.6rem 1rem;
+            border:1px solid rgba(255,255,255,0.05);
+            text-align:center;
         }
-        .stat-card .num { font-size: 1.5rem; font-weight: 800; color: #4f9eff; }
-        .stat-card .label { font-size: 0.6rem; color: #8fa2dc; }
+        .stat-card .num { font-size:1.5rem; font-weight:800; color:#4f9eff; }
+        .stat-card .label { font-size:0.6rem; color:#8fa2dc; }
         .product-card {
-            background: rgba(20,24,36,0.6);
-            border-radius: 1.5rem;
-            padding: 1.2rem;
-            border: 1px solid rgba(255,255,255,0.06);
-            text-align: center;
-            transition: 0.25s;
+            background:rgba(20,24,36,0.6);
+            border-radius:1.5rem;
+            padding:1.2rem;
+            border:1px solid rgba(255,255,255,0.06);
+            text-align:center;
+            transition:0.25s;
         }
-        .product-card:hover { border-color: #4f9eff; transform: translateY(-4px); }
-        .product-card .icon { font-size: 2.5rem; color: #4f9eff; }
-        .product-card .name { font-weight: 700; margin: 0.3rem 0; }
-        .product-card .price { color: #c084fc; font-weight: 700; font-size: 1.1rem; }
+        .product-card:hover { border-color:#4f9eff; transform:translateY(-4px); }
+        .product-card .icon { font-size:2.5rem; color:#4f9eff; }
+        .product-card .name { font-weight:700; margin:0.3rem 0; }
+        .product-card .price { color:#c084fc; font-weight:700; font-size:1.1rem; }
         .chat-box {
-            background: #0f172a;
-            border-radius: 1rem;
-            padding: 0.6rem 0.8rem;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #1e2a44;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
+            background:#0f172a;
+            border-radius:1rem;
+            padding:0.6rem 0.8rem;
+            max-height:200px;
+            overflow-y:auto;
+            border:1px solid #1e2a44;
+            display:flex;
+            flex-direction:column;
+            gap:0.3rem;
         }
-        .chat-box .msg { padding: 0.3rem 0.7rem; border-radius: 0.8rem; max-width: 90%; font-size: 0.8rem; line-height: 1.4; }
-        .chat-box .user-msg { align-self: flex-end; background: #4f9eff; color: #0a0f1e; }
-        .chat-box .ai-msg { align-self: flex-start; background: rgba(255,255,255,0.06); color: #e5e7f0; border: 1px solid #2a3a5a; }
-        .chat-input-row { display: flex; gap: 0.4rem; margin-top: 0.4rem; }
+        .chat-box .msg { padding:0.3rem 0.7rem; border-radius:0.8rem; max-width:90%; font-size:0.8rem; line-height:1.4; }
+        .chat-box .user-msg { align-self:flex-end; background:#4f9eff; color:#0a0f1e; }
+        .chat-box .ai-msg { align-self:flex-start; background:rgba(255,255,255,0.06); color:#e5e7f0; border:1px solid #2a3a5a; }
+        .chat-input-row { display:flex; gap:0.4rem; margin-top:0.4rem; }
         .chat-input-row input { flex:1; background:#0f172a; border:1px solid #2a3a5a; border-radius:2rem; padding:0.4rem 0.8rem; color:#eef2ff; outline:none; font-size:0.8rem; }
         .chat-input-row input:focus { border-color:#4f9eff; }
         .chat-input-row button { background:#4f9eff; border:none; border-radius:2rem; padding:0 1.2rem; font-weight:600; color:#0a0f1e; cursor:pointer; }
         .chat-input-row button:hover { background:#c084fc; }
         .log-box {
-            background: #0f172a;
-            border-radius: 1rem;
-            padding: 0.5rem 0.8rem;
-            max-height: 150px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.7rem;
-            border: 1px solid #1e2a44;
+            background:#0f172a;
+            border-radius:1rem;
+            padding:0.5rem 0.8rem;
+            max-height:150px;
+            overflow-y:auto;
+            font-family:monospace;
+            font-size:0.7rem;
+            border:1px solid #1e2a44;
         }
-        .log-box .log-entry { padding: 0.1rem 0; border-bottom: 1px solid #1a2238; color: #94a3b8; }
-        .log-box .log-entry .time { color: #4f9eff; margin-left: 0.3rem; }
-        .log-box .log-entry .green { color: #4ade80; }
-        .log-box .log-entry .yellow { color: #facc15; }
-        .log-box .log-entry .red { color: #f87171; }
+        .log-box .log-entry { padding:0.1rem 0; border-bottom:1px solid #1a2238; color:#94a3b8; }
+        .log-box .log-entry .time { color:#4f9eff; margin-left:0.3rem; }
+        .log-box .log-entry .green { color:#4ade80; }
+        .log-box .log-entry .yellow { color:#facc15; }
+        .log-box .log-entry .red { color:#f87171; }
         .repo-list { font-size:0.8rem; color:#9bb2ff; max-height:200px; overflow-y:auto; }
         .repo-list .repo-item { padding:0.3rem 0; border-bottom:1px solid #1e2a44; display:flex; justify-content:space-between; }
-        .master-key-area { background: rgba(248,113,113,0.06); border: 1px dashed #f8717155; border-radius: 1.2rem; padding: 0.8rem 1.2rem; margin-top: 0.5rem; }
-        .master-key-area .label { color: #f87171; font-size: 0.7rem; font-weight: 600; }
-        .collapsible-content { display: none; margin-top: 0.8rem; }
-        .collapsible-content.open { display: block; }
-        .toggle-section { cursor: pointer; user-select: none; }
-        .toggle-section .arrow { transition: 0.3s; display: inline-block; }
-        .toggle-section .arrow.open { transform: rotate(90deg); }
-        @media (max-width: 640px) { body { padding: 0.4rem; } .glass { padding: 0.8rem 1rem; } }
+        .master-key-area { background:rgba(248,113,113,0.06); border:1px dashed #f8717155; border-radius:1.2rem; padding:0.8rem 1.2rem; margin-top:0.5rem; }
+        .master-key-area .label { color:#f87171; font-size:0.7rem; font-weight:600; }
+        .collapsible-content { display:none; margin-top:0.8rem; }
+        .collapsible-content.open { display:block; }
+        .toggle-section { cursor:pointer; user-select:none; }
+        .toggle-section .arrow { transition:0.3s; display:inline-block; }
+        .toggle-section .arrow.open { transform:rotate(90deg); }
+        @media (max-width:640px) { body { padding:0.4rem; } .glass { padding:0.8rem 1rem; } }
     </style>
 </head>
 <body>
@@ -260,10 +259,10 @@
 
 <script>
     // =============================================================
-    // 🔐 CONFIGURATION (کلید DeepSeek فعال)
+    // 🔐 CONFIGURATION
     // =============================================================
     const DEEPSEEK_API_KEY = 'sk-d11199c405a54b25ac2a7e03f28506cb';
-    const GITHUB_TOKEN = 'your_github_token_here'; // برای ساخت مخزن واقعی، توکن خود را وارد کنید
+    const GITHUB_TOKEN = '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';
     const REPO_OWNER = 'beaconchain-horizon';
     const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 
@@ -277,7 +276,6 @@
         { id: 4, name: 'Validator License', version: '1.1.3', price: '۰.۰۰۲ ETH/ماه', icon: 'fa-shield-alt', active: true }
     ];
 
-    // بارگذاری از کش
     const savedProducts = localStorage.getItem('horizon_products');
     if (savedProducts) {
         try { products = JSON.parse(savedProducts); } catch(e) {}
@@ -373,7 +371,6 @@
     async function processCommand(text) {
         const lower = text.toLowerCase();
 
-        // ——— Rule-based commands ———
         if (lower.includes('لیست مخازن') || lower.includes('مخازن')) {
             await fetchRepos();
             return;
@@ -405,7 +402,6 @@
             return;
         }
 
-        // ——— Send to DeepSeek ———
         addLog('🧠 ارسال به DeepSeek...', 'info');
         const result = await callDeepSeek(text);
         addChatMessage(result, 'ai');
@@ -437,7 +433,7 @@
     }
 
     async function createRepo(name) {
-        if (GITHUB_TOKEN === 'your_github_token_here') {
+        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'your_github_token_here') {
             addChatMessage('❌ توکن گیت‌هاب تنظیم نشده است. لطفاً GITHUB_TOKEN را در کد قرار دهید.', 'ai');
             return;
         }
@@ -490,11 +486,9 @@
         entry.innerHTML = `<span class="time">[${time}]</span> <span class="${cls}">${message}</span>`;
         container.appendChild(entry);
         container.scrollTop = container.scrollHeight;
-        // کش لاگ
         localStorage.setItem('horizon_logs', container.innerHTML);
     }
 
-    // بازیابی لاگ از کش
     const savedLogs = localStorage.getItem('horizon_logs');
     if (savedLogs) {
         document.getElementById('logBox').innerHTML = savedLogs;
@@ -536,11 +530,8 @@
     });
 
     // =============================================================
-    // =============================================================
     // CONNECTED PRODUCTS – Full Management (Real Execution)
     // =============================================================
-
-    // داده‌های نمونه (قابل تعویض با API واقعی)
     let connectedProducts = [
         {
             id: 'wallet',
@@ -616,9 +607,6 @@
         }
     ];
 
-    // =============================================================
-    // RENDER CONNECTED PRODUCTS
-    // =============================================================
     function renderConnectedProducts() {
         const container = document.getElementById('productList');
         if (!container) return;
@@ -653,9 +641,6 @@
         document.getElementById('productCount').textContent = `${connectedProducts.length} محصول`;
     }
 
-    // =============================================================
-    // PRODUCT ACTIONS (Real)
-    // =============================================================
     window.viewProduct = function(id) {
         const product = connectedProducts.find(p => p.id === id);
         if (!product) return;
@@ -677,9 +662,6 @@
         addLog(`🗑️ محصول ${product.name} حذف شد.`, 'warning');
     };
 
-    // =============================================================
-    // ADD NEW PRODUCT (Real)
-    // =============================================================
     document.getElementById('addProductBtn')?.addEventListener('click', function() {
         const name = prompt('نام محصول جدید را وارد کنید:');
         if (!name) return;
@@ -702,9 +684,6 @@
         addLog(`➕ محصول ${name} اضافه شد.`, 'success');
     });
 
-    // =============================================================
-    // CACHE TO localStorage (for real persistence)
-    // =============================================================
     function saveConnectedProductsToCache() {
         try {
             localStorage.setItem('horizon_connected_products', JSON.stringify(connectedProducts));
@@ -720,12 +699,10 @@
         } catch(e) {}
     }
 
-    // بارگذاری از کش و رندر
     loadConnectedProductsFromCache();
     renderConnectedProducts();
     addLog('📦 بخش محصولات متصل بارگذاری شد.', 'success');
 
-    // ذخیره‌سازی خودکار پس از هر تغییر
     const originalRender = renderConnectedProducts;
     renderConnectedProducts = function() {
         originalRender();
@@ -733,7 +710,7 @@
     };
 
     // =============================================================
-    // 🔄 EVENTS (بخش‌های قبلی)
+    // 🔄 EVENTS
     // =============================================================
     document.getElementById('chatSend').addEventListener('click', async () => {
         const input = document.getElementById('chatInput');
@@ -796,8 +773,7 @@
     addLog('🌟 افق فرشته · پنل کامل راه‌اندازی شد.', 'success');
     addChatMessage('🌟 سیستم آماده است. دستورات را وارد کنید.', 'ai');
 
-    // اگر توکن GitHub تنظیم شده باشد، مخازن را دریافت کن
-    if (GITHUB_TOKEN !== 'your_github_token_here') {
+    if (GITHUB_TOKEN !== 'your_github_token_here' && GITHUB_TOKEN) {
         setTimeout(fetchRepos, 1000);
     }
 </script>
