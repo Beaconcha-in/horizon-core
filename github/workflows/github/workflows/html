@@ -1,0 +1,41 @@
+<!-- بخش نمایش شبکه‌ها و موجودی در فروشگاه -->
+<div id="networkBalances" class="glass">
+    <h2><i class="fas fa-link"></i> شبکه‌های متصل</h2>
+    <div id="networkList"></div>
+    <input type="text" id="walletAddress" placeholder="آدرس کیف پول را وارد کنید..." />
+    <button id="checkBalancesBtn" class="btn">بررسی موجودی همه شبکه‌ها</button>
+    <div id="balanceResults"></div>
+</div>
+
+<script>
+document.getElementById('checkBalancesBtn').addEventListener('click', async function() {
+    const address = document.getElementById('walletAddress').value.trim();
+    if (!address) {
+        alert('لطفاً آدرس کیف پول را وارد کنید.');
+        return;
+    }
+    try {
+        const res = await fetch(`/api/v1/network/balances?address=${address}`);
+        const data = await res.json();
+        const results = document.getElementById('balanceResults');
+        results.innerHTML = Object.entries(data.balances)
+            .map(([network, balance]) => 
+                `<div>${network}: <strong>${balance.toFixed(6)}</strong> (واحد شبکه)</div>`
+            ).join('');
+    } catch (e) {
+        alert('خطا در دریافت داده‌ها');
+    }
+});
+
+// دریافت لیست شبکه‌های متصل
+async function loadNetworks() {
+    try {
+        const res = await fetch('/api/v1/networks');
+        const data = await res.json();
+        document.getElementById('networkList').innerHTML = data.networks
+            .map(n => `<span class="badge badge-green">🟢 ${n}</span>`)
+            .join(' ');
+    } catch(e) {}
+}
+loadNetworks();
+</script>
