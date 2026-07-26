@@ -1,0 +1,288 @@
+// internal/integration/explorer.go
+package integration
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
+	"sync"
+	"time"
+)
+
+// ExplorerClient interface for all blockchain explorers
+type ExplorerClient interface {
+	GetBalance(address string) (float64, error)
+	GetTransactions(address string) ([]Transaction, error)
+	GetPrice(symbol string) (float64, error)
+	GetNetworkName() string
+}
+
+// Transaction struct
+type Transaction struct {
+	Hash      string    `json:"hash"`
+	From      string    `json:"from"`
+	To        string    `json:"to"`
+	Value     float64   `json:"value"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// BaseExplorerClient base struct for all explorers
+type BaseExplorerClient struct {
+	APIKey   string
+	BaseURL  string
+	Network  string
+	client   *http.Client
+	mu       sync.Mutex
+	lastCall time.Time
+}
+
+// NewBaseExplorerClient creates a new base client
+func NewBaseExplorerClient(baseURL, apiKey, network string) *BaseExplorerClient {
+	return &BaseExplorerClient{
+		APIKey:  apiKey,
+		BaseURL: baseURL,
+		Network: network,
+		client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+	}
+}
+
+// RateLimit ensures we don't exceed 5 requests per second
+func (c *BaseExplorerClient) RateLimit() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	elapsed := time.Since(c.lastCall)
+	if elapsed < 200*time.Millisecond {
+		time.Sleep(200*time.Millisecond - elapsed)
+	}
+	c.lastCall = time.Now()
+}
+
+// doRequest executes a request with rate limiting
+func (c *BaseExplorerClient) doRequest(url string) ([]byte, error) {
+	c.RateLimit()
+	resp, err := c.client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return io.ReadAll(resp.Body)
+}
+
+// GetNetworkName returns the network name
+func (c *BaseExplorerClient) GetNetworkName() string {
+	return c.Network
+}
+
+// ============================================================
+// Etherscan (Ethereum)
+// ============================================================
+type EtherscanClient struct {
+	*BaseExplorerClient
+}
+
+func NewEtherscanClient() *EtherscanClient {
+	apiKey := os.Getenv("ETHERSCAN_API_KEY")
+	return &EtherscanClient{
+		BaseExplorerClient: NewBaseExplorerClient(
+			"https://api.etherscan.io/api",
+			apiKey,
+			"Ethereum",
+		),
+	}
+}
+
+func (c *EtherscanClient) GetBalance(address string) (float64, error) {
+	url := fmt.Sprintf("%s?module=account&action=balance&address=%s&tag=latest&apikey=%s",
+		c.BaseURL, address, c.APIKey)
+	data, err := c.doRequest(url)
+	if err != nil {
+		return 0, err
+	}
+	var result struct {
+		Status  string `json:"status"`
+		Result  string `json:"result"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return 0, err
+	}
+	if result.Status != "1" {
+		return 0, fmt.Errorf("etherscan error: %s", result.Message)
+	}
+	balance, _ := strconv.ParseFloat(result.Result, 64)
+	return balance / 1e18, nil // Convert Wei to ETH
+}
+
+func (c *EtherscanClient) GetTransactions(address string) ([]Transaction, error) {
+	url := fmt.Sprintf("%s?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&sort=desc&apikey=%s",
+		c.BaseURL, address, c.APIKey)
+	data, err := c.doRequest(url)
+	if err != nil {
+		return nil, err
+	}
+	var result struct {
+		Status  string `json:"status"`
+		Result  []struct {
+			Hash        string `json:"hash"`
+			From        string `json:"from"`
+			To          string `json:"to"`
+			Value       string `json:"value"`
+			TimeStamp   string `json:"timeStamp"`
+		} `json:"result"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+	if result.Status != "1" {
+		return nil, fmt.Errorf("etherscan error: %s", result.Message)
+	}
+	var txs []Transaction
+	for _, tx := range result.Result {
+		value, _ := strconv.ParseFloat(tx.Value, 64)
+		timestamp, _ := strconv.ParseInt(tx.TimeStamp, 10, 64)
+		txs = append(txs, Transaction{
+			Hash:      tx.Hash,
+			From:      tx.From,
+			To:        tx.To,
+			Value:     value / 1e18,
+			Timestamp: time.Unix(timestamp, 0),
+		})
+	}
+	return txs, nil
+}
+
+func (c *EtherscanClient) GetPrice(symbol string) (float64, error) {
+	// Etherscan doesn't provide price directly, use CoinGecko or other service
+	return 0, fmt.Errorf("price not supported by Etherscan")
+}
+
+// ============================================================
+// BscScan (BNB Smart Chain)
+// ============================================================
+type BscScanClient struct {
+	*BaseExplorerClient
+}
+
+func NewBscScanClient() *BscScanClient {
+	apiKey := os.Getenv("BSCSCAN_API_KEY")
+	return &BscScanClient{
+		BaseExplorerClient: NewBaseExplorerClient(
+			"https://api.bscscan.com/api",
+			apiKey,
+			"BNB Smart Chain",
+		),
+	}
+}
+
+// Implement same methods for BscScan...
+
+// ============================================================
+// SnowScan (Avalanche)
+// ============================================================
+type SnowScanClient struct {
+	*BaseExplorerClient
+}
+
+func NewSnowScanClient() *SnowScanClient {
+	apiKey := os.Getenv("SNOWSCAN_API_KEY")
+	return &SnowScanClient{
+		BaseExplorerClient: NewBaseExplorerClient(
+			"https://api.snowscan.xyz/api",
+			apiKey,
+			"Avalanche",
+		),
+	}
+}
+
+// ============================================================
+// Arbiscan (Arbitrum)
+// ============================================================
+type ArbiscanClient struct {
+	*BaseExplorerClient
+}
+
+func NewArbiscanClient() *ArbiscanClient {
+	apiKey := os.Getenv("ARBISCAN_API_KEY")
+	return &ArbiscanClient{
+		BaseExplorerClient: NewBaseExplorerClient(
+			"https://api.arbiscan.io/api",
+			apiKey,
+			"Arbitrum",
+		),
+	}
+}
+
+// ============================================================
+// Optimism
+// ============================================================
+type OptimismClient struct {
+	*BaseExplorerClient
+}
+
+func NewOptimismClient() *OptimismClient {
+	apiKey := os.Getenv("OPTIMISM_API_KEY")
+	return &OptimismClient{
+		BaseExplorerClient: NewBaseExplorerClient(
+			"https://api-optimistic.etherscan.io/api",
+			apiKey,
+			"Optimism",
+		),
+	}
+}
+
+// ============================================================
+// Integration Manager
+// ============================================================
+type IntegrationManager struct {
+	clients map[string]ExplorerClient
+}
+
+func NewIntegrationManager() *IntegrationManager {
+	return &IntegrationManager{
+		clients: make(map[string]ExplorerClient),
+	}
+}
+
+func (m *IntegrationManager) RegisterClient(name string, client ExplorerClient) {
+	m.clients[name] = client
+}
+
+func (m *IntegrationManager) GetClient(name string) ExplorerClient {
+	return m.clients[name]
+}
+
+func (m *IntegrationManager) GetAllNetworks() []string {
+	networks := make([]string, 0, len(m.clients))
+	for name := range m.clients {
+		networks = append(networks, name)
+	}
+	return networks
+}
+
+// GetBalanceFromAllNetworks gets balance from all networks concurrently
+func (m *IntegrationManager) GetBalanceFromAllNetworks(address string) map[string]float64 {
+	results := make(map[string]float64)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	for name, client := range m.clients {
+		wg.Add(1)
+		go func(n string, c ExplorerClient) {
+			defer wg.Done()
+			balance, err := c.GetBalance(address)
+			if err == nil {
+				mu.Lock()
+				results[n] = balance
+				mu.Unlock()
+			}
+		}(name, client)
+	}
+	wg.Wait()
+	return results
+}
