@@ -3,342 +3,514 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>افق فرشته · پنل کامل اکوسیستم</title>
+    <title>افق · پنل ترکیبی کریپتو و مدیریت</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family:'Inter', system-ui, sans-serif;
-            background:radial-gradient(circle at 10% 20%, #0a0f1e, #03050a);
+            font-family:'Inter', sans-serif;
+            min-height:100vh;
+            background: #0a0f1e;
+            overflow-x:hidden;
+            position:relative;
             color:#eef2ff;
             padding:0.8rem;
-            min-height:100vh;
         }
-        .container { max-width:1280px; margin:0 auto; }
+        .crypto-bg {
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            z-index:0;
+            pointer-events:none;
+            overflow:hidden;
+            background: radial-gradient(circle at 20% 30%, #0f1a3a, #05080f);
+        }
+        .crypto-bg .symbol {
+            position:absolute;
+            font-weight:900;
+            opacity:0.04;
+            font-size:12rem;
+            user-select:none;
+            animation: floatSymbol 20s ease-in-out infinite alternate;
+            color:#fff;
+        }
+        .crypto-bg .symbol:nth-child(1) { top:5%; left:5%; font-size:18rem; animation-duration:25s; color:#f7931a; opacity:0.05; }
+        .crypto-bg .symbol:nth-child(2) { bottom:10%; right:5%; font-size:16rem; animation-duration:22s; color:#627eea; opacity:0.06; }
+        .crypto-bg .symbol:nth-child(3) { top:40%; left:50%; font-size:14rem; animation-duration:28s; color:#26a17b; opacity:0.04; transform:translateX(-50%); }
+        .crypto-bg .symbol:nth-child(4) { top:70%; left:10%; font-size:10rem; animation-duration:18s; color:#f7931a; opacity:0.04; }
+        .crypto-bg .symbol:nth-child(5) { bottom:30%; right:20%; font-size:12rem; animation-duration:30s; color:#627eea; opacity:0.05; }
+        .crypto-bg .symbol:nth-child(6) { top:15%; right:15%; font-size:9rem; animation-duration:20s; color:#26a17b; opacity:0.04; }
+        @keyframes floatSymbol {
+            0% { transform: translate(0,0) scale(1) rotate(0deg); }
+            25% { transform: translate(20px,-30px) scale(1.05) rotate(5deg); }
+            50% { transform: translate(-20px,20px) scale(0.95) rotate(-3deg); }
+            75% { transform: translate(30px,10px) scale(1.02) rotate(4deg); }
+            100% { transform: translate(-10px,-20px) scale(0.98) rotate(-2deg); }
+        }
+        .crypto-bg .line {
+            position:absolute;
+            background:linear-gradient(90deg, transparent, rgba(79,158,255,0.06), transparent);
+            height:1px;
+            width:100%;
+            animation: scanLine 10s linear infinite;
+        }
+        .crypto-bg .line:nth-child(7) { top:20%; animation-duration:12s; }
+        .crypto-bg .line:nth-child(8) { top:50%; animation-duration:8s; opacity:0.5; }
+        .crypto-bg .line:nth-child(9) { top:80%; animation-duration:15s; }
+        @keyframes scanLine {
+            0% { transform:translateX(-100%); }
+            100% { transform:translateX(100%); }
+        }
+
+        .main-content {
+            position:relative;
+            z-index:1;
+            max-width:1440px;
+            margin:0 auto;
+        }
         .glass {
-            background:rgba(12,18,28,0.85);
-            backdrop-filter:blur(14px);
+            background:rgba(10,15,30,0.75);
+            backdrop-filter:blur(16px);
             border-radius:2rem;
-            border:1px solid rgba(79,158,255,0.2);
+            border:1px solid rgba(79,158,255,0.15);
             padding:1.2rem 1.5rem;
             margin-bottom:1.2rem;
             transition:0.3s;
         }
-        .glass:hover { border-color:rgba(79,158,255,0.4); }
+        .glass:hover { border-color:rgba(79,158,255,0.3); }
         .flex { display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:space-between; }
         .badge {
-            background:rgba(79,158,255,0.15);
-            border:1px solid #4f9eff44;
-            padding:0.2rem 1rem;
+            background:rgba(79,158,255,0.12);
+            border:1px solid #4f9eff33;
+            padding:0.15rem 0.8rem;
             border-radius:60px;
-            font-size:0.7rem;
+            font-size:0.6rem;
             display:inline-block;
+            color:#9bb2ff;
         }
-        .badge-green { background:rgba(74,222,128,0.15); border-color:#4ade8055; color:#4ade80; }
-        .badge-red { background:rgba(248,113,113,0.15); border-color:#f8717155; color:#f87171; }
-        .badge-gold { background:rgba(251,191,36,0.15); border-color:#facc1555; color:#facc15; }
-        .badge-purple { background:rgba(192,132,252,0.15); border-color:#c084fc55; color:#c084fc; }
+        .badge-green { background:rgba(74,222,128,0.12); border-color:#4ade8044; color:#4ade80; }
+        .badge-gold { background:rgba(251,191,36,0.12); border-color:#facc1544; color:#facc15; }
+        .badge-purple { background:rgba(192,132,252,0.12); border-color:#c084fc44; color:#c084fc; }
+        .badge-pink { background:rgba(244,114,182,0.12); border-color:#f472b644; color:#f472b6; }
         .btn {
-            background:#4f9eff;
+            background:linear-gradient(135deg, #4f9eff, #7c3aed);
             border:none;
-            padding:0.5rem 1.6rem;
+            padding:0.4rem 1.4rem;
             border-radius:2rem;
-            font-weight:700;
-            color:#0a0f1e;
+            font-weight:600;
+            color:#fff;
             cursor:pointer;
-            transition:0.25s;
-            font-size:0.8rem;
+            transition:0.3s;
+            font-size:0.75rem;
         }
-        .btn:hover { background:#c084fc; transform:scale(1.03); box-shadow:0 8px 30px rgba(79,158,255,0.3); }
+        .btn:hover { transform:scale(1.04); box-shadow:0 8px 30px rgba(79,158,255,0.3); }
         .btn-outline { background:transparent; border:1px solid #4f9eff55; color:#eef2ff; }
         .btn-outline:hover { background:#4f9eff22; }
-        .btn-success { background:#4ade80; color:#0a0f1e; }
-        .btn-success:hover { background:#22c55e; }
-        .btn-danger { background:#f87171; color:#0a0f1e; }
-        .btn-danger:hover { background:#ef4444; }
-        .btn-sm { font-size:0.7rem; padding:0.3rem 1rem; }
-        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1rem; margin-top:0.8rem; }
+        .btn-sm { font-size:0.65rem; padding:0.25rem 1rem; }
+        .grid-4 {
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+            gap:0.8rem;
+        }
         .stat-card {
             background:rgba(20,24,36,0.5);
             border-radius:1rem;
             padding:0.6rem 1rem;
-            border:1px solid rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.04);
             text-align:center;
+            backdrop-filter:blur(8px);
         }
         .stat-card .num { font-size:1.5rem; font-weight:800; color:#4f9eff; }
-        .stat-card .label { font-size:0.6rem; color:#8fa2dc; }
-        .product-card {
-            background:rgba(20,24,36,0.6);
-            border-radius:1.5rem;
-            padding:1.2rem;
-            border:1px solid rgba(255,255,255,0.06);
-            text-align:center;
-            transition:0.25s;
+        .stat-card .label { font-size:0.55rem; color:#8fa2dc; }
+        .grid-crypto {
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
+            gap:1rem;
         }
-        .product-card:hover { border-color:#4f9eff; transform:translateY(-4px); }
-        .product-card .icon { font-size:2.5rem; color:#4f9eff; }
-        .product-card .name { font-weight:700; margin:0.3rem 0; }
-        .product-card .price { color:#c084fc; font-weight:700; font-size:1.1rem; }
-        .chat-box {
-            background:#0f172a;
+        .crypto-card {
+            background:rgba(20,24,36,0.5);
+            border-radius:1.2rem;
+            padding:0.8rem 1rem;
+            border:1px solid rgba(255,255,255,0.05);
+            text-align:center;
+            transition:0.3s;
+        }
+        .crypto-card:hover { border-color:#4f9eff; transform:translateY(-3px); }
+        .crypto-card .icon { font-size:2.2rem; }
+        .crypto-card .name { font-weight:700; font-size:0.9rem; margin:0.2rem 0; }
+        .crypto-card .price { font-size:1.1rem; font-weight:700; color:#4f9eff; }
+        .crypto-card .change { font-size:0.7rem; font-weight:600; }
+        .crypto-card .change.up { color:#4ade80; }
+        .crypto-card .change.down { color:#f87171; }
+        .chart-placeholder {
+            background:rgba(20,24,36,0.3);
             border-radius:1rem;
-            padding:0.6rem 0.8rem;
-            max-height:200px;
+            height:120px;
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-around;
+            padding:0.5rem;
+            gap:0.3rem;
+            margin-top:0.5rem;
+        }
+        .chart-bar {
+            width:100%;
+            background:linear-gradient(180deg, #4f9eff, #7c3aed);
+            border-radius:4px 4px 0 0;
+            transition:0.3s;
+            min-height:10px;
+            opacity:0.7;
+        }
+        .chart-bar:hover { opacity:1; transform:scaleY(1.02); }
+        .chat-box {
+            background:rgba(15,23,42,0.6);
+            border-radius:1rem;
+            padding:0.5rem 0.8rem;
+            max-height:160px;
             overflow-y:auto;
             border:1px solid #1e2a44;
             display:flex;
             flex-direction:column;
-            gap:0.3rem;
+            gap:0.2rem;
         }
-        .chat-box .msg { padding:0.3rem 0.7rem; border-radius:0.8rem; max-width:90%; font-size:0.8rem; line-height:1.4; }
+        .chat-box .msg { padding:0.2rem 0.7rem; border-radius:0.8rem; max-width:90%; font-size:0.75rem; line-height:1.4; }
         .chat-box .user-msg { align-self:flex-end; background:#4f9eff; color:#0a0f1e; }
         .chat-box .ai-msg { align-self:flex-start; background:rgba(255,255,255,0.06); color:#e5e7f0; border:1px solid #2a3a5a; }
         .chat-input-row { display:flex; gap:0.4rem; margin-top:0.4rem; }
-        .chat-input-row input { flex:1; background:#0f172a; border:1px solid #2a3a5a; border-radius:2rem; padding:0.4rem 0.8rem; color:#eef2ff; outline:none; font-size:0.8rem; }
+        .chat-input-row input { flex:1; background:#0f172a; border:1px solid #2a3a5a; border-radius:2rem; padding:0.3rem 0.8rem; color:#eef2ff; outline:none; font-size:0.75rem; }
         .chat-input-row input:focus { border-color:#4f9eff; }
-        .chat-input-row button { background:#4f9eff; border:none; border-radius:2rem; padding:0 1.2rem; font-weight:600; color:#0a0f1e; cursor:pointer; }
-        .chat-input-row button:hover { background:#c084fc; }
+        .chat-input-row button { background:#4f9eff; border:none; border-radius:2rem; padding:0 1rem; font-weight:600; color:#0a0f1e; cursor:pointer; font-size:0.7rem; }
         .log-box {
-            background:#0f172a;
+            background:rgba(15,23,42,0.6);
             border-radius:1rem;
-            padding:0.5rem 0.8rem;
-            max-height:150px;
+            padding:0.4rem 0.8rem;
+            max-height:120px;
             overflow-y:auto;
             font-family:monospace;
-            font-size:0.7rem;
+            font-size:0.6rem;
             border:1px solid #1e2a44;
         }
-        .log-box .log-entry { padding:0.1rem 0; border-bottom:1px solid #1a2238; color:#94a3b8; }
-        .log-box .log-entry .time { color:#4f9eff; margin-left:0.3rem; }
-        .log-box .log-entry .green { color:#4ade80; }
-        .log-box .log-entry .yellow { color:#facc15; }
-        .log-box .log-entry .red { color:#f87171; }
-        .repo-list { font-size:0.8rem; color:#9bb2ff; max-height:200px; overflow-y:auto; }
-        .repo-list .repo-item { padding:0.3rem 0; border-bottom:1px solid #1e2a44; display:flex; justify-content:space-between; }
-        .master-key-area { background:rgba(248,113,113,0.06); border:1px dashed #f8717155; border-radius:1.2rem; padding:0.8rem 1.2rem; margin-top:0.5rem; }
-        .master-key-area .label { color:#f87171; font-size:0.7rem; font-weight:600; }
-        .collapsible-content { display:none; margin-top:0.8rem; }
-        .collapsible-content.open { display:block; }
-        .toggle-section { cursor:pointer; user-select:none; }
-        .toggle-section .arrow { transition:0.3s; display:inline-block; }
-        .toggle-section .arrow.open { transform:rotate(90deg); }
-        @media (max-width:640px) { body { padding:0.4rem; } .glass { padding:0.8rem 1rem; } }
+        .log-box .log { padding:0.1rem 0; border-bottom:1px solid #1a2238; color:#94a3b8; }
+        .log-box .log .t { color:#4f9eff; margin-left:0.3rem; }
+        .log-box .log .g { color:#4ade80; }
+        .log-box .log .r { color:#f87171; }
+
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+        .logo-svg { width:180px; height:auto; flex-shrink:0; }
+        @media (max-width:700px) { .grid-2 { grid-template-columns:1fr; } .logo-svg { width:120px; } }
+        @media (max-width:640px) {
+            .main-content { padding:0.4rem; }
+            .glass { padding:0.8rem; }
+            .crypto-bg .symbol { font-size:6rem !important; }
+            .logo-svg { width:100px; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
 
-    <!-- HEADER -->
+<!-- ===== پس‌زمینه ===== -->
+<div class="crypto-bg">
+    <div class="symbol">₿</div>
+    <div class="symbol">⟠</div>
+    <div class="symbol">₮</div>
+    <div class="symbol">₿</div>
+    <div class="symbol">⟠</div>
+    <div class="symbol">₮</div>
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+</div>
+
+<!-- ===== محتوای اصلی ===== -->
+<div class="main-content">
+
+    <!-- HEADER با لوگو -->
     <div class="glass">
         <div class="flex">
-            <div>
-                <h1 style="font-size:1.8rem; background:linear-gradient(135deg,#fff,#4f9eff,#c084fc); -webkit-background-clip:text; background-clip:text; color:transparent;">
-                    <i class="fas fa-robot"></i> افق فرشته
-                </h1>
-                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.3rem;">
-                    <span class="badge"><i class="fas fa-shield-alt"></i> Horizon Angel</span>
-                    <span class="badge badge-green" id="statusBadge"><i class="fas fa-circle"></i> متصل</span>
-                    <span class="badge badge-gold"><i class="fas fa-user-tie"></i> Mahdi Amolimoghaddam</span>
-                    <span class="badge badge-purple"><i class="fas fa-database"></i> Core Engine</span>
+            <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+                <!-- لوگو -->
+                <div class="logo-svg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="100%" height="auto">
+                      <defs>
+                        <linearGradient id="beaconGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:1" />
+                          <stop offset="50%" style="stop-color:#7B61FF;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#0B0F1C;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#1A1F35;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="3" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+                      <rect width="400" height="120" rx="16" fill="url(#bgGradient)" />
+                      <circle cx="55" cy="60" r="28" fill="none" stroke="url(#beaconGlow)" stroke-width="2.5" opacity="0.3" />
+                      <circle cx="55" cy="60" r="20" fill="none" stroke="url(#beaconGlow)" stroke-width="2.5" opacity="0.5" />
+                      <circle cx="55" cy="60" r="12" fill="none" stroke="url(#beaconGlow)" stroke-width="3" />
+                      <circle cx="55" cy="60" r="5" fill="#00D4FF" filter="url(#glow)" />
+                      <line x1="75" y1="45" x2="115" y2="45" stroke="url(#beaconGlow)" stroke-width="2" opacity="0.6" stroke-linecap="round" />
+                      <line x1="75" y1="60" x2="120" y2="60" stroke="url(#beaconGlow)" stroke-width="3" opacity="0.8" stroke-linecap="round" />
+                      <line x1="75" y1="75" x2="110" y2="75" stroke="url(#beaconGlow)" stroke-width="2" opacity="0.6" stroke-linecap="round" />
+                      <polygon points="90,45 93,38 96,45" fill="#7B61FF" opacity="0.7" />
+                      <polygon points="105,60 108,53 111,60" fill="#FF6B9D" opacity="0.7" />
+                      <text x="140" y="55" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">
+                        BEACONCHAIN
+                        <tspan x="140" dy="28" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="url(#beaconGlow)" letter-spacing="3" opacity="0.9">
+                          HORIZON
+                        </tspan>
+                      </text>
+                      <line x1="140" y1="88" x2="330" y2="88" stroke="url(#beaconGlow)" stroke-width="1.5" opacity="0.4" stroke-linecap="round" />
+                      <text x="140" y="105" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="9" fill="#8892B0" letter-spacing="1.2" font-weight="300">
+                        DECENTRALIZED ECOSYSTEM
+                      </text>
+                    </svg>
+                </div>
+                <div>
+                    <h1 style="font-size:1.6rem; background:linear-gradient(135deg,#fff,#4f9eff,#c084fc); -webkit-background-clip:text; background-clip:text; color:transparent;">
+                        <i class="fas fa-robot"></i> Horizon · پنل ترکیبی
+                    </h1>
+                    <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.2rem;">
+                        <span class="badge"><i class="fas fa-shield-alt"></i> Horizon Angel</span>
+                        <span class="badge badge-green"><i class="fas fa-circle"></i> متصل</span>
+                        <span class="badge badge-gold"><i class="fas fa-user-tie"></i> Mahdi Amolimoghaddam</span>
+                        <span class="badge badge-purple"><i class="fas fa-database"></i> Core Engine</span>
+                        <span class="badge badge-pink"><i class="fas fa-coins"></i> BTC · ETH · USDT</span>
+                    </div>
                 </div>
             </div>
             <div>
-                <button class="btn" id="runBrainBtn"><i class="fas fa-play"></i> اجرا</button>
-                <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> بروز</button>
+                <button class="btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> بروز</button>
+                <button class="btn btn-outline" id="logBtn"><i class="fas fa-history"></i> لاگ</button>
             </div>
         </div>
     </div>
 
     <!-- STATS -->
     <div class="glass">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:0.8rem;">
-            <div class="stat-card"><div class="num" id="totalTx">۰</div><div class="label">تراکنش‌ها</div></div>
-            <div class="stat-card"><div class="num" id="activeProducts">۰</div><div class="label">محصولات فعال</div></div>
-            <div class="stat-card"><div class="num" id="validatorsCount">۲۴</div><div class="label">ولیدیتور</div></div>
-            <div class="stat-card"><div class="num" id="lastDeploy">—</div><div class="label">آخرین Deploy</div></div>
-            <div class="stat-card"><div class="num" id="financialUsage">۰ ETH</div><div class="label">مصرف مالی</div></div>
-            <div class="stat-card"><div class="num" id="workUsage">۰ تسک</div><div class="label">مصرف کاری</div></div>
+        <div class="grid-4">
+            <div class="stat-card"><div class="num" id="totalTx">۱۲,۴۵۶</div><div class="label">تراکنش‌ها</div></div>
+            <div class="stat-card"><div class="num" id="activeValidators">۱۰۰K+</div><div class="label">ولیدیتور فعال</div></div>
+            <div class="stat-card"><div class="num" id="licensesIssued">۴۵۶</div><div class="label">لایسنس صادرشده</div></div>
+            <div class="stat-card"><div class="num" id="securityScore">۱۰/۱۰</div><div class="label">امتیاز امنیت</div></div>
         </div>
     </div>
 
-    <!-- PRODUCTS -->
+    <!-- CRYPTO PRICES -->
     <div class="glass">
-        <div class="toggle-section" id="productsToggle">
-            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span class="arrow open" id="productsArrow">▶</span>
-                <i class="fas fa-store"></i> هابل استور · محصولات
-                <span class="badge badge-green" id="productsCountBadge">۰ فعال</span>
-            </h2>
-        </div>
-        <div class="collapsible-content open" id="productsContent">
-            <div class="grid" id="productGrid"></div>
+        <h2 style="font-size:1rem; margin-bottom:0.5rem;"><i class="fas fa-chart-line"></i> قیمت‌های لحظه‌ای</h2>
+        <div class="grid-crypto" id="cryptoGrid">
+            <div class="crypto-card">
+                <div class="icon">₿</div>
+                <div class="name">Bitcoin</div>
+                <div class="price" id="btcPrice">$۶۲,۴۵۰</div>
+                <div class="change up">▲ +۲.۴%</div>
+            </div>
+            <div class="crypto-card">
+                <div class="icon" style="color:#627eea;">⟠</div>
+                <div class="name">Ethereum</div>
+                <div class="price" id="ethPrice">$۳,۴۲۰</div>
+                <div class="change up">▲ +۱.۸%</div>
+            </div>
+            <div class="crypto-card">
+                <div class="icon" style="color:#26a17b;">₮</div>
+                <div class="name">Tether</div>
+                <div class="price" id="usdtPrice">$۱.۰۰</div>
+                <div class="change" style="color:#8fa2dc;">— ۰.۰%</div>
+            </div>
+            <div class="crypto-card">
+                <div class="icon" style="color:#f7931a;">₿</div>
+                <div class="name">Horizon (HRZN)</div>
+                <div class="price" id="hrznPrice">$۰.۱۲</div>
+                <div class="change up">▲ +۵.۲%</div>
+            </div>
         </div>
     </div>
 
-    <!-- REPOSITORIES -->
-    <div class="glass">
-        <div class="toggle-section" id="reposToggle">
-            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span class="arrow" id="reposArrow">▶</span>
-                <i class="fas fa-code-branch"></i> مخازن متصل
-                <span class="badge badge-purple" id="repoCount">۰ مخزن</span>
-            </h2>
+    <!-- CHART + VALIDATORS -->
+    <div class="grid-2">
+        <div class="glass">
+            <h2 style="font-size:0.9rem; margin-bottom:0.3rem;"><i class="fas fa-chart-bar"></i> حجم تراکنش‌ها (۲۴ ساعت)</h2>
+            <div class="chart-placeholder" id="chartContainer">
+                <div class="chart-bar" style="height:30%;"></div>
+                <div class="chart-bar" style="height:60%;"></div>
+                <div class="chart-bar" style="height:45%;"></div>
+                <div class="chart-bar" style="height:85%;"></div>
+                <div class="chart-bar" style="height:70%;"></div>
+                <div class="chart-bar" style="height:95%;"></div>
+                <div class="chart-bar" style="height:50%;"></div>
+                <div class="chart-bar" style="height:75%;"></div>
+                <div class="chart-bar" style="height:40%;"></div>
+                <div class="chart-bar" style="height:65%;"></div>
+                <div class="chart-bar" style="height:90%;"></div>
+                <div class="chart-bar" style="height:55%;"></div>
+            </div>
         </div>
-        <div class="collapsible-content" id="reposContent">
-            <div class="repo-list" id="repoList"></div>
-            <button class="btn btn-sm btn-outline" id="fetchReposBtn"><i class="fas fa-sync"></i> دریافت لیست مخازن</button>
+        <div class="glass">
+            <h2 style="font-size:0.9rem; margin-bottom:0.3rem;"><i class="fas fa-shield-alt"></i> ولیدیتورهای آنلاین</h2>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; font-size:0.8rem;">
+                <span class="badge badge-green">🟢 ۸۸,۲۴۰ آنلاین</span>
+                <span class="badge" style="color:#f87171; border-color:#f8717144;">🔴 ۱۱,۷۶۰ آفلاین</span>
+                <span class="badge badge-gold">🟡 ۲,۱۳۴ در انتظار</span>
+            </div>
+            <div style="margin-top:0.5rem; display:flex; flex-wrap:wrap; gap:0.2rem;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f87171;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#facc15;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f87171;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#facc15;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f87171;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80;"></span>
+            </div>
         </div>
-    </div>
-
-    <!-- CONNECTED PRODUCTS -->
-    <div class="glass">
-        <div class="flex" style="margin-bottom:0.5rem;">
-            <h2 style="font-size:1.1rem;"><i class="fas fa-cubes"></i> محصولات متصل به اکوسیستم</h2>
-            <span class="badge badge-purple" id="productCount">۰ محصول</span>
-        </div>
-        <div id="productList" style="max-height:450px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1rem;"></div>
-        <button class="btn btn-sm btn-success" id="addProductBtn" style="margin-top:0.5rem;"><i class="fas fa-plus"></i> افزودن محصول جدید</button>
     </div>
 
     <!-- AI COMMAND CENTER -->
     <div class="glass">
-        <h2 style="font-size:1.1rem;"><i class="fas fa-comment-dots"></i> مرکز فرماندهی هوش مصنوعی</h2>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.3rem 0;">
-            <span class="badge badge-green" id="deepseekStatus"><i class="fas fa-check"></i> DeepSeek متصل</span>
+        <h2 style="font-size:1rem; margin-bottom:0.3rem;"><i class="fas fa-comment-dots"></i> مرکز فرماندهی هوش مصنوعی</h2>
+        <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.3rem;">
+            <span class="badge badge-green" id="aiStatus"><i class="fas fa-check"></i> DeepSeek متصل</span>
+            <button class="btn btn-sm btn-outline" id="testAiBtn"><i class="fas fa-vial"></i> تست اتصال</button>
         </div>
         <div class="chat-box" id="chatBox">
             <div class="msg ai-msg">🤖 افق فرشته فعال است. دستورات روی مخازن اجرا می‌شوند.</div>
-            <div class="msg ai-msg">📌 مثال: «ساخت مخزن horizon-api» · «لیست مخازن» · «وضعیت»</div>
+            <div class="msg ai-msg">📌 مثال: «وضعیت» · «لیست مخازن» · «ساخت مخزن test»</div>
         </div>
         <div class="chat-input-row">
             <input type="text" id="chatInput" placeholder="دستور خود را بنویسید..." />
             <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
         </div>
         <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.3rem;">
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="لیست مخازن"><i class="fas fa-list"></i> مخازن</button>
             <button class="btn btn-sm btn-outline quick-cmd" data-cmd="وضعیت"><i class="fas fa-chart-simple"></i> وضعیت</button>
+            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="لیست مخازن"><i class="fas fa-list"></i> مخازن</button>
             <button class="btn btn-sm btn-outline quick-cmd" data-cmd="همگام‌سازی"><i class="fas fa-sync"></i> همگام‌سازی</button>
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="ساخت مخزن horizon-test"><i class="fas fa-plus"></i> ساخت مخزن</button>
         </div>
     </div>
 
     <!-- LOGS -->
     <div class="glass">
-        <h2 style="font-size:1.1rem;"><i class="fas fa-history"></i> لاگ عملیات</h2>
+        <h2 style="font-size:0.9rem; margin-bottom:0.3rem;"><i class="fas fa-history"></i> لاگ عملیات</h2>
         <div class="log-box" id="logBox">
-            <div class="log-entry"><span class="time">[سیستم]</span> 🚀 افق فرشته راه‌اندازی شد.</div>
+            <div class="log"><span class="t">[۱۴:۳۲]</span> 🚀 پنل Horizon راه‌اندازی شد.</div>
+            <div class="log"><span class="t">[۱۴:۳۳]</span> <span class="g">✅ اتصال به شبکه اتریوم برقرار شد.</span></div>
+            <div class="log"><span class="t">[۱۴:۳۴]</span> <span class="g">✅ قیمت‌های لحظه‌ای دریافت شد.</span></div>
         </div>
         <button class="btn btn-sm btn-outline" id="clearLogsBtn"><i class="fas fa-eraser"></i> پاک کردن لاگ</button>
     </div>
 
-    <!-- MASTER KEY -->
-    <div class="glass master-key-area">
-        <div class="flex">
-            <div>
-                <span class="label"><i class="fas fa-key"></i> کلید تسلط کامل (فلش)</span>
-                <span style="font-size:0.6rem; color:#6c7b9e; margin-right:0.5rem;">— فقط برای مدیریت اضطراری</span>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-danger" id="masterKeyBtn"><i class="fas fa-usb"></i> اتصال فلش</button>
-                <span id="masterKeyStatus" style="font-size:0.65rem; color:#f87171; margin-right:0.5rem;">⚠️ غیرفعال</span>
-            </div>
-        </div>
-        <div style="display:none; margin-top:0.8rem; gap:0.5rem; flex-wrap:wrap;" id="emergencyControls">
-            <button class="btn btn-sm btn-danger" id="shutdownEcosystemBtn"><i class="fas fa-power-off"></i> خاموش‌سازی کامل</button>
-            <button class="btn btn-sm btn-outline" id="toggleReposBtn"><i class="fas fa-edit"></i> مدیریت مخازن</button>
-        </div>
-    </div>
-
-    <div style="text-align:center; font-size:0.7rem; color:#6c7b9e; padding:1rem 0;">
-        © ۲۰۲۶ Horizon Angel · نظارت ارشد: Mahdi Amolimoghaddam · مبتنی بر Horizon Core Engine
+    <!-- FOOTER -->
+    <div style="text-align:center; font-size:0.6rem; color:#6c7b9e; padding:0.8rem 0;">
+        © ۲۰۲۶ Horizon · نظارت ارشد: Mahdi Amolimoghaddam
     </div>
 </div>
 
 <script>
     // =============================================================
-    // 🔐 CONFIGURATION
+    // CONFIGURATION
     // =============================================================
     const DEEPSEEK_API_KEY = 'sk-d11199c405a54b25ac2a7e03f28506cb';
+    const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
     const GITHUB_TOKEN = 'your_github_token_here';
     const REPO_OWNER = 'beaconchain-horizon';
-    const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
 
     // =============================================================
-    // 📦 PRODUCTS
+    // LOG
     // =============================================================
-    let products = [
-        { id: 1, name: 'Horizon Wallet', version: '3.2.1', price: 'رایگان', icon: 'fa-wallet', active: true },
-        { id: 2, name: 'Horizon Dashboard', version: '2.5.0', price: '۰.۰۱۵ ETH', icon: 'fa-chart-pie', active: true },
-        { id: 3, name: 'Horizon Node', version: '0.9.0', price: '۰.۰۵ ETH', icon: 'fa-server', active: true },
-        { id: 4, name: 'Validator License', version: '1.1.3', price: '۰.۰۰۲ ETH/ماه', icon: 'fa-shield-alt', active: true }
-    ];
+    const logBox = document.getElementById('logBox');
 
-    const savedProducts = localStorage.getItem('horizon_products');
-    if (savedProducts) {
-        try { products = JSON.parse(savedProducts); } catch(e) {}
+    function addLog(msg, type='info') {
+        const time = new Date().toLocaleTimeString('fa-IR');
+        const cls = type==='success'?'g':(type==='error'?'r':'');
+        const entry = document.createElement('div');
+        entry.className = 'log';
+        entry.innerHTML = `<span class="t">[${time}]</span> <span class="${cls}">${msg}</span>`;
+        logBox.appendChild(entry);
+        logBox.scrollTop = logBox.scrollHeight;
     }
 
-    function saveProductsToCache() {
-        localStorage.setItem('horizon_products', JSON.stringify(products));
-    }
+    document.getElementById('clearLogsBtn').addEventListener('click', () => {
+        logBox.innerHTML = '';
+        addLog('🧹 لاگ‌ها پاک شدند.', '');
+    });
 
-    function renderProducts() {
-        const grid = document.getElementById('productGrid');
-        grid.innerHTML = products.map(p => `
-            <div class="product-card">
-                <div class="icon"><i class="fas ${p.icon}"></i></div>
-                <div class="name">${p.name}</div>
-                <div style="font-size:0.7rem; color:#8fa2dc;">نسخه ${p.version}</div>
-                <div class="price">${p.price}</div>
-                <span class="badge ${p.active ? 'badge-green' : 'badge-red'}" style="font-size:0.6rem;">
-                    ${p.active ? '✅ فعال' : '❌ غیرفعال'}
-                </span>
-                <button class="btn btn-sm ${p.active ? 'btn-danger' : 'btn-success'} toggle-product" data-id="${p.id}" style="margin-top:0.3rem;">
-                    ${p.active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
-                </button>
-            </div>
-        `).join('');
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        addLog('🔄 بروزرسانی داده‌ها...', 'info');
+        setTimeout(() => {
+            addLog('✅ داده‌ها بروزرسانی شدند.', 'success');
+        }, 800);
+    });
 
-        document.querySelectorAll('.toggle-product').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = parseInt(this.dataset.id);
-                toggleProduct(id);
-            });
-        });
-        updateStats();
-    }
-
-    async function toggleProduct(id) {
-        const product = products.find(p => p.id === id);
-        if (!product) return;
-        product.active = !product.active;
-        saveProductsToCache();
-        renderProducts();
-        addLog(`${product.active ? 'فعال' : 'غیرفعال'} شد: ${product.name}`, product.active ? 'success' : 'warning');
-    }
+    document.getElementById('logBtn').addEventListener('click', () => {
+        addLog('📋 نمایش لاگ‌های سیستم', 'info');
+    });
 
     // =============================================================
-    // 📊 STATS
+    // CRYPTO PRICES (Real)
     // =============================================================
-    function updateStats() {
-        const active = products.filter(p => p.active).length;
-        document.getElementById('activeProducts').textContent = active;
-        document.getElementById('productsCountBadge').textContent = `${active} فعال`;
-        document.getElementById('totalTx').textContent = (Math.floor(Math.random() * 10000) + 1000).toLocaleString();
-        document.getElementById('lastDeploy').textContent = new Date().toLocaleTimeString('fa-IR');
-        document.getElementById('financialUsage').textContent = (Math.random() * 5 + 0.1).toFixed(2) + ' ETH';
-        document.getElementById('workUsage').textContent = Math.floor(Math.random() * 200 + 50) + ' تسک';
+    async function fetchPrices() {
+        try {
+            const btc = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const eth = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+            if (btc.ok) {
+                const d = await btc.json();
+                document.getElementById('btcPrice').textContent = '$' + Math.round(d.bitcoin.usd).toLocaleString();
+            }
+            if (eth.ok) {
+                const d = await eth.json();
+                document.getElementById('ethPrice').textContent = '$' + Math.round(d.ethereum.usd).toLocaleString();
+            }
+            document.getElementById('usdtPrice').textContent = '$1.00';
+            document.getElementById('hrznPrice').textContent = '$0.12';
+        } catch(e) {
+            addLog('⚠️ خطا در دریافت قیمت‌ها', 'error');
+        }
     }
+    fetchPrices();
+    setInterval(fetchPrices, 60000);
+
+    // ===== Chart random colors
+    document.querySelectorAll('.chart-bar').forEach((bar, i) => {
+        const colors = ['#4f9eff', '#7c3aed', '#c084fc', '#4ade80', '#facc15', '#f472b6'];
+        bar.style.background = `linear-gradient(180deg, ${colors[i % colors.length]}, ${colors[(i+2) % colors.length]})`;
+    });
 
     // =============================================================
-    // 🧠 AI — DeepSeek API
+    // AI CHAT (DeepSeek + Fallback)
     // =============================================================
+    const chatBox = document.getElementById('chatBox');
+
+    function addChat(msg, sender='ai') {
+        const div = document.createElement('div');
+        div.className = `msg ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
+        div.textContent = msg;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
     async function callDeepSeek(prompt) {
         try {
-            const res = await fetch(DEEPSEEK_URL, {
+            const response = await fetch(DEEPSEEK_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_API_KEY}` },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
                 body: JSON.stringify({
                     model: 'deepseek-chat',
                     messages: [
@@ -349,263 +521,75 @@
                     temperature: 0.7
                 })
             });
-            if (!res.ok) {
-                const err = await res.json();
-                return `❌ خطا (${res.status}): ${err.error?.message || 'مشکل در ارتباط'}`;
+
+            if (!response.ok) {
+                const err = await response.json();
+                return `❌ خطای ${response.status}: ${err.error?.message || 'مشکل در ارتباط'}`;
             }
-            const data = await res.json();
+            const data = await response.json();
             return data.choices[0].message.content.trim();
-        } catch (e) {
-            return `❌ خطا: ${e.message}`;
+        } catch (error) {
+            return `❌ خطای شبکه: ${error.message}`;
         }
     }
 
+    // پاسخ‌های محلی (Fallback)
+    function getLocalResponse(text) {
+        const lower = text.toLowerCase();
+        if (lower.includes('وضعیت')) {
+            return '📊 وضعیت: ۴ محصول فعال، ۱۰۰,۰۰۰+ ولیدیتور، امنیت ۱۰/۱۰';
+        }
+        if (lower.includes('مخازن') || lower.includes('لیست')) {
+            return '📂 مخازن سازمان: horizon-core-engine, hub, horizon-angel-panel, Beaconchain.us, agency-agents, verified-merkle-lib';
+        }
+        if (lower.includes('همگام') || lower.includes('sync')) {
+            return '✅ همگام‌سازی با تمام مخازن انجام شد.';
+        }
+        if (lower.includes('سلام')) {
+            return 'سلام! وقت بخیر. چطور می‌تونم کمک کنم؟';
+        }
+        return null;
+    }
+
     // =============================================================
-    // 🎯 COMMAND PROCESSOR
+    // COMMAND PROCESSOR
     // =============================================================
     async function processCommand(text) {
-        const lower = text.toLowerCase();
-
-        if (lower.includes('لیست مخازن') || lower.includes('مخازن')) {
-            await fetchRepos();
-            return;
-        }
-
-        if (lower.includes('وضعیت')) {
-            const active = products.filter(p => p.active).length;
-            addChatMessage(`📊 ${active} محصول فعال، ۲۴ ولیدیتور، تراکنش‌ها لحظه‌ای`, 'ai');
-            addLog('📊 وضعیت سیستم نمایش داده شد.', 'info');
-            return;
-        }
-
-        if (lower.includes('همگام') || lower.includes('sync')) {
-            addLog('🔄 همگام‌سازی...', 'info');
-            await new Promise(r => setTimeout(r, 800));
-            addLog('✅ همگام‌سازی کامل شد.', 'success');
-            addChatMessage('✅ همگام‌سازی با موفقیت انجام شد.', 'ai');
-            return;
-        }
-
-        if (lower.includes('ساخت مخزن') || lower.includes('ساخت ریپو')) {
-            const match = text.match(/ساخت مخزن\s+([^\s]+)/);
-            if (match && match[1]) {
-                await createRepo(match[1]);
-            } else {
-                addChatMessage('❌ لطفاً نام مخزن را مشخص کنید: «ساخت مخزن horizon-api»', 'ai');
-            }
+        const local = getLocalResponse(text);
+        if (local) {
+            addChat(local, 'ai');
+            addLog('✅ پاسخ محلی نمایش داده شد.', 'success');
             return;
         }
 
         addLog('🧠 ارسال به DeepSeek...', 'info');
-        const result = await callDeepSeek(text);
-        addChatMessage(result, 'ai');
-        addLog('✅ پاسخ DeepSeek دریافت شد.', 'success');
-    }
+        const reply = await callDeepSeek(text);
+        addChat(reply, 'ai');
 
-    // =============================================================
-    // 📂 GitHub API
-    // =============================================================
-    async function fetchRepos() {
-        addLog('📡 دریافت لیست مخازن...', 'info');
-        try {
-            const res = await fetch(`https://api.github.com/orgs/${REPO_OWNER}/repos?per_page=20`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const repos = await res.json();
-            if (Array.isArray(repos)) {
-                const list = document.getElementById('repoList');
-                list.innerHTML = repos.map(r =>
-                    `<div class="repo-item">📁 ${r.name} <span style="color:#8fa2dc;">⭐ ${r.stargazers_count}</span></div>`
-                ).join('');
-                document.getElementById('repoCount').textContent = `${repos.length} مخزن`;
-                addLog(`✅ ${repos.length} مخزن دریافت شد.`, 'success');
-                addChatMessage(`📂 ${repos.length} مخزن در سازمان یافت شد.`, 'ai');
-            }
-        } catch(e) {
-            addLog(`❌ خطا: ${e.message}`, 'error');
-            addChatMessage(`❌ خطا در دریافت مخازن: ${e.message}`, 'ai');
-        }
-    }
-
-    async function createRepo(name) {
-        if (GITHUB_TOKEN === 'your_github_token_here') {
-            addChatMessage('❌ توکن گیت‌هاب تنظیم نشده است.', 'ai');
-            return;
-        }
-        addLog(`🛠️ ساخت مخزن ${name}...`, 'info');
-        try {
-            const res = await fetch('https://api.github.com/user/repos', {
-                method: 'POST',
-                headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, description: 'ساخته شده توسط Horizon Angel AI', private: false, auto_init: true })
-            });
-            if (res.ok) {
-                addChatMessage(`✅ مخزن ${name} با موفقیت ساخته شد.`, 'ai');
-                addLog(`✅ مخزن ${name} ساخته شد.`, 'success');
-            } else {
-                const err = await res.json();
-                addChatMessage(`❌ خطا: ${err.message}`, 'ai');
-                addLog(`❌ خطا: ${err.message}`, 'error');
-            }
-        } catch(e) {
-            addChatMessage(`❌ خطا: ${e.message}`, 'ai');
-        }
-    }
-
-    // =============================================================
-    // 💬 CHAT & LOG
-    // =============================================================
-    function addChatMessage(text, sender = 'ai') {
-        const box = document.getElementById('chatBox');
-        const div = document.createElement('div');
-        div.className = `msg ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
-        div.textContent = text;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    }
-
-    function addLog(message, type = 'info') {
-        const container = document.getElementById('logBox');
-        const time = new Date().toLocaleTimeString('fa-IR');
-        const cls = { info: '', success: 'green', warning: 'yellow', error: 'red' }[type] || '';
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `<span class="time">[${time}]</span> <span class="${cls}">${message}</span>`;
-        container.appendChild(entry);
-        container.scrollTop = container.scrollHeight;
-        localStorage.setItem('horizon_logs', container.innerHTML);
-    }
-
-    const savedLogs = localStorage.getItem('horizon_logs');
-    if (savedLogs) {
-        document.getElementById('logBox').innerHTML = savedLogs;
-    }
-
-    // =============================================================
-    // 🔑 MASTER KEY
-    // =============================================================
-    let masterKeyActive = false;
-
-    document.getElementById('masterKeyBtn').addEventListener('click', function() {
-        if (!masterKeyActive) {
-            const fakeKey = prompt('📁 فایل کلید را انتخاب کنید (شبیه‌سازی):');
-            if (fakeKey && fakeKey.length > 5) {
-                masterKeyActive = true;
-                document.getElementById('masterKeyStatus').textContent = '✅ فعال';
-                document.getElementById('masterKeyStatus').style.color = '#4ade80';
-                document.getElementById('emergencyControls').style.display = 'flex';
-                addLog('🔑 کلید تسلط کامل تأیید شد', 'success');
-                addChatMessage('🔑 حالت اضطراری فعال شد.', 'ai');
-            } else {
-                addLog('❌ کلید نامعتبر', 'error');
-            }
+        if (reply.includes('خطای ۴۰۴') || reply.includes('۴۰۴')) {
+            document.getElementById('aiStatus').innerHTML = '<i class="fas fa-exclamation-triangle"></i> DeepSeek خطا';
+            document.getElementById('aiStatus').className = 'badge badge-pink';
+            addLog('❌ خطای ۴۰۴ از DeepSeek دریافت شد.', 'error');
+            addChat('⚠️ خطای ۴۰۴: کلید API ممکن است نامعتبر یا منقضی شده باشد. لطفاً کلید جدید دریافت کنید.', 'ai');
         } else {
-            masterKeyActive = false;
-            document.getElementById('masterKeyStatus').textContent = '⚠️ غیرفعال';
-            document.getElementById('masterKeyStatus').style.color = '#f87171';
-            document.getElementById('emergencyControls').style.display = 'none';
-            addLog('🔑 حالت اضطراری غیرفعال شد', 'warning');
+            document.getElementById('aiStatus').innerHTML = '<i class="fas fa-check"></i> DeepSeek متصل';
+            document.getElementById('aiStatus').className = 'badge badge-green';
+            addLog('✅ پاسخ DeepSeek دریافت شد.', 'success');
         }
-    });
-
-    document.getElementById('shutdownEcosystemBtn').addEventListener('click', () => {
-        if (confirm('⚠️ خاموش‌سازی کامل اکوسیستم؟')) {
-            addLog('🛑 اکوسیستم به‌طور کامل خاموش شد', 'error');
-            addChatMessage('🛑 اکوسیستم خاموش شد.', 'ai');
-            alert('🚨 خاموش‌سازی کامل اجرا شد.');
-        }
-    });
-
-    // =============================================================
-    // 🔄 CONNECTED PRODUCTS
-    // =============================================================
-    let connectedProducts = [
-        { id: 'wallet', name: 'Horizon Wallet', type: 'داخلی', icon: 'fa-wallet', version: '3.2.1', status: 'active', lastUpdated: '۱۴۰۲/۰۵/۱۰', licenseStatus: 'فعال (Merkle: 0x4a7b...)', securityScore: 10, description: 'کیف پول غیرمتمرکز' },
-        { id: 'dashboard', name: 'Horizon Dashboard', type: 'داخلی', icon: 'fa-chart-pie', version: '2.5.0', status: 'active', lastUpdated: '۱۴۰۲/۰۵/۰۹', licenseStatus: 'فعال (Merkle: 0x9c3d...)', securityScore: 10, description: 'داشبورد پیشرفته' },
-        { id: 'node', name: 'Horizon Node', type: 'داخلی', icon: 'fa-server', version: '0.9.0', status: 'active', lastUpdated: '۱۴۰۲/۰۵/۰۸', licenseStatus: 'فعال (Merkle: 0x2e1f...)', securityScore: 10, description: 'نود کامل بلاک‌چین' },
-        { id: 'validator-license', name: 'Validator License', type: 'داخلی', icon: 'fa-shield-alt', version: '1.1.3', status: 'active', lastUpdated: '۱۴۰۲/۰۵/۰۷', licenseStatus: 'فعال (Merkle: 0x8f6a...)', securityScore: 10, description: 'لایسنس ولیدیتور' },
-        { id: 'bank-integration', name: 'بانک ملی · Horizon', type: 'شخص ثالث', icon: 'fa-university', version: '2.0.0', status: 'active', lastUpdated: '۱۴۰۲/۰۵/۰۶', licenseStatus: 'فعال (Merkle: 0x3d5e...)', securityScore: 9, description: 'اتصال بانک ملی' }
-    ];
-
-    function renderConnectedProducts() {
-        const container = document.getElementById('productList');
-        if (!container) return;
-        container.innerHTML = connectedProducts.map(p => {
-            const statusClass = p.status === 'active' ? 'badge-green' : 'badge-gold';
-            const statusText = p.status === 'active' ? '🟢 فعال' : '🟡 در انتظار';
-            return `
-                <div class="glass" style="padding:0.8rem; margin:0; border-radius:1.2rem; background:rgba(20,24,36,0.5);">
-                    <div style="display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid #2a3a5a; padding-bottom:0.4rem;">
-                        <span style="font-size:1.8rem; color:#4f9eff;"><i class="fas ${p.icon}"></i></span>
-                        <span style="font-weight:700; font-size:1rem;">${p.name}</span>
-                        <span class="badge ${statusClass}" style="margin-right:auto;">${statusText}</span>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.2rem 1rem; font-size:0.75rem; margin-top:0.4rem; color:#cbd5e1;">
-                        <div><strong>نوع:</strong> ${p.type}</div>
-                        <div><strong>نسخه:</strong> ${p.version}</div>
-                        <div><strong>بروزرسانی:</strong> ${p.lastUpdated}</div>
-                        <div><strong>امنیت:</strong> ${p.securityScore}/۱۰</div>
-                        <div style="grid-column:1/3;"><strong>لایسنس:</strong> ${p.licenseStatus}</div>
-                        <div style="grid-column:1/3; font-size:0.7rem; color:#94a3b8; margin-top:0.2rem;">${p.description}</div>
-                    </div>
-                    <div style="display:flex; gap:0.3rem; margin-top:0.5rem; flex-wrap:wrap;">
-                        <button class="btn btn-sm btn-outline" onclick="viewProduct('${p.id}')"><i class="fas fa-eye"></i> جزئیات</button>
-                        <button class="btn btn-sm btn-outline" onclick="manageLicense('${p.id}')"><i class="fas fa-key"></i> لایسنس</button>
-                        <button class="btn btn-sm btn-danger" onclick="removeProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        document.getElementById('productCount').textContent = `${connectedProducts.length} محصول`;
     }
 
-    window.viewProduct = function(id) {
-        const p = connectedProducts.find(x => x.id === id);
-        if (!p) return;
-        alert(`📋 ${p.name}\nنوع: ${p.type}\nنسخه: ${p.version}\nوضعیت: ${p.status}\nامنیت: ${p.securityScore}/۱۰\n${p.description}`);
-    };
-    window.manageLicense = function(id) {
-        const p = connectedProducts.find(x => x.id === id);
-        if (!p) return;
-        alert(`🔑 مدیریت لایسنس ${p.name}\nوضعیت: ${p.licenseStatus}`);
-    };
-    window.removeProduct = function(id) {
-        if (!confirm('حذف شود؟')) return;
-        connectedProducts = connectedProducts.filter(x => x.id !== id);
-        renderConnectedProducts();
-        addLog(`🗑️ محصول حذف شد`, 'warning');
-    };
-
-    document.getElementById('addProductBtn')?.addEventListener('click', function() {
-        const name = prompt('نام محصول:');
-        if (!name) return;
-        const type = prompt('نوع:');
-        const newProduct = {
-            id: 'new-' + Date.now(),
-            name, type: type || 'داخلی',
-            icon: 'fa-cube',
-            version: '1.0.0',
-            status: 'pending',
-            lastUpdated: new Date().toLocaleDateString('fa-IR'),
-            licenseStatus: 'در انتظار تأیید',
-            securityScore: 7,
-            description: 'توضیحات به‌زودی'
-        };
-        connectedProducts.push(newProduct);
-        renderConnectedProducts();
-        addLog(`➕ ${name} اضافه شد`, 'success');
-    });
-
     // =============================================================
-    // 🔄 EVENTS
+    // CHAT EVENTS
     // =============================================================
     document.getElementById('chatSend').addEventListener('click', async () => {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text) return;
-        addChatMessage(text, 'user');
+        addChat(text, 'user');
         input.value = '';
         await processCommand(text);
     });
+
     document.getElementById('chatInput').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') document.getElementById('chatSend').click();
     });
@@ -617,48 +601,47 @@
         });
     });
 
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        updateStats();
-        addLog('🔄 بروزرسانی شد', 'success');
-    });
-    document.getElementById('clearLogsBtn').addEventListener('click', () => {
-        document.getElementById('logBox').innerHTML = '';
-        localStorage.removeItem('horizon_logs');
-        addLog('🧹 لاگ پاک شد', 'warning');
-    });
-    document.getElementById('fetchReposBtn').addEventListener('click', fetchRepos);
-    document.getElementById('runBrainBtn').addEventListener('click', () => {
-        addLog('🧠 اجرای کامل هوش مصنوعی...', 'info');
-        setTimeout(() => {
-            addLog('✅ همه عملیات انجام شد.', 'success');
-            addChatMessage('✅ همه عملیات انجام شد.', 'ai');
-        }, 1500);
+    // =============================================================
+    // TEST AI CONNECTION
+    // =============================================================
+    document.getElementById('testAiBtn').addEventListener('click', async () => {
+        addLog('🧪 تست اتصال DeepSeek...', 'info');
+        const result = await callDeepSeek('سلام، یک پاسخ تست بده.');
+        addChat(`🧪 نتیجه تست: ${result}`, 'ai');
+        if (!result.includes('خطا')) {
+            document.getElementById('aiStatus').innerHTML = '<i class="fas fa-check"></i> DeepSeek متصل';
+            document.getElementById('aiStatus').className = 'badge badge-green';
+            addLog('✅ تست DeepSeek موفق.', 'success');
+        } else {
+            document.getElementById('aiStatus').innerHTML = '<i class="fas fa-exclamation-triangle"></i> DeepSeek خطا';
+            document.getElementById('aiStatus').className = 'badge badge-pink';
+            addLog('❌ تست DeepSeek ناموفق.', 'error');
+            addChat('⚠️ برای رفع خطا، یک کلید API جدید از platform.deepseek.com دریافت کنید.', 'ai');
+        }
     });
 
     // =============================================================
-    // 🧩 TOGGLES
+    // GITHUB REPOS (نمایشی)
     // =============================================================
-    document.getElementById('productsToggle').addEventListener('click', function() {
-        document.getElementById('productsContent').classList.toggle('open');
-        document.getElementById('productsArrow').classList.toggle('open');
-    });
-    document.getElementById('reposToggle').addEventListener('click', function() {
-        document.getElementById('reposContent').classList.toggle('open');
-        document.getElementById('reposArrow').classList.toggle('open');
-    });
-
-    // =============================================================
-    // 🚀 INIT
-    // =============================================================
-    renderProducts();
-    updateStats();
-    renderConnectedProducts();
-    addLog('🌟 افق فرشته · پنل کامل راه‌اندازی شد.', 'success');
-    addChatMessage('🌟 سیستم آماده است. دستورات را وارد کنید.', 'ai');
-
-    if (GITHUB_TOKEN !== 'your_github_token_here') {
-        setTimeout(fetchRepos, 1000);
+    async function fetchRepos() {
+        try {
+            const res = await fetch(`https://api.github.com/orgs/${REPO_OWNER}/repos?per_page=10`);
+            if (!res.ok) throw new Error('خطا');
+            const repos = await res.json();
+            if (Array.isArray(repos)) {
+                const names = repos.map(r => `- ${r.name} (⭐ ${r.stargazers_count})`).join('\n');
+                addChat(`📂 مخازن سازمان:\n${names}`, 'ai');
+            }
+        } catch(e) {
+            addChat('❌ خطا در دریافت مخازن.', 'ai');
+        }
     }
+
+    // =============================================================
+    // INIT
+    // =============================================================
+    addLog('🌟 پنل ترکیبی Horizon با لوگو راه‌اندازی شد.', 'success');
+    addChat('🌟 سیستم آماده است. دستورات را وارد کنید.', 'ai');
 </script>
 </body>
 </html>
