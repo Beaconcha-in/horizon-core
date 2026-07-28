@@ -24,6 +24,7 @@
             width:100vw;
             position:relative;
         }
+        /* ===== نقشه ===== */
         #map {
             flex:1;
             height:100%;
@@ -32,8 +33,9 @@
             background: #0a0f1e;
         }
         .leaflet-control-zoom { display:none; }
-        .leaflet-tile-pane { filter: grayscale(0.3) brightness(0.5) contrast(1.3); }
+        .leaflet-tile-pane { filter: grayscale(0.3) brightness(0.6) contrast(1.2); }
 
+        /* ===== هدر شناور ===== */
         .floating-header {
             position:fixed;
             top:1.2rem;
@@ -81,6 +83,7 @@
         .floating-header .badge.blue { background:rgba(79,158,255,0.12); border-color:#4f9eff44; color:#4f9eff; }
         .floating-header .badge.gold { background:rgba(251,191,36,0.12); border-color:#facc1544; color:#facc15; }
 
+        /* ===== پنل کناری ===== */
         .side-panel {
             position:fixed;
             right:0;
@@ -179,6 +182,7 @@
         }
         .emergency-btn:hover { background:rgba(248,113,113,0.25); }
 
+        /* ===== پاپ‌آپ اطلاعات عامل ===== */
         .agent-popup {
             position:fixed;
             top:50%;
@@ -223,6 +227,7 @@
         .agent-popup .detail-row .label { color:#8fa2dc; }
         .agent-popup .detail-row .value { color:#eef2ff; }
 
+        /* ===== ویرایشگر پنل ===== */
         .panel-editor {
             position:fixed;
             bottom:2rem;
@@ -242,6 +247,7 @@
         }
         .panel-editor button:hover { background:rgba(79,158,255,0.25); }
 
+        /* ===== اسکرول ===== */
         ::-webkit-scrollbar { width:4px; }
         ::-webkit-scrollbar-track { background:#0f172a; }
         ::-webkit-scrollbar-thumb { background:#4f9eff; border-radius:4px; }
@@ -320,7 +326,7 @@
 const MASHHAD_COORDS = [36.2605, 59.6168];
 const AGENTS_REPO = 'https://raw.githubusercontent.com/beaconchain-horizon/agency-agents/main';
 const GITHUB_ORG = 'beaconchain-horizon';
-const GITHUB_TOKEN = 'your_github_token_here';
+const GITHUB_TOKEN = 'your_github_token_here'; // از Secrets گیت‌هاب خوانده شود
 
 // =============================================================
 // AGENTS DATA (واقعی از مخزن agency-agents)
@@ -339,139 +345,134 @@ const agentsList = [
 ];
 
 // =============================================================
-// نقاط جهانی
-// =============================================================
-const globalNodes = [
-    // ایالات متحده
-    { lat: 40.7128, lng: -74.0060, name: 'New York · Validator #1', type: 'validator' },
-    { lat: 34.0522, lng: -118.2437, name: 'Los Angeles · Validator #2', type: 'validator' },
-    { lat: 37.7749, lng: -122.4194, name: 'San Francisco · Validator #3', type: 'validator' },
-    { lat: 41.8781, lng: -87.6298, name: 'Chicago · Validator #4', type: 'validator' },
-    // اروپا
-    { lat: 51.5074, lng: -0.1278, name: 'London · Validator #5', type: 'validator' },
-    { lat: 48.8566, lng: 2.3522, name: 'Paris · Validator #6', type: 'validator' },
-    { lat: 52.5200, lng: 13.4050, name: 'Berlin · Validator #7', type: 'validator' },
-    { lat: 40.7128, lng: 14.4857, name: 'Rome · Validator #8', type: 'validator' },
-    // آسیا
-    { lat: 35.6895, lng: 139.6917, name: 'Tokyo · Validator #9', type: 'validator' },
-    { lat: 37.5665, lng: 126.9780, name: 'Seoul · Validator #10', type: 'validator' },
-    { lat: 22.5431, lng: 114.0579, name: 'Hong Kong · Validator #11', type: 'validator' },
-    { lat: 28.6139, lng: 77.2090, name: 'Delhi · Validator #12', type: 'validator' },
-    { lat: 39.9042, lng: 116.4074, name: 'Beijing · Validator #13', type: 'validator' },
-    // خاورمیانه
-    { lat: 25.2048, lng: 55.2708, name: 'Dubai · Validator #14', type: 'validator' },
-    { lat: 31.9539, lng: 35.9106, name: 'Amman · Validator #15', type: 'validator' },
-    { lat: 33.8938, lng: 35.5018, name: 'Beirut · Validator #16', type: 'validator' },
-    // ایران
-    { lat: 35.6892, lng: 51.3890, name: 'Tehran · Validator #17', type: 'validator' },
-    { lat: 29.5918, lng: 52.5837, name: 'Shiraz · Validator #18', type: 'validator' },
-    { lat: 34.6382, lng: 50.8764, name: 'Isfahan · Validator #19', type: 'validator' },
-    { lat: 36.2605, lng: 59.6168, name: 'Mashhad · HQ', type: 'hq' },
-    // استرالیا
-    { lat: -33.8688, lng: 151.2093, name: 'Sydney · Validator #20', type: 'validator' },
-    // آفریقا
-    { lat: -33.9249, lng: 18.4241, name: 'Cape Town · Validator #21', type: 'validator' },
-];
-
-// =============================================================
 // STATE
 // =============================================================
+let agents = [];
 let map;
 let markers = [];
 let popupOpen = false;
-let shutdownPassword = 'horizon2026';
+let shutdownPassword = 'horizon2026'; // رمز پیش‌فرض
 
 // =============================================================
 // INIT MAP
 // =============================================================
 function initMap() {
     map = L.map('map', {
-        center: [20, 0],
-        zoom: 2,
+        center: MASHHAD_COORDS,
+        zoom: 12,
         zoomControl: false,
         attributionControl: false,
         fadeAnimation: true,
         zoomAnimation: true,
-        maxZoom: 6,
-        minZoom: 1.5,
     });
 
+    // لایه نقشه (با تم تیره)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap & CartoDB',
         subdomains: 'abcd',
         maxZoom: 19,
     }).addTo(map);
 
-    // ===== نقاط جهانی =====
-    globalNodes.forEach(p => {
-        let color, radius, label;
-        if (p.type === 'hq') {
-            color = '#facc15';
-            radius = 16;
-            label = '🏛️ مرکز فرماندهی';
-        } else if (p.type === 'product') {
-            color = '#4ade80';
-            radius = 10;
-            label = '🟢 محصول';
-        } else {
-            color = '#4f9eff';
-            radius = 8;
-            label = '🔵 ولیدیتور';
-        }
+    // ===== نقاط روی نقشه =====
+    // نقاط سبز (محصولات فعال)
+    const productPoints = [
+        { lat: 36.2705, lng: 59.6168, name: 'Horizon Wallet', type: 'product' },
+        { lat: 36.2505, lng: 59.6268, name: 'Horizon Dashboard', type: 'product' },
+        { lat: 36.2805, lng: 59.6068, name: 'Horizon Node', type: 'product' },
+        { lat: 36.2405, lng: 59.6368, name: 'Validator License', type: 'product' },
+        { lat: 36.2905, lng: 59.5968, name: 'Horizon Store', type: 'product' },
+    ];
+    productPoints.forEach(p => {
         const marker = L.circleMarker([p.lat, p.lng], {
-            radius: radius,
-            color: color,
-            fillColor: color,
+            radius: 8,
+            color: '#4ade80',
+            fillColor: '#4ade80',
             fillOpacity: 0.8,
             weight: 2,
         }).addTo(map);
-        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.8rem;text-align:center;">
-            <strong>${p.name}</strong><br>
-            <span style="color:#8fa2dc;">${label}</span>
+        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.8rem;"><strong>🟢 ${p.name}</strong><br>محصول فعال</div>`);
+        markers.push(marker);
+    });
+
+    // نقاط قرمز (نودها/ولیدیتورها)
+    const nodePoints = [
+        { lat: 36.2605, lng: 59.6068, name: 'Validator #1' },
+        { lat: 36.2555, lng: 59.6268, name: 'Validator #2' },
+        { lat: 36.2655, lng: 59.6368, name: 'Validator #3' },
+        { lat: 36.2755, lng: 59.6168, name: 'Validator #4' },
+        { lat: 36.2455, lng: 59.6068, name: 'Validator #5' },
+        { lat: 36.2855, lng: 59.6268, name: 'Validator #6' },
+    ];
+    nodePoints.forEach(p => {
+        const marker = L.circleMarker([p.lat, p.lng], {
+            radius: 6,
+            color: '#f87171',
+            fillColor: '#f87171',
+            fillOpacity: 0.8,
+            weight: 2,
+        }).addTo(map);
+        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.8rem;"><strong>🔴 ${p.name}</strong><br>نود فعال</div>`);
+        markers.push(marker);
+    });
+
+    // نقاط آبی (عامل‌های AI)
+    const agentPoints = [
+        { lat: 36.2625, lng: 59.6128, name: 'Frontend Developer' },
+        { lat: 36.2585, lng: 59.6208, name: 'Backend Architect' },
+        { lat: 36.2645, lng: 59.6088, name: 'Security Engineer' },
+        { lat: 36.2565, lng: 59.6188, name: 'Growth Hacker' },
+        { lat: 36.2685, lng: 59.6148, name: 'UX Designer' },
+        { lat: 36.2525, lng: 59.6228, name: 'Solidity Engineer' },
+        { lat: 36.2665, lng: 59.6008, name: 'Data Analyst' },
+        { lat: 36.2545, lng: 59.6308, name: 'DevOps' },
+        { lat: 36.2725, lng: 59.6108, name: 'Tech Writer' },
+        { lat: 36.2485, lng: 59.6288, name: 'AI Engineer' },
+    ];
+    agentPoints.forEach((p, i) => {
+        const agent = agentsList[i] || { name: p.name, specialty: 'AI Agent' };
+        const marker = L.circleMarker([p.lat, p.lng], {
+            radius: 10,
+            color: '#4f9eff',
+            fillColor: '#4f9eff',
+            fillOpacity: 0.7,
+            weight: 2,
+            className: 'agent-marker',
+        }).addTo(map);
+        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.7rem;text-align:center;">
+            <strong>🤖 ${agent.name}</strong><br>
+            <span style="color:#8fa2dc;">${agent.specialty}</span><br>
+            <button onclick="openAgentPopup('${agent.id}')" style="background:#4f9eff;border:none;border-radius:2rem;padding:0.2rem 1rem;color:#0a0f1e;font-weight:600;cursor:pointer;margin-top:0.2rem;font-size:0.6rem;">اطلاعات</button>
         </div>`);
         markers.push(marker);
     });
 
-    // ===== خطوط شبکه (اتصالات) =====
-    const lines = [
-        [[36.2605, 59.6168], [35.6892, 51.3890]],
-        [[36.2605, 59.6168], [25.2048, 55.2708]],
-        [[36.2605, 59.6168], [40.7128, -74.0060]],
-        [[36.2605, 59.6168], [51.5074, -0.1278]],
-        [[36.2605, 59.6168], [35.6895, 139.6917]],
-        [[36.2605, 59.6168], [-33.8688, 151.2093]],
-        [[36.2605, 59.6168], [28.6139, 77.2090]],
+    // ===== خطوط شبکه (نماد اتصالات) =====
+    const lineCoords = [
+        [[36.2605, 59.6168], [36.2625, 59.6128]],
+        [[36.2605, 59.6168], [36.2585, 59.6208]],
+        [[36.2625, 59.6128], [36.2645, 59.6088]],
+        [[36.2585, 59.6208], [36.2565, 59.6188]],
+        [[36.2625, 59.6128], [36.2685, 59.6148]],
+        [[36.2585, 59.6208], [36.2525, 59.6228]],
     ];
-    lines.forEach(coords => {
+    lineCoords.forEach(coords => {
         L.polyline(coords, {
             color: '#4f9eff',
             weight: 0.5,
-            opacity: 0.12,
-            dashArray: '6 10',
+            opacity: 0.15,
+            dashArray: '4 8',
         }).addTo(map);
     });
 
-    // ===== مرکز فرماندهی (مشهد) با افکت ویژه =====
+    // ===== مرکز فرماندهی (مشهد) =====
     L.marker(MASHHAD_COORDS, {
         icon: L.divIcon({
             className: 'custom-div-icon',
-            html: `<div style="background:rgba(250,204,21,0.2);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;border:2px solid #facc15;box-shadow:0 0 60px rgba(250,204,21,0.3);animation:pulse 2s infinite;">
-                <i class="fas fa-flag" style="color:#facc15;font-size:2rem;"></i>
-            </div>
-            <style>
-                @keyframes pulse {
-                    0% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
-                    50% { box-shadow:0 0 60px rgba(250,204,21,0.5); }
-                    100% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
-                }
-            </style>`,
-            iconSize: [70, 70],
-            iconAnchor: [35, 35],
+            html: `<div style="background:rgba(79,158,255,0.2);border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;border:2px solid #4f9eff;box-shadow:0 0 40px rgba(79,158,255,0.3);"><i class="fas fa-flag" style="color:#4f9eff;font-size:1.8rem;"></i></div>`,
+            iconSize: [60, 60],
+            iconAnchor: [30, 30],
         })
-    }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;">
-        <strong style="color:#facc15;">🏛️ مرکز فرماندهی Horizon</strong><br>
-        مشهد، ایران · قلب اکوسیستم
-    </div>`);
+    }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;"><strong>🏛️ مرکز فرماندهی Horizon</strong><br>مشهد، ایران</div>`);
 }
 
 // =============================================================
@@ -554,7 +555,7 @@ document.getElementById('toggleSidePanel').addEventListener('click', () => {
 });
 
 // =============================================================
-// EDIT PANEL
+// EDIT PANEL (ویرایشگر در صفحه)
 // =============================================================
 document.getElementById('editPanelBtn').addEventListener('click', () => {
     const editable = document.querySelectorAll('.stat-row .value, #agentList .agent-item, .floating-header .badge-group span');
@@ -573,15 +574,17 @@ document.getElementById('editPanelBtn').addEventListener('click', () => {
 });
 
 // =============================================================
-// REAL-TIME STATS
+// REAL-TIME STATS UPDATE (شبیه‌سازی با داده‌های واقعی)
 // =============================================================
 async function updateStats() {
     try {
+        // دریافت تعداد مخازن از GitHub
         const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
         if (reposRes.ok) {
             const repos = await reposRes.json();
             document.getElementById('statRepos').textContent = repos.length;
         }
+        // شبیه‌سازی داده‌های ولیدیتور (در واقعیت از Core Engine دریافت می‌شود)
         const online = Math.floor(88240 + (Math.random() * 1000 - 500));
         const offline = Math.floor(11760 + (Math.random() * 500 - 250));
         document.getElementById('statOnline').textContent = online.toLocaleString();
@@ -605,6 +608,7 @@ setInterval(updateStats, 15000);
 // =============================================================
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
+    // تنظیم پنل باز
     document.getElementById('sidePanel').classList.remove('closed');
 });
 </script>
