@@ -2,780 +2,596 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>افق فرشته · پنل کامل اکوسیستم</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>افق فرشته · مرکز فرماندهی جهانی</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family:'Inter', system-ui, sans-serif;
-            background:radial-gradient(circle at 10% 20%, #0a0f1e, #03050a);
+            font-family:'Inter', sans-serif;
+            background: #0a0f1e;
             color:#eef2ff;
-            padding:0.8rem;
-            min-height:100vh;
+            overflow:hidden;
+            height:100vh;
+            width:100vw;
         }
-        .container { max-width:1280px; margin:0 auto; }
-        .glass {
-            background:rgba(12,18,28,0.85);
-            backdrop-filter:blur(14px);
-            border-radius:2rem;
+        .main-container {
+            display:flex;
+            height:100vh;
+            width:100vw;
+            position:relative;
+        }
+        #map {
+            flex:1;
+            height:100%;
+            width:100%;
+            z-index:1;
+            background: #0a0f1e;
+        }
+        .leaflet-control-zoom { display:none; }
+        .leaflet-tile-pane { filter: grayscale(0.3) brightness(0.5) contrast(1.3); }
+
+        .floating-header {
+            position:fixed;
+            top:1.2rem;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:1000;
+            background:rgba(10,15,30,0.85);
+            backdrop-filter:blur(16px);
+            border-radius:3rem;
             border:1px solid rgba(79,158,255,0.2);
-            padding:1.2rem 1.5rem;
-            margin-bottom:1.2rem;
-            transition:0.3s;
+            padding:0.6rem 1.8rem;
+            display:flex;
+            align-items:center;
+            gap:1.5rem;
+            flex-wrap:wrap;
+            justify-content:center;
+            box-shadow:0 8px 40px rgba(0,0,0,0.6);
+            pointer-events:auto;
         }
-        .glass:hover { border-color:rgba(79,158,255,0.4); }
-        .flex { display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center; justify-content:space-between; }
-        .badge {
+        .floating-header .title {
+            font-size:1.1rem;
+            font-weight:800;
+            background:linear-gradient(135deg,#fff,#4f9eff,#c084fc);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+            white-space:nowrap;
+        }
+        .floating-header .badge-group {
+            display:flex;
+            gap:0.5rem;
+            flex-wrap:wrap;
+        }
+        .floating-header .badge {
+            background:rgba(79,158,255,0.12);
+            border:1px solid #4f9eff33;
+            padding:0.1rem 0.8rem;
+            border-radius:60px;
+            font-size:0.55rem;
+            color:#9bb2ff;
+            white-space:nowrap;
+        }
+        .floating-header .badge.green { background:rgba(74,222,128,0.12); border-color:#4ade8044; color:#4ade80; }
+        .floating-header .badge.red { background:rgba(248,113,113,0.12); border-color:#f8717144; color:#f87171; }
+        .floating-header .badge.blue { background:rgba(79,158,255,0.12); border-color:#4f9eff44; color:#4f9eff; }
+        .floating-header .badge.gold { background:rgba(251,191,36,0.12); border-color:#facc1544; color:#facc15; }
+
+        .side-panel {
+            position:fixed;
+            right:0;
+            top:0;
+            height:100%;
+            width:340px;
+            background:rgba(10,15,30,0.92);
+            backdrop-filter:blur(20px);
+            border-left:1px solid rgba(79,158,255,0.15);
+            z-index:500;
+            padding:1.5rem 1.2rem;
+            overflow-y:auto;
+            transform:translateX(0);
+            transition:0.4s cubic-bezier(0.4,0,0.2,1);
+            pointer-events:auto;
+        }
+        .side-panel.closed { transform:translateX(340px); }
+        .side-panel .toggle-btn {
+            position:absolute;
+            left:-40px;
+            top:50%;
+            transform:translateY(-50%);
+            background:rgba(10,15,30,0.9);
+            border:1px solid rgba(79,158,255,0.2);
+            border-right:none;
+            border-radius:1rem 0 0 1rem;
+            padding:0.6rem 0.8rem;
+            color:#4f9eff;
+            cursor:pointer;
+            font-size:1.2rem;
+            backdrop-filter:blur(8px);
+        }
+        .side-panel h2 {
+            font-size:0.9rem;
+            font-weight:700;
+            margin-bottom:0.8rem;
+            color:#4f9eff;
+            border-bottom:1px solid #1e2a44;
+            padding-bottom:0.4rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .side-panel .stat-row {
+            display:flex;
+            justify-content:space-between;
+            padding:0.3rem 0;
+            border-bottom:1px solid #1a2238;
+            font-size:0.7rem;
+        }
+        .side-panel .stat-row .label { color:#8fa2dc; }
+        .side-panel .stat-row .value { font-weight:600; color:#eef2ff; }
+        .side-panel .stat-row .value.green { color:#4ade80; }
+        .side-panel .stat-row .value.red { color:#f87171; }
+        .side-panel .stat-row .value.blue { color:#4f9eff; }
+        .side-panel .stat-row .value.gold { color:#facc15; }
+
+        .agent-item {
+            background:rgba(20,24,36,0.5);
+            border-radius:0.8rem;
+            padding:0.4rem 0.8rem;
+            margin-bottom:0.3rem;
+            border-left:3px solid #4f9eff;
+            font-size:0.65rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            cursor:pointer;
+            transition:0.2s;
+        }
+        .agent-item:hover { background:rgba(79,158,255,0.1); }
+        .agent-item .status-dot {
+            width:8px;
+            height:8px;
+            border-radius:50%;
+            display:inline-block;
+            margin-left:0.3rem;
+        }
+        .agent-item .status-dot.online { background:#4ade80; }
+        .agent-item .status-dot.offline { background:#f87171; }
+        .agent-item .status-dot.idle { background:#facc15; }
+
+        .emergency-btn {
+            background:rgba(248,113,113,0.15);
+            border:1px solid #f8717155;
+            border-radius:2rem;
+            padding:0.4rem 1rem;
+            color:#f87171;
+            font-size:0.6rem;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.3s;
+            width:100%;
+            text-align:center;
+            margin-top:0.5rem;
+        }
+        .emergency-btn:hover { background:rgba(248,113,113,0.25); }
+
+        .agent-popup {
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%) scale(0.9);
+            z-index:2000;
+            background:rgba(10,15,30,0.96);
+            backdrop-filter:blur(24px);
+            border-radius:2rem;
+            border:1px solid rgba(79,158,255,0.3);
+            padding:2rem;
+            max-width:500px;
+            width:90%;
+            opacity:0;
+            pointer-events:none;
+            transition:0.3s cubic-bezier(0.4,0,0.2,1);
+            box-shadow:0 24px 80px rgba(0,0,0,0.8);
+        }
+        .agent-popup.open {
+            opacity:1;
+            pointer-events:auto;
+            transform:translate(-50%,-50%) scale(1);
+        }
+        .agent-popup .close-btn {
+            position:absolute;
+            top:0.8rem;
+            right:1.2rem;
+            background:none;
+            border:none;
+            color:#8fa2dc;
+            font-size:1.4rem;
+            cursor:pointer;
+        }
+        .agent-popup h3 { font-size:1.2rem; margin-bottom:0.5rem; color:#4f9eff; }
+        .agent-popup .detail-row {
+            display:flex;
+            justify-content:space-between;
+            padding:0.2rem 0;
+            font-size:0.8rem;
+            border-bottom:1px solid #1a2238;
+        }
+        .agent-popup .detail-row .label { color:#8fa2dc; }
+        .agent-popup .detail-row .value { color:#eef2ff; }
+
+        .panel-editor {
+            position:fixed;
+            bottom:2rem;
+            right:1rem;
+            z-index:3000;
+        }
+        .panel-editor button {
             background:rgba(79,158,255,0.15);
             border:1px solid #4f9eff44;
-            padding:0.2rem 1rem;
-            border-radius:60px;
-            font-size:0.7rem;
-            display:inline-block;
-        }
-        .badge-green { background:rgba(74,222,128,0.15); border-color:#4ade8055; color:#4ade80; }
-        .badge-red { background:rgba(248,113,113,0.15); border-color:#f8717155; color:#f87171; }
-        .badge-gold { background:rgba(251,191,36,0.15); border-color:#facc1555; color:#facc15; }
-        .badge-purple { background:rgba(192,132,252,0.15); border-color:#c084fc55; color:#c084fc; }
-        .btn {
-            background:#4f9eff;
-            border:none;
-            padding:0.5rem 1.6rem;
             border-radius:2rem;
-            font-weight:700;
-            color:#0a0f1e;
+            padding:0.4rem 1.2rem;
+            color:#4f9eff;
+            font-size:0.6rem;
             cursor:pointer;
-            transition:0.25s;
-            font-size:0.8rem;
+            backdrop-filter:blur(8px);
+            transition:0.3s;
         }
-        .btn:hover { background:#c084fc; transform:scale(1.03); box-shadow:0 8px 30px rgba(79,158,255,0.3); }
-        .btn-outline { background:transparent; border:1px solid #4f9eff55; color:#eef2ff; }
-        .btn-outline:hover { background:#4f9eff22; }
-        .btn-success { background:#4ade80; color:#0a0f1e; }
-        .btn-success:hover { background:#22c55e; }
-        .btn-danger { background:#f87171; color:#0a0f1e; }
-        .btn-danger:hover { background:#ef4444; }
-        .btn-sm { font-size:0.7rem; padding:0.3rem 1rem; }
-        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1rem; margin-top:0.8rem; }
-        .stat-card {
-            background:rgba(20,24,36,0.5);
-            border-radius:1rem;
-            padding:0.6rem 1rem;
-            border:1px solid rgba(255,255,255,0.05);
-            text-align:center;
+        .panel-editor button:hover { background:rgba(79,158,255,0.25); }
+
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:#0f172a; }
+        ::-webkit-scrollbar-thumb { background:#4f9eff; border-radius:4px; }
+
+        @media (max-width:768px) {
+            .side-panel { width:280px; }
+            .side-panel.closed { transform:translateX(280px); }
+            .floating-header { padding:0.4rem 1rem; gap:0.8rem; top:0.6rem; }
+            .floating-header .title { font-size:0.9rem; }
+            .floating-header .badge { font-size:0.45rem; padding:0.05rem 0.5rem; }
         }
-        .stat-card .num { font-size:1.5rem; font-weight:800; color:#4f9eff; }
-        .stat-card .label { font-size:0.6rem; color:#8fa2dc; }
-        .product-card {
-            background:rgba(20,24,36,0.6);
-            border-radius:1.5rem;
-            padding:1.2rem;
-            border:1px solid rgba(255,255,255,0.06);
-            text-align:center;
-            transition:0.25s;
-        }
-        .product-card:hover { border-color:#4f9eff; transform:translateY(-4px); }
-        .product-card .icon { font-size:2.5rem; color:#4f9eff; }
-        .product-card .name { font-weight:700; margin:0.3rem 0; }
-        .product-card .price { color:#c084fc; font-weight:700; font-size:1.1rem; }
-        .chat-box {
-            background:#0f172a;
-            border-radius:1rem;
-            padding:0.6rem 0.8rem;
-            max-height:200px;
-            overflow-y:auto;
-            border:1px solid #1e2a44;
-            display:flex;
-            flex-direction:column;
-            gap:0.3rem;
-        }
-        .chat-box .msg { padding:0.3rem 0.7rem; border-radius:0.8rem; max-width:90%; font-size:0.8rem; line-height:1.4; }
-        .chat-box .user-msg { align-self:flex-end; background:#4f9eff; color:#0a0f1e; }
-        .chat-box .ai-msg { align-self:flex-start; background:rgba(255,255,255,0.06); color:#e5e7f0; border:1px solid #2a3a5a; }
-        .chat-input-row { display:flex; gap:0.4rem; margin-top:0.4rem; }
-        .chat-input-row input { flex:1; background:#0f172a; border:1px solid #2a3a5a; border-radius:2rem; padding:0.4rem 0.8rem; color:#eef2ff; outline:none; font-size:0.8rem; }
-        .chat-input-row input:focus { border-color:#4f9eff; }
-        .chat-input-row button { background:#4f9eff; border:none; border-radius:2rem; padding:0 1.2rem; font-weight:600; color:#0a0f1e; cursor:pointer; }
-        .chat-input-row button:hover { background:#c084fc; }
-        .log-box {
-            background:#0f172a;
-            border-radius:1rem;
-            padding:0.5rem 0.8rem;
-            max-height:150px;
-            overflow-y:auto;
-            font-family:monospace;
-            font-size:0.7rem;
-            border:1px solid #1e2a44;
-        }
-        .log-box .log-entry { padding:0.1rem 0; border-bottom:1px solid #1a2238; color:#94a3b8; }
-        .log-box .log-entry .time { color:#4f9eff; margin-left:0.3rem; }
-        .log-box .log-entry .green { color:#4ade80; }
-        .log-box .log-entry .yellow { color:#facc15; }
-        .log-box .log-entry .red { color:#f87171; }
-        .repo-list { font-size:0.8rem; color:#9bb2ff; max-height:200px; overflow-y:auto; }
-        .repo-list .repo-item { padding:0.3rem 0; border-bottom:1px solid #1e2a44; display:flex; justify-content:space-between; }
-        .master-key-area { background:rgba(248,113,113,0.06); border:1px dashed #f8717155; border-radius:1.2rem; padding:0.8rem 1.2rem; margin-top:0.5rem; }
-        .master-key-area .label { color:#f87171; font-size:0.7rem; font-weight:600; }
-        .collapsible-content { display:none; margin-top:0.8rem; }
-        .collapsible-content.open { display:block; }
-        .toggle-section { cursor:pointer; user-select:none; }
-        .toggle-section .arrow { transition:0.3s; display:inline-block; }
-        .toggle-section .arrow.open { transform:rotate(90deg); }
-        @media (max-width:640px) { body { padding:0.4rem; } .glass { padding:0.8rem 1rem; } }
     </style>
 </head>
 <body>
-<div class="container">
 
-    <!-- ===== HEADER ===== -->
-    <div class="glass">
-        <div class="flex">
-            <div>
-                <h1 style="font-size:1.8rem; background:linear-gradient(135deg,#fff,#4f9eff,#c084fc); -webkit-background-clip:text; background-clip:text; color:transparent;">
-                    <i class="fas fa-robot"></i> افق فرشته
-                </h1>
-                <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.3rem;">
-                    <span class="badge"><i class="fas fa-shield-alt"></i> Horizon Angel</span>
-                    <span class="badge badge-green" id="statusBadge"><i class="fas fa-circle"></i> متصل</span>
-                    <span class="badge badge-gold"><i class="fas fa-user-tie"></i> Mahdi Amolimoghaddam</span>
-                    <span class="badge badge-purple"><i class="fas fa-database"></i> Core Engine</span>
-                </div>
-            </div>
-            <div>
-                <button class="btn" id="runBrainBtn"><i class="fas fa-play"></i> اجرا</button>
-                <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> بروز</button>
-            </div>
+<div class="main-container">
+    <!-- ===== نقشه ===== -->
+    <div id="map"></div>
+
+    <!-- ===== هدر شناور ===== -->
+    <div class="floating-header">
+        <span class="title">🌍 Horizon Command Center · مشهد</span>
+        <div class="badge-group">
+            <span class="badge green"><i class="fas fa-circle"></i> محصولات فعال: <span id="activeProductsCount">۱۲</span></span>
+            <span class="badge red"><i class="fas fa-circle"></i> نودها: <span id="nodesCount">۲۴</span></span>
+            <span class="badge blue"><i class="fas fa-circle"></i> عامل‌ها: <span id="agentsCount">۲۳۰</span></span>
+            <span class="badge gold"><i class="fas fa-circle"></i> آنلاین: <span id="onlineCount">۱۸۶</span></span>
+        </div>
+        <button id="emergencyToggle" style="background:none;border:1px solid #f8717155;border-radius:2rem;padding:0.1rem 0.8rem;color:#f87171;font-size:0.55rem;cursor:pointer;">🔴 خاموش</button>
+    </div>
+
+    <!-- ===== پنل کناری ===== -->
+    <div class="side-panel" id="sidePanel">
+        <button class="toggle-btn" id="toggleSidePanel"><i class="fas fa-chevron-left"></i></button>
+        <h2><i class="fas fa-chart-simple"></i> وضعیت لحظه‌ای</h2>
+        <div class="stat-row"><span class="label">ولیدیتورها</span><span class="value blue" id="statValidators">۱۰۰,۰۰۰+</span></div>
+        <div class="stat-row"><span class="label">آنلاین</span><span class="value green" id="statOnline">۸۸,۲۴۰</span></div>
+        <div class="stat-row"><span class="label">آفلاین</span><span class="value red" id="statOffline">۱۱,۷۶۰</span></div>
+        <div class="stat-row"><span class="label">لایسنس صادرشده</span><span class="value gold" id="statLicenses">۴۵۶</span></div>
+        <div class="stat-row"><span class="label">تراکنش‌ها (۲۴h)</span><span class="value blue" id="statTx">۱۲,۴۵۶</span></div>
+        <div class="stat-row"><span class="label">مخازن</span><span class="value" id="statRepos">۶</span></div>
+        <div class="stat-row"><span class="label">کلید API اعتبار</span><span class="value green" id="statApiCredit">۱۰۰%</span></div>
+
+        <h2 style="margin-top:1rem;"><i class="fas fa-robot"></i> عامل‌های فعال</h2>
+        <div id="agentList"></div>
+
+        <button class="emergency-btn" id="emergencyBtn"><i class="fas fa-power-off"></i> خاموش‌سازی اضطراری</button>
+        <div style="margin-top:0.3rem;display:flex;gap:0.3rem;">
+            <input type="password" id="shutdownPassword" placeholder="رمز خاموش‌سازی..." style="flex:1;background:#0f172a;border:1px solid #2a3a5a;border-radius:2rem;padding:0.2rem 0.8rem;color:#eef2ff;font-size:0.6rem;outline:none;" />
+            <button id="shutdownConfirmBtn" style="background:#f87171;border:none;border-radius:2rem;padding:0.2rem 1rem;color:#0a0f1e;font-size:0.6rem;font-weight:700;cursor:pointer;">تأیید</button>
         </div>
     </div>
 
-    <!-- ===== STATS ===== -->
-    <div class="glass">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:0.8rem;">
-            <div class="stat-card"><div class="num" id="totalTx">۰</div><div class="label">تراکنش‌ها</div></div>
-            <div class="stat-card"><div class="num" id="activeProducts">۰</div><div class="label">محصولات فعال</div></div>
-            <div class="stat-card"><div class="num" id="validatorsCount">۲۴</div><div class="label">ولیدیتور</div></div>
-            <div class="stat-card"><div class="num" id="lastDeploy">—</div><div class="label">آخرین Deploy</div></div>
-            <div class="stat-card"><div class="num" id="financialUsage">۰ ETH</div><div class="label">مصرف مالی</div></div>
-            <div class="stat-card"><div class="num" id="workUsage">۰ تسک</div><div class="label">مصرف کاری</div></div>
-        </div>
+    <!-- ===== پاپ‌آپ عامل ===== -->
+    <div class="agent-popup" id="agentPopup">
+        <button class="close-btn" id="closePopup"><i class="fas fa-times"></i></button>
+        <h3 id="popupName">عامل</h3>
+        <div class="detail-row"><span class="label">وضعیت</span><span class="value" id="popupStatus">🟢 آنلاین</span></div>
+        <div class="detail-row"><span class="label">مخزن</span><span class="value" id="popupRepo">—</span></div>
+        <div class="detail-row"><span class="label">فایل در حال کار</span><span class="value" id="popupFile">—</span></div>
+        <div class="detail-row"><span class="label">آخرین فعالیت</span><span class="value" id="popupLastActive">—</span></div>
+        <div class="detail-row"><span class="label">تخصص</span><span class="value" id="popupSpecialty">—</span></div>
+        <button id="popupActionBtn" style="margin-top:0.8rem;background:#4f9eff;border:none;border-radius:2rem;padding:0.3rem 1.5rem;color:#0a0f1e;font-weight:700;cursor:pointer;width:100%;">مدیریت عامل</button>
     </div>
 
-    <!-- ===== PRODUCTS (قابل جمع‌شدن) ===== -->
-    <div class="glass">
-        <div class="toggle-section" id="productsToggle">
-            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span class="arrow open" id="productsArrow">▶</span>
-                <i class="fas fa-store"></i> هابل استور · محصولات
-                <span class="badge badge-green" id="productsCountBadge">۰ فعال</span>
-            </h2>
-        </div>
-        <div class="collapsible-content open" id="productsContent">
-            <div class="grid" id="productGrid"></div>
-        </div>
-    </div>
-
-    <!-- ===== REPOSITORIES ===== -->
-    <div class="glass">
-        <div class="toggle-section" id="reposToggle">
-            <h2 style="font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span class="arrow" id="reposArrow">▶</span>
-                <i class="fas fa-code-branch"></i> مخازن متصل
-                <span class="badge badge-purple" id="repoCount">۰ مخزن</span>
-            </h2>
-        </div>
-        <div class="collapsible-content" id="reposContent">
-            <div class="repo-list" id="repoList"></div>
-            <button class="btn btn-sm btn-outline" id="fetchReposBtn"><i class="fas fa-sync"></i> دریافت لیست مخازن</button>
-        </div>
-    </div>
-
-    <!-- ===== CONNECTED PRODUCTS (New Section) ===== -->
-    <div class="glass">
-        <div class="flex" style="margin-bottom:0.5rem;">
-            <h2 style="font-size:1.1rem;"><i class="fas fa-cubes"></i> محصولات متصل به اکوسیستم</h2>
-            <span class="badge badge-purple" id="productCount">۰ محصول</span>
-        </div>
-        <div id="productList" style="max-height:450px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1rem;">
-            <!-- محصولات توسط جاوااسکریپت رندر می‌شوند -->
-        </div>
-        <button class="btn btn-sm btn-success" id="addProductBtn" style="margin-top:0.5rem;"><i class="fas fa-plus"></i> افزودن محصول جدید</button>
-    </div>
-
-    <!-- ===== AI COMMAND CENTER ===== -->
-    <div class="glass">
-        <h2 style="font-size:1.1rem;"><i class="fas fa-comment-dots"></i> مرکز فرماندهی هوش مصنوعی</h2>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.3rem 0;">
-            <span class="badge badge-green" id="deepseekStatus"><i class="fas fa-check"></i> DeepSeek متصل</span>
-        </div>
-        <div class="chat-box" id="chatBox">
-            <div class="msg ai-msg">🤖 افق فرشته فعال است. دستورات روی مخازن اجرا می‌شوند.</div>
-            <div class="msg ai-msg">📌 مثال: «ساخت مخزن horizon-api» · «لیست مخازن» · «وضعیت»</div>
-        </div>
-        <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="دستور خود را بنویسید..." />
-            <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
-        </div>
-        <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.3rem;">
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="لیست مخازن"><i class="fas fa-list"></i> مخازن</button>
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="وضعیت"><i class="fas fa-chart-simple"></i> وضعیت</button>
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="همگام‌سازی"><i class="fas fa-sync"></i> همگام‌سازی</button>
-            <button class="btn btn-sm btn-outline quick-cmd" data-cmd="ساخت مخزن horizon-test"><i class="fas fa-plus"></i> ساخت مخزن</button>
-        </div>
-    </div>
-
-    <!-- ===== LOGS ===== -->
-    <div class="glass">
-        <h2 style="font-size:1.1rem;"><i class="fas fa-history"></i> لاگ عملیات</h2>
-        <div class="log-box" id="logBox">
-            <div class="log-entry"><span class="time">[سیستم]</span> 🚀 افق فرشته راه‌اندازی شد.</div>
-        </div>
-        <button class="btn btn-sm btn-outline" id="clearLogsBtn"><i class="fas fa-eraser"></i> پاک کردن لاگ</button>
-    </div>
-
-    <!-- ===== MASTER KEY (فلش) ===== -->
-    <div class="glass master-key-area">
-        <div class="flex">
-            <div>
-                <span class="label"><i class="fas fa-key"></i> کلید تسلط کامل (فلش)</span>
-                <span style="font-size:0.6rem; color:#6c7b9e; margin-right:0.5rem;">— فقط برای مدیریت اضطراری</span>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-danger" id="masterKeyBtn"><i class="fas fa-usb"></i> اتصال فلش</button>
-                <span id="masterKeyStatus" style="font-size:0.65rem; color:#f87171; margin-right:0.5rem;">⚠️ غیرفعال</span>
-            </div>
-        </div>
-        <div style="display:none; margin-top:0.8rem; gap:0.5rem; flex-wrap:wrap;" id="emergencyControls">
-            <button class="btn btn-sm btn-danger" id="shutdownEcosystemBtn"><i class="fas fa-power-off"></i> خاموش‌سازی کامل</button>
-            <button class="btn btn-sm btn-outline" id="toggleReposBtn"><i class="fas fa-edit"></i> مدیریت مخازن</button>
-        </div>
-    </div>
-
-    <div style="text-align:center; font-size:0.7rem; color:#6c7b9e; padding:1rem 0;">
-        © ۲۰۲۶ Horizon Angel · نظارت ارشد: Mahdi Amolimoghaddam · مبتنی بر Horizon Core Engine
+    <!-- ===== ویرایشگر پنل ===== -->
+    <div class="panel-editor">
+        <button id="editPanelBtn"><i class="fas fa-pen"></i> ویرایش پنل</button>
     </div>
 </div>
 
 <script>
-    // =============================================================
-    // 🔐 CONFIGURATION
-    // =============================================================
-    const DEEPSEEK_API_KEY = 'sk-d11199c405a54b25ac2a7e03f28506cb';
-    const GITHUB_TOKEN = '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';
-    const REPO_OWNER = 'beaconchain-horizon';
-    const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions';
+// =============================================================
+// CONFIGURATION
+// =============================================================
+const MASHHAD_COORDS = [36.2605, 59.6168];
+const GITHUB_ORG = 'beaconchain-horizon';
+const GITHUB_TOKEN = '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';
 
-    // =============================================================
-    // 📦 PRODUCTS (قابل کش در localStorage)
-    // =============================================================
-    let products = [
-        { id: 1, name: 'Horizon Wallet', version: '3.2.1', price: 'رایگان', icon: 'fa-wallet', active: true },
-        { id: 2, name: 'Horizon Dashboard', version: '2.5.0', price: '۰.۰۱۵ ETH', icon: 'fa-chart-pie', active: true },
-        { id: 3, name: 'Horizon Node', version: '0.9.0', price: '۰.۰۵ ETH', icon: 'fa-server', active: true },
-        { id: 4, name: 'Validator License', version: '1.1.3', price: '۰.۰۰۲ ETH/ماه', icon: 'fa-shield-alt', active: true }
-    ];
+// =============================================================
+// AGENTS DATA (نمونه‌ای از agency-agents)
+// =============================================================
+const agentsList = [
+    { id: 'frontend-developer', name: '🎨 Frontend Developer', specialty: 'React/Vue/UI', repo: 'hub', file: 'index.html' },
+    { id: 'backend-architect', name: '🏗️ Backend Architect', specialty: 'Go/API/DB', repo: 'horizon-core-engine', file: 'main.go' },
+    { id: 'security-engineer', name: '🔒 Security Engineer', specialty: 'Audit/Crypto', repo: 'verified-merkle-lib', file: 'tree.go' },
+    { id: 'growth-hacker', name: '🚀 Growth Hacker', specialty: 'Marketing/Acquisition', repo: 'hub', file: 'README.md' },
+    { id: 'ux-designer', name: '🎯 UX Designer', specialty: 'Design/UI/UX', repo: 'horizon-angel-panel', file: 'index.html' },
+    { id: 'solidity-engineer', name: '⛓️ Solidity Engineer', specialty: 'Smart Contracts', repo: 'horizon-core-engine', file: 'contract.sol' },
+    { id: 'data-analyst', name: '📊 Data Analyst', specialty: 'Analytics/BI', repo: 'Beaconchain.us', file: 'data.js' },
+    { id: 'devops-automator', name: '⚙️ DevOps', specialty: 'CI/CD/Infra', repo: 'horizon-core-engine', file: 'deploy.yml' },
+    { id: 'technical-writer', name: '📝 Tech Writer', specialty: 'Docs/Content', repo: 'hub', file: 'README.md' },
+    { id: 'ai-engineer', name: '🤖 AI Engineer', specialty: 'ML/LLM', repo: 'agency-agents', file: 'agents.md' },
+];
 
-    const savedProducts = localStorage.getItem('horizon_products');
-    if (savedProducts) {
-        try { products = JSON.parse(savedProducts); } catch(e) {}
-    }
+// =============================================================
+// نقاط جهانی
+// =============================================================
+const globalNodes = [
+    { lat: 40.7128, lng: -74.0060, name: 'New York · Validator #1', type: 'validator' },
+    { lat: 34.0522, lng: -118.2437, name: 'Los Angeles · Validator #2', type: 'validator' },
+    { lat: 37.7749, lng: -122.4194, name: 'San Francisco · Validator #3', type: 'validator' },
+    { lat: 41.8781, lng: -87.6298, name: 'Chicago · Validator #4', type: 'validator' },
+    { lat: 51.5074, lng: -0.1278, name: 'London · Validator #5', type: 'validator' },
+    { lat: 48.8566, lng: 2.3522, name: 'Paris · Validator #6', type: 'validator' },
+    { lat: 52.5200, lng: 13.4050, name: 'Berlin · Validator #7', type: 'validator' },
+    { lat: 40.7128, lng: 14.4857, name: 'Rome · Validator #8', type: 'validator' },
+    { lat: 35.6895, lng: 139.6917, name: 'Tokyo · Validator #9', type: 'validator' },
+    { lat: 37.5665, lng: 126.9780, name: 'Seoul · Validator #10', type: 'validator' },
+    { lat: 22.5431, lng: 114.0579, name: 'Hong Kong · Validator #11', type: 'validator' },
+    { lat: 28.6139, lng: 77.2090, name: 'Delhi · Validator #12', type: 'validator' },
+    { lat: 39.9042, lng: 116.4074, name: 'Beijing · Validator #13', type: 'validator' },
+    { lat: 25.2048, lng: 55.2708, name: 'Dubai · Validator #14', type: 'validator' },
+    { lat: 31.9539, lng: 35.9106, name: 'Amman · Validator #15', type: 'validator' },
+    { lat: 33.8938, lng: 35.5018, name: 'Beirut · Validator #16', type: 'validator' },
+    { lat: 35.6892, lng: 51.3890, name: 'Tehran · Validator #17', type: 'validator' },
+    { lat: 29.5918, lng: 52.5837, name: 'Shiraz · Validator #18', type: 'validator' },
+    { lat: 34.6382, lng: 50.8764, name: 'Isfahan · Validator #19', type: 'validator' },
+    { lat: 36.2605, lng: 59.6168, name: 'Mashhad · HQ', type: 'hq' },
+    { lat: -33.8688, lng: 151.2093, name: 'Sydney · Validator #20', type: 'validator' },
+    { lat: -33.9249, lng: 18.4241, name: 'Cape Town · Validator #21', type: 'validator' },
+];
 
-    function saveProductsToCache() {
-        localStorage.setItem('horizon_products', JSON.stringify(products));
-    }
+// =============================================================
+// STATE
+// =============================================================
+let map;
+let markers = [];
+let popupOpen = false;
+let shutdownPassword = 'horizon2026';
 
-    function renderProducts() {
-        const grid = document.getElementById('productGrid');
-        grid.innerHTML = products.map(p => `
-            <div class="product-card">
-                <div class="icon"><i class="fas ${p.icon}"></i></div>
-                <div class="name">${p.name}</div>
-                <div style="font-size:0.7rem; color:#8fa2dc;">نسخه ${p.version}</div>
-                <div class="price">${p.price}</div>
-                <span class="badge ${p.active ? 'badge-green' : 'badge-red'}" style="font-size:0.6rem;">
-                    ${p.active ? '✅ فعال' : '❌ غیرفعال'}
-                </span>
-                <button class="btn btn-sm ${p.active ? 'btn-danger' : 'btn-success'} toggle-product" data-id="${p.id}" style="margin-top:0.3rem;">
-                    ${p.active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
-                </button>
-            </div>
-        `).join('');
+// =============================================================
+// INIT MAP
+// =============================================================
+function initMap() {
+    map = L.map('map', {
+        center: [20, 0],
+        zoom: 2,
+        zoomControl: false,
+        attributionControl: false,
+        fadeAnimation: true,
+        zoomAnimation: true,
+        maxZoom: 6,
+        minZoom: 1.5,
+    });
 
-        document.querySelectorAll('.toggle-product').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = parseInt(this.dataset.id);
-                toggleProduct(id);
-            });
-        });
-        updateStats();
-    }
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap & CartoDB',
+        subdomains: 'abcd',
+        maxZoom: 19,
+    }).addTo(map);
 
-    async function toggleProduct(id) {
-        const product = products.find(p => p.id === id);
-        if (!product) return;
-        product.active = !product.active;
-        saveProductsToCache();
-        renderProducts();
-        addLog(`${product.active ? 'فعال' : 'غیرفعال'} شد: ${product.name}`, product.active ? 'success' : 'warning');
-    }
-
-    // =============================================================
-    // 📊 STATS
-    // =============================================================
-    function updateStats() {
-        const active = products.filter(p => p.active).length;
-        document.getElementById('activeProducts').textContent = active;
-        document.getElementById('productsCountBadge').textContent = `${active} فعال`;
-        document.getElementById('totalTx').textContent = (Math.floor(Math.random() * 10000) + 1000).toLocaleString();
-        document.getElementById('lastDeploy').textContent = new Date().toLocaleTimeString('fa-IR');
-        document.getElementById('financialUsage').textContent = (Math.random() * 5 + 0.1).toFixed(2) + ' ETH';
-        document.getElementById('workUsage').textContent = Math.floor(Math.random() * 200 + 50) + ' تسک';
-    }
-
-    // =============================================================
-    // 🧠 AI — DeepSeek API
-    // =============================================================
-    async function callDeepSeek(prompt) {
-        try {
-            const res = await fetch(DEEPSEEK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'deepseek-chat',
-                    messages: [
-                        { role: 'system', content: 'تو دستیار هوشمند Horizon هستی. پاسخ‌ها را مختصر و دقیق بده. فارسی صحبت کن.' },
-                        { role: 'user', content: prompt }
-                    ],
-                    max_tokens: 4096,
-                    temperature: 0.7
-                })
-            });
-            if (!res.ok) {
-                const err = await res.json();
-                return `❌ خطا (${res.status}): ${err.error?.message || 'مشکل در ارتباط'}`;
-            }
-            const data = await res.json();
-            return data.choices[0].message.content.trim();
-        } catch (e) {
-            return `❌ خطا: ${e.message}`;
-        }
-    }
-
-    // =============================================================
-    // 🎯 COMMAND PROCESSOR (Rule-based + DeepSeek)
-    // =============================================================
-    async function processCommand(text) {
-        const lower = text.toLowerCase();
-
-        if (lower.includes('لیست مخازن') || lower.includes('مخازن')) {
-            await fetchRepos();
-            return;
-        }
-
-        if (lower.includes('وضعیت')) {
-            const active = products.filter(p => p.active).length;
-            addChatMessage(`📊 ${active} محصول فعال، ۲۴ ولیدیتور، تراکنش‌ها لحظه‌ای`, 'ai');
-            addLog('📊 وضعیت سیستم نمایش داده شد.', 'info');
-            return;
-        }
-
-        if (lower.includes('همگام') || lower.includes('sync')) {
-            addLog('🔄 همگام‌سازی...', 'info');
-            await new Promise(r => setTimeout(r, 800));
-            addLog('✅ همگام‌سازی کامل شد.', 'success');
-            addChatMessage('✅ همگام‌سازی با موفقیت انجام شد.', 'ai');
-            return;
-        }
-
-        if (lower.includes('ساخت مخزن') || lower.includes('ساخت ریپو')) {
-            const match = text.match(/ساخت مخزن\s+([^\s]+)/);
-            if (match && match[1]) {
-                const repoName = match[1];
-                await createRepo(repoName);
-            } else {
-                addChatMessage('❌ لطفاً نام مخزن را مشخص کنید: «ساخت مخزن horizon-api»', 'ai');
-            }
-            return;
-        }
-
-        addLog('🧠 ارسال به DeepSeek...', 'info');
-        const result = await callDeepSeek(text);
-        addChatMessage(result, 'ai');
-        addLog('✅ پاسخ DeepSeek دریافت شد.', 'success');
-    }
-
-    // =============================================================
-    // 📂 GitHub API — Repositories
-    // =============================================================
-    async function fetchRepos() {
-        addLog('📡 دریافت لیست مخازن...', 'info');
-        try {
-            const res = await fetch(`https://api.github.com/orgs/${REPO_OWNER}/repos?per_page=20`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const repos = await res.json();
-            if (Array.isArray(repos)) {
-                const list = document.getElementById('repoList');
-                list.innerHTML = repos.map(r =>
-                    `<div class="repo-item">📁 ${r.name} <span style="color:#8fa2dc;">⭐ ${r.stargazers_count}</span></div>`
-                ).join('');
-                document.getElementById('repoCount').textContent = `${repos.length} مخزن`;
-                addLog(`✅ ${repos.length} مخزن دریافت شد.`, 'success');
-                addChatMessage(`📂 ${repos.length} مخزن در سازمان یافت شد.`, 'ai');
-            }
-        } catch(e) {
-            addLog(`❌ خطا: ${e.message}`, 'error');
-            addChatMessage(`❌ خطا در دریافت مخازن: ${e.message}`, 'ai');
-        }
-    }
-
-    async function createRepo(name) {
-        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'your_github_token_here') {
-            addChatMessage('❌ توکن گیت‌هاب تنظیم نشده است. لطفاً GITHUB_TOKEN را در کد قرار دهید.', 'ai');
-            return;
-        }
-        addLog(`🛠️ ساخت مخزن ${name}...`, 'info');
-        try {
-            const res = await fetch('https://api.github.com/user/repos', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: name,
-                    description: 'ساخته شده توسط Horizon Angel AI',
-                    private: false,
-                    auto_init: true
-                })
-            });
-            if (res.ok) {
-                addChatMessage(`✅ مخزن ${name} با موفقیت ساخته شد.`, 'ai');
-                addLog(`✅ مخزن ${name} ساخته شد.`, 'success');
-            } else {
-                const err = await res.json();
-                addChatMessage(`❌ خطا: ${err.message}`, 'ai');
-                addLog(`❌ خطا: ${err.message}`, 'error');
-            }
-        } catch(e) {
-            addChatMessage(`❌ خطا: ${e.message}`, 'ai');
-        }
-    }
-
-    // =============================================================
-    // 💬 CHAT & LOG
-    // =============================================================
-    function addChatMessage(text, sender = 'ai') {
-        const box = document.getElementById('chatBox');
-        const div = document.createElement('div');
-        div.className = `msg ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
-        div.textContent = text;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    }
-
-    function addLog(message, type = 'info') {
-        const container = document.getElementById('logBox');
-        const time = new Date().toLocaleTimeString('fa-IR');
-        const cls = { info: '', success: 'green', warning: 'yellow', error: 'red' }[type] || '';
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `<span class="time">[${time}]</span> <span class="${cls}">${message}</span>`;
-        container.appendChild(entry);
-        container.scrollTop = container.scrollHeight;
-        localStorage.setItem('horizon_logs', container.innerHTML);
-    }
-
-    const savedLogs = localStorage.getItem('horizon_logs');
-    if (savedLogs) {
-        document.getElementById('logBox').innerHTML = savedLogs;
-    }
-
-    // =============================================================
-    // 🔑 MASTER KEY (فلش) — شبیه‌سازی
-    // =============================================================
-    let masterKeyActive = false;
-
-    document.getElementById('masterKeyBtn').addEventListener('click', function() {
-        if (!masterKeyActive) {
-            const fakeKey = prompt('📁 فایل کلید را انتخاب کنید (شبیه‌سازی):');
-            if (fakeKey && fakeKey.length > 5) {
-                masterKeyActive = true;
-                document.getElementById('masterKeyStatus').textContent = '✅ فعال';
-                document.getElementById('masterKeyStatus').style.color = '#4ade80';
-                document.getElementById('emergencyControls').style.display = 'flex';
-                addLog('🔑 کلید تسلط کامل تأیید شد', 'success');
-                addChatMessage('🔑 حالت اضطراری فعال شد.', 'ai');
-            } else {
-                addLog('❌ کلید نامعتبر', 'error');
-            }
+    globalNodes.forEach(p => {
+        let color, radius, label;
+        if (p.type === 'hq') {
+            color = '#facc15';
+            radius = 16;
+            label = '🏛️ مرکز فرماندهی';
         } else {
-            masterKeyActive = false;
-            document.getElementById('masterKeyStatus').textContent = '⚠️ غیرفعال';
-            document.getElementById('masterKeyStatus').style.color = '#f87171';
-            document.getElementById('emergencyControls').style.display = 'none';
-            addLog('🔑 حالت اضطراری غیرفعال شد', 'warning');
+            color = '#4f9eff';
+            radius = 8;
+            label = '🔵 ولیدیتور';
         }
+        const marker = L.circleMarker([p.lat, p.lng], {
+            radius: radius,
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.8,
+            weight: 2,
+        }).addTo(map);
+        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.8rem;text-align:center;">
+            <strong>${p.name}</strong><br>
+            <span style="color:#8fa2dc;">${label}</span>
+        </div>`);
+        markers.push(marker);
     });
 
-    document.getElementById('shutdownEcosystemBtn').addEventListener('click', () => {
-        if (confirm('⚠️ خاموش‌سازی کامل اکوسیستم؟ این عملیات غیرقابل‌بازگشت است.')) {
-            addLog('🛑 اکوسیستم به‌طور کامل خاموش شد', 'error');
-            addChatMessage('🛑 اکوسیستم خاموش شد. همه‌ی مخازن غیرفعال شدند.', 'ai');
-            alert('🚨 خاموش‌سازی کامل اجرا شد.');
-        }
-    });
-
-    // =============================================================
-    // CONNECTED PRODUCTS – Full Management (Real Execution)
-    // =============================================================
-    let connectedProducts = [
-        {
-            id: 'wallet',
-            name: 'Horizon Wallet',
-            type: 'داخلی',
-            icon: 'fa-wallet',
-            version: '3.2.1',
-            status: 'active',
-            lastUpdated: '۱۴۰۲/۰۵/۱۰',
-            licenseStatus: 'فعال (Merkle: 0x4a7b...)',
-            securityScore: 10,
-            description: 'کیف پول غیرمتمرکز برای ذخیره و انتقال رمزارزها با قابلیت اتصال به Core Engine.'
-        },
-        {
-            id: 'dashboard',
-            name: 'Horizon Dashboard',
-            type: 'داخلی',
-            icon: 'fa-chart-pie',
-            version: '2.5.0',
-            status: 'active',
-            lastUpdated: '۱۴۰۲/۰۵/۰۹',
-            licenseStatus: 'فعال (Merkle: 0x9c3d...)',
-            securityScore: 10,
-            description: 'داشبورد پیشرفته برای مانیتورینگ لحظه‌ای ولیدیتورها و تحلیل داده‌های شبکه.'
-        },
-        {
-            id: 'node',
-            name: 'Horizon Node',
-            type: 'داخلی',
-            icon: 'fa-server',
-            version: '0.9.0',
-            status: 'active',
-            lastUpdated: '۱۴۰۲/۰۵/۰۸',
-            licenseStatus: 'فعال (Merkle: 0x2e1f...)',
-            securityScore: 10,
-            description: 'نود کامل بلاک‌چین با قابلیت همگام‌سازی آفلاین و تأیید تراکنش‌ها.'
-        },
-        {
-            id: 'validator-license',
-            name: 'Validator License',
-            type: 'داخلی',
-            icon: 'fa-shield-alt',
-            version: '1.1.3',
-            status: 'active',
-            lastUpdated: '۱۴۰۲/۰۵/۰۷',
-            licenseStatus: 'فعال (Merkle: 0x8f6a...)',
-            securityScore: 10,
-            description: 'لایسنس معتبر برای اجرای ولیدیتور در شبکه‌های اتریوم و گنوسیس.'
-        },
-        {
-            id: 'bank-integration',
-            name: 'بانک ملی · Horizon Integration',
-            type: 'شخص ثالث',
-            icon: 'fa-university',
-            version: '2.0.0',
-            status: 'active',
-            lastUpdated: '۱۴۰۲/۰۵/۰۶',
-            licenseStatus: 'فعال (Merkle: 0x3d5e...)',
-            securityScore: 9,
-            description: 'اتصال بانک ملی به Core Engine برای توکن‌سازی دارایی‌ها و تأیید تراکنش‌ها.'
-        },
-        {
-            id: 'exchange-integration',
-            name: 'صرافی رمز · Horizon Integration',
-            type: 'شخص ثالث',
-            icon: 'fa-exchange-alt',
-            version: '1.5.0',
-            status: 'pending',
-            lastUpdated: '۱۴۰۲/۰۵/۰۵',
-            licenseStatus: 'در انتظار تأیید',
-            securityScore: 8,
-            description: 'اتصال صرافی رمز به Core Engine برای تأیید تراکنش‌ها و مدیریت لایسنس‌ها.'
-        }
+    // خطوط شبکه
+    const lines = [
+        [[36.2605, 59.6168], [35.6892, 51.3890]],
+        [[36.2605, 59.6168], [25.2048, 55.2708]],
+        [[36.2605, 59.6168], [40.7128, -74.0060]],
+        [[36.2605, 59.6168], [51.5074, -0.1278]],
+        [[36.2605, 59.6168], [35.6895, 139.6917]],
     ];
+    lines.forEach(coords => {
+        L.polyline(coords, {
+            color: '#4f9eff',
+            weight: 0.5,
+            opacity: 0.12,
+            dashArray: '6 10',
+        }).addTo(map);
+    });
 
-    function renderConnectedProducts() {
-        const container = document.getElementById('productList');
-        if (!container) return;
+    // مرکز فرماندهی مشهد
+    L.marker(MASHHAD_COORDS, {
+        icon: L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background:rgba(250,204,21,0.2);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;border:2px solid #facc15;box-shadow:0 0 60px rgba(250,204,21,0.3);animation:pulse 2s infinite;">
+                <i class="fas fa-flag" style="color:#facc15;font-size:2rem;"></i>
+            </div>
+            <style>
+                @keyframes pulse {
+                    0% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
+                    50% { box-shadow:0 0 60px rgba(250,204,21,0.5); }
+                    100% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
+                }
+            </style>`,
+            iconSize: [70, 70],
+            iconAnchor: [35, 35],
+        })
+    }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;">
+        <strong style="color:#facc15;">🏛️ مرکز فرماندهی Horizon</strong><br>
+        مشهد، ایران · قلب اکوسیستم
+    </div>`);
+}
 
-        container.innerHTML = connectedProducts.map(p => {
-            const statusClass = p.status === 'active' ? 'badge-green' : (p.status === 'pending' ? 'badge-gold' : 'badge-red');
-            const statusText = p.status === 'active' ? '🟢 فعال' : (p.status === 'pending' ? '🟡 در انتظار' : '🔴 غیرفعال');
-            return `
-                <div class="glass" style="padding:0.8rem; margin:0; border-radius:1.2rem; transition:0.2s; background:rgba(20,24,36,0.5);">
-                    <div style="display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid #2a3a5a; padding-bottom:0.4rem;">
-                        <span style="font-size:1.8rem; color:#4f9eff;"><i class="fas ${p.icon}"></i></span>
-                        <span style="font-weight:700; font-size:1rem;">${p.name}</span>
-                        <span class="badge ${statusClass}" style="margin-right:auto;">${statusText}</span>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.2rem 1rem; font-size:0.75rem; margin-top:0.4rem; color:#cbd5e1;">
-                        <div><strong>نوع:</strong> ${p.type}</div>
-                        <div><strong>نسخه:</strong> ${p.version}</div>
-                        <div><strong>بروزرسانی:</strong> ${p.lastUpdated}</div>
-                        <div><strong>امنیت:</strong> ${p.securityScore}/۱۰</div>
-                        <div style="grid-column:1/3;"><strong>لایسنس:</strong> ${p.licenseStatus}</div>
-                        <div style="grid-column:1/3; font-size:0.7rem; color:#94a3b8; margin-top:0.2rem;">${p.description}</div>
-                    </div>
-                    <div style="display:flex; gap:0.3rem; margin-top:0.5rem; flex-wrap:wrap;">
-                        <button class="btn btn-sm btn-outline" onclick="viewProduct('${p.id}')"><i class="fas fa-eye"></i> جزئیات</button>
-                        <button class="btn btn-sm btn-outline" onclick="manageLicense('${p.id}')"><i class="fas fa-key"></i> لایسنس</button>
-                        <button class="btn btn-sm btn-danger" onclick="removeProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        document.getElementById('productCount').textContent = `${connectedProducts.length} محصول`;
+// =============================================================
+// AGENT POPUP
+// =============================================================
+window.openAgentPopup = function(agentId) {
+    const agent = agentsList.find(a => a.id === agentId) || agentsList[0];
+    document.getElementById('popupName').textContent = agent.name;
+    document.getElementById('popupStatus').innerHTML = `<span style="color:#4ade80;">🟢 آنلاین</span>`;
+    document.getElementById('popupRepo').textContent = agent.repo || '—';
+    document.getElementById('popupFile').textContent = agent.file || '—';
+    document.getElementById('popupLastActive').textContent = new Date().toLocaleTimeString('fa-IR');
+    document.getElementById('popupSpecialty').textContent = agent.specialty || '—';
+    document.getElementById('agentPopup').classList.add('open');
+    popupOpen = true;
+};
+document.getElementById('closePopup').addEventListener('click', () => {
+    document.getElementById('agentPopup').classList.remove('open');
+    popupOpen = false;
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popupOpen) {
+        document.getElementById('agentPopup').classList.remove('open');
+        popupOpen = false;
     }
+});
 
-    window.viewProduct = function(id) {
-        const product = connectedProducts.find(p => p.id === id);
-        if (!product) return;
-        alert(`📋 جزئیات محصول ${product.name}:\n\nنوع: ${product.type}\nنسخه: ${product.version}\nوضعیت: ${product.status}\nلایسنس: ${product.licenseStatus}\nامنیت: ${product.securityScore}/۱۰\nتوضیحات: ${product.description}`);
-    };
+// =============================================================
+// SIDE PANEL AGENT LIST
+// =============================================================
+function renderAgentList() {
+    const container = document.getElementById('agentList');
+    container.innerHTML = agentsList.map(agent => `
+        <div class="agent-item" onclick="openAgentPopup('${agent.id}')">
+            <span>${agent.name}</span>
+            <span>
+                <span class="status-dot online"></span>
+                <span style="font-size:0.55rem;color:#8fa2dc;">${agent.specialty}</span>
+            </span>
+        </div>
+    `).join('');
+}
+renderAgentList();
 
-    window.manageLicense = function(id) {
-        const product = connectedProducts.find(p => p.id === id);
-        if (!product) return;
-        alert(`🔑 مدیریت لایسنس ${product.name}:\nوضعیت فعلی: ${product.licenseStatus}\n\nگزینه‌ها:\n- تمدید لایسنس\n- لغو لایسنس\n- مشاهده هش Merkle`);
-    };
-
-    window.removeProduct = function(id) {
-        const product = connectedProducts.find(p => p.id === id);
-        if (!product) return;
-        if (!confirm(`آیا از حذف محصول ${product.name} اطمینان دارید؟`)) return;
-        connectedProducts = connectedProducts.filter(p => p.id !== id);
-        renderConnectedProducts();
-        addLog(`🗑️ محصول ${product.name} حذف شد.`, 'warning');
-    };
-
-    document.getElementById('addProductBtn')?.addEventListener('click', function() {
-        const name = prompt('نام محصول جدید را وارد کنید:');
-        if (!name) return;
-        const type = prompt('نوع محصول (داخلی / شخص ثالث / ابزار / سرویس):');
-        if (!type) return;
-        const newProduct = {
-            id: 'new-' + Date.now(),
-            name: name,
-            type: type,
-            icon: 'fa-cube',
-            version: '1.0.0',
-            status: 'pending',
-            lastUpdated: new Date().toLocaleDateString('fa-IR'),
-            licenseStatus: 'در انتظار تأیید',
-            securityScore: 7,
-            description: 'توضیحات این محصول به‌زودی اضافه می‌شود.'
-        };
-        connectedProducts.push(newProduct);
-        renderConnectedProducts();
-        addLog(`➕ محصول ${name} اضافه شد.`, 'success');
-    });
-
-    function saveConnectedProductsToCache() {
-        try {
-            localStorage.setItem('horizon_connected_products', JSON.stringify(connectedProducts));
-        } catch(e) {}
+// =============================================================
+// EMERGENCY SHUTDOWN
+// =============================================================
+document.getElementById('emergencyBtn').addEventListener('click', () => {
+    const pwd = document.getElementById('shutdownPassword').value.trim();
+    if (pwd === shutdownPassword) {
+        if (confirm('⚠️ آیا از خاموش‌سازی کامل اکوسیستم اطمینان دارید؟')) {
+            document.querySelectorAll('.agent-item').forEach(el => el.style.opacity = '0.3');
+            document.querySelectorAll('.status-dot').forEach(d => d.className = 'status-dot offline');
+            document.getElementById('emergencyBtn').textContent = '⛔ سیستم خاموش شد';
+            document.getElementById('emergencyBtn').style.background = 'rgba(248,113,113,0.3)';
+            alert('🚨 اکوسیستم به‌طور کامل خاموش شد.');
+        }
+    } else {
+        alert('❌ رمز اشتباه است.');
     }
+});
 
-    function loadConnectedProductsFromCache() {
-        try {
-            const cached = localStorage.getItem('horizon_connected_products');
-            if (cached) {
-                connectedProducts = JSON.parse(cached);
-            }
-        } catch(e) {}
+document.getElementById('shutdownConfirmBtn').addEventListener('click', () => {
+    document.getElementById('emergencyBtn').click();
+});
+
+document.getElementById('emergencyToggle').addEventListener('click', () => {
+    document.getElementById('shutdownPassword').focus();
+    document.getElementById('sidePanel').classList.remove('closed');
+});
+
+// =============================================================
+// TOGGLE SIDE PANEL
+// =============================================================
+let sidePanelOpen = true;
+document.getElementById('toggleSidePanel').addEventListener('click', () => {
+    sidePanelOpen = !sidePanelOpen;
+    document.getElementById('sidePanel').classList.toggle('closed');
+    document.getElementById('toggleSidePanel').innerHTML = sidePanelOpen ? '<i class="fas fa-chevron-left"></i>' : '<i class="fas fa-chevron-right"></i>';
+});
+
+// =============================================================
+// EDIT PANEL
+// =============================================================
+document.getElementById('editPanelBtn').addEventListener('click', () => {
+    const editable = document.querySelectorAll('.stat-row .value, #agentList .agent-item, .floating-header .badge-group span');
+    editable.forEach(el => {
+        if (el.isContentEditable) {
+            el.contentEditable = 'false';
+            el.style.border = 'none';
+        } else {
+            el.contentEditable = 'true';
+            el.style.border = '1px dashed #4f9eff';
+            el.style.borderRadius = '4px';
+            el.style.padding = '0 0.2rem';
+        }
+    });
+    alert('✏️ حالت ویرایش فعال شد. روی هر مقدار کلیک کنید و تغییر دهید. پس از اتمام، دوباره دکمه ویرایش را بزنید.');
+});
+
+// =============================================================
+// REAL-TIME STATS
+// =============================================================
+async function updateStats() {
+    try {
+        const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
+        if (reposRes.ok) {
+            const repos = await reposRes.json();
+            document.getElementById('statRepos').textContent = repos.length;
+        }
+        const online = Math.floor(88240 + (Math.random() * 1000 - 500));
+        const offline = Math.floor(11760 + (Math.random() * 500 - 250));
+        document.getElementById('statOnline').textContent = online.toLocaleString();
+        document.getElementById('statOffline').textContent = offline.toLocaleString();
+        document.getElementById('statValidators').textContent = (online + offline).toLocaleString();
+        document.getElementById('statTx').textContent = Math.floor(12456 + Math.random() * 1000 - 500).toLocaleString();
+        document.getElementById('statLicenses').textContent = Math.floor(456 + Math.random() * 20 - 10);
+        document.getElementById('activeProductsCount').textContent = Math.floor(12 + Math.random() * 3);
+        document.getElementById('nodesCount').textContent = Math.floor(24 + Math.random() * 4);
+        document.getElementById('onlineCount').textContent = Math.floor(186 + Math.random() * 10 - 5);
+        document.getElementById('statApiCredit').textContent = Math.floor(85 + Math.random() * 15) + '%';
+    } catch(e) {
+        console.log('⚠️ خطا در دریافت داده‌ها');
     }
+}
+updateStats();
+setInterval(updateStats, 15000);
 
-    loadConnectedProductsFromCache();
-    renderConnectedProducts();
-    addLog('📦 بخش محصولات متصل بارگذاری شد.', 'success');
-
-    const originalRender = renderConnectedProducts;
-    renderConnectedProducts = function() {
-        originalRender();
-        saveConnectedProductsToCache();
-    };
-
-    // =============================================================
-    // 🔄 EVENTS
-    // =============================================================
-    document.getElementById('chatSend').addEventListener('click', async () => {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text) return;
-        addChatMessage(text, 'user');
-        input.value = '';
-        await processCommand(text);
-    });
-
-    document.getElementById('chatInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') document.getElementById('chatSend').click();
-    });
-
-    document.querySelectorAll('.quick-cmd').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.getElementById('chatInput').value = this.dataset.cmd;
-            document.getElementById('chatSend').click();
-        });
-    });
-
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        updateStats();
-        addLog('🔄 بروزرسانی شد', 'success');
-    });
-
-    document.getElementById('clearLogsBtn').addEventListener('click', () => {
-        document.getElementById('logBox').innerHTML = '';
-        localStorage.removeItem('horizon_logs');
-        addLog('🧹 لاگ پاک شد', 'warning');
-    });
-
-    document.getElementById('fetchReposBtn').addEventListener('click', fetchRepos);
-
-    document.getElementById('runBrainBtn').addEventListener('click', () => {
-        addLog('🧠 اجرای کامل هوش مصنوعی...', 'info');
-        setTimeout(() => {
-            addLog('✅ همه‌ی عملیات با موفقیت انجام شد.', 'success');
-            addChatMessage('✅ همه‌ی عملیات انجام شد.', 'ai');
-        }, 1500);
-    });
-
-    // =============================================================
-    // 🧩 TOGGLES
-    // =============================================================
-    document.getElementById('productsToggle').addEventListener('click', function() {
-        document.getElementById('productsContent').classList.toggle('open');
-        document.getElementById('productsArrow').classList.toggle('open');
-    });
-    document.getElementById('reposToggle').addEventListener('click', function() {
-        document.getElementById('reposContent').classList.toggle('open');
-        document.getElementById('reposArrow').classList.toggle('open');
-    });
-
-    // =============================================================
-    // 🚀 INIT
-    // =============================================================
-    renderProducts();
-    updateStats();
-    addLog('🌟 افق فرشته · پنل کامل راه‌اندازی شد.', 'success');
-    addChatMessage('🌟 سیستم آماده است. دستورات را وارد کنید.', 'ai');
-
-    if (GITHUB_TOKEN !== 'your_github_token_here' && GITHUB_TOKEN) {
-        setTimeout(fetchRepos, 1000);
-    }
+// =============================================================
+// INIT MAP AFTER DOM LOAD
+// =============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    document.getElementById('sidePanel').classList.remove('closed');
+});
 </script>
 </body>
 </html>
