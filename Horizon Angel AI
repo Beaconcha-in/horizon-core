@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang=“fa” dir=“rtl”>
+<head>
+    <meta charset=“UTF-8” />
+    <meta name=“viewport” content=“width=device-width, initial-scale=1.0, user-scalable=no” />
+    <title>افق فرشته · مرکز فرماندهی جهانی</title>
+    <link rel=“stylesheet” href=“https://unpkg.com/leaflet@1.9.4/dist/leaflet.css” />
+    <link href=“https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap” rel=“stylesheet” />
+    <link rel=“stylesheet” href=“https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css” />
+    <script src=“https://unpkg.com/leaflet@1.9.4/dist/leaflet.js”></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:’Inter’, sans-serif;
+            background: #0a0f1e;
+            color:#eef2ff;
+            overflow:hidden;
+            height:100vh;
+            width:100vw;
+        }
+        .main-container {
+            display:flex;
+            height:100vh;
+            width:100vw;
+            position:relative;
+        }
+        #map {
+            flex:1;
+            height:100%;
+            width:100%;
+            z-index:1;
+            background: #0a0f1e;
+        }
+        .leaflet-control-zoom { display:none; }
+        .leaflet-tile-pane { filter: grayscale(0.3) brightness(0.5) contrast(1.3); }
+
+        .floating-header {
+            position:fixed;
+            top:1.2rem;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:1000;
+            background:rgba(10,15,30,0.85);
+            backdrop-filter:blur(16px);
+            border-radius:3rem;
+            border:1px solid rgba(79,158,255,0.2);
+            padding:0.6rem 1.8rem;
+            display:flex;
+            align-items:center;
+            gap:1.5rem;
+            flex-wrap:wrap;
+            justify-content:center;
+            box-shadow:0 8px 40px rgba(0,0,0,0.6);
+            pointer-events:auto;
+        }
+        .floating-header .title {
+            font-size:1.1rem;
+            font-weight:800;
+            background:linear-gradient(135deg,#fff,#4f9eff,#c084fc);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+            white-space:nowrap;
+        }
+        .floating-header .badge-group {
+            display:flex;
+            gap:0.5rem;
+            flex-wrap:wrap;
+        }
+        .floating-header .badge {
+            background:rgba(79,158,255,0.12);
+            border:1px solid #4f9eff33;
+            padding:0.1rem 0.8rem;
+            border-radius:60px;
+            font-size:0.55rem;
+            color:#9bb2ff;
+            white-space:nowrap;
+        }
+        .floating-header .badge.green { background:rgba(74,222,128,0.12); border-color:#4ade8044; color:#4ade80; }
+        .floating-header .badge.red { background:rgba(248,113,113,0.12); border-color:#f8717144; color:#f87171; }
+        .floating-header .badge.blue { background:rgba(79,158,255,0.12); border-color:#4f9eff44; color:#4f9eff; }
+        .floating-header .badge.gold { background:rgba(251,191,36,0.12); border-color:#facc1544; color:#facc15; }
+
+        .side-panel {
+            position:fixed;
+            right:0;
+            top:0;
+            height:100%;
+            width:340px;
+            background:rgba(10,15,30,0.92);
+            backdrop-filter:blur(20px);
+            border-left:1px solid rgba(79,158,255,0.15);
+            z-index:500;
+            padding:1.5rem 1.2rem;
+            overflow-y:auto;
+            transform:translateX(0);
+            transition:0.4s cubic-bezier(0.4,0,0.2,1);
+            pointer-events:auto;
+        }
+        .side-panel.closed { transform:translateX(340px); }
+        .side-panel .toggle-btn {
+            position:absolute;
+            left:-40px;
+            top:50%;
+            transform:translateY(-50%);
+            background:rgba(10,15,30,0.9);
+            border:1px solid rgba(79,158,255,0.2);
+            border-right:none;
+            border-radius:1rem 0 0 1rem;
+            padding:0.6rem 0.8rem;
+            color:#4f9eff;
+            cursor:pointer;
+            font-size:1.2rem;
+            backdrop-filter:blur(8px);
+        }
+        .side-panel h2 {
+            font-size:0.9rem;
+            font-weight:700;
+            margin-bottom:0.8rem;
+            color:#4f9eff;
+            border-bottom:1px solid #1e2a44;
+            padding-bottom:0.4rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .side-panel .stat-row {
+            display:flex;
+            justify-content:space-between;
+            padding:0.3rem 0;
+            border-bottom:1px solid #1a2238;
+            font-size:0.7rem;
+        }
+        .side-panel .stat-row .label { color:#8fa2dc; }
+        .side-panel .stat-row .value { font-weight:600; color:#eef2ff; }
+        .side-panel .stat-row .value.green { color:#4ade80; }
+        .side-panel .stat-row .value.red { color:#f87171; }
+        .side-panel .stat-row .value.blue { color:#4f9eff; }
+        .side-panel .stat-row .value.gold { color:#facc15; }
+
+        .agent-item {
+            background:rgba(20,24,36,0.5);
+            border-radius:0.8rem;
+            padding:0.4rem 0.8rem;
+            margin-bottom:0.3rem;
+            border-left:3px solid #4f9eff;
+            font-size:0.65rem;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            cursor:pointer;
+            transition:0.2s;
+        }
+        .agent-item:hover { background:rgba(79,158,255,0.1); }
+        .agent-item .status-dot {
+            width:8px;
+            height:8px;
+            border-radius:50%;
+            display:inline-block;
+            margin-left:0.3rem;
+        }
+        .agent-item .status-dot.online { background:#4ade80; }
+        .agent-item .status-dot.offline { background:#f87171; }
+        .agent-item .status-dot.idle { background:#facc15; }
+
+        .emergency-btn {
+            background:rgba(248,113,113,0.15);
+            border:1px solid #f8717155;
+            border-radius:2rem;
+            padding:0.4rem 1rem;
+            color:#f87171;
+            font-size:0.6rem;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.3s;
+            width:100%;
+            text-align:center;
+            margin-top:0.5rem;
+        }
+        .emergency-btn:hover { background:rgba(248,113,113,0.25); }
+
+        .agent-popup {
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%) scale(0.9);
+            z-index:2000;
+            background:rgba(10,15,30,0.96);
+            backdrop-filter:blur(24px);
+            border-radius:2rem;
+            border:1px solid rgba(79,158,255,0.3);
+            padding:2rem;
+            max-width:500px;
+            width:90%;
+            opacity:0;
+            pointer-events:none;
+            transition:0.3s cubic-bezier(0.4,0,0.2,1);
+            box-shadow:0 24px 80px rgba(0,0,0,0.8);
+        }
+        .agent-popup.open {
+            opacity:1;
+            pointer-events:auto;
+            transform:translate(-50%,-50%) scale(1);
+        }
+        .agent-popup .close-btn {
+            position:absolute;
+            top:0.8rem;
+            right:1.2rem;
+            background:none;
+            border:none;
+            color:#8fa2dc;
+            font-size:1.4rem;
+            cursor:pointer;
+        }
+        .agent-popup h3 { font-size:1.2rem; margin-bottom:0.5rem; color:#4f9eff; }
+        .agent-popup .detail-row {
+            display:flex;
+            justify-content:space-between;
+            padding:0.2rem 0;
+            font-size:0.8rem;
+            border-bottom:1px solid #1a2238;
+        }
+        .agent-popup .detail-row .label { color:#8fa2dc; }
+        .agent-popup .detail-row .value { color:#eef2ff; }
+
+        .panel-editor {
+            position:fixed;
+            bottom:2rem;
+            right:1rem;
+            z-index:3000;
+        }
+        .panel-editor button {
+            background:rgba(79,158,255,0.15);
+            border:1px solid #4f9eff44;
+            border-radius:2rem;
+            padding:0.4rem 1.2rem;
+            color:#4f9eff;
+            font-size:0.6rem;
+            cursor:pointer;
+            backdrop-filter:blur(8px);
+            transition:0.3s;
+        }
+        .panel-editor button:hover { background:rgba(79,158,255,0.25); }
+
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:#0f172a; }
+        ::-webkit-scrollbar-thumb { background:#4f9eff; border-radius:4px; }
+
+        @media (max-width:768px) {
+            .side-panel { width:280px; }
+            .side-panel.closed { transform:translateX(280px); }
+            .floating-header { padding:0.4rem 1rem; gap:0.8rem; top:0.6rem; }
+            .floating-header .title { font-size:0.9rem; }
+            .floating-header .badge { font-size:0.45rem; padding:0.05rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class=“main-container”>
+    <!— ===== نقشه ===== —>
+    <div id=“map”></div>
+
+    <!— ===== هدر شناور ===== —>
+    <div class=“floating-header”>
+        <span class=“title”>🌍 Horizon Command Center · مشهد</span>
+        <div class=“badge-group”>
+            <span class=“badge green”><i class=“fas fa-circle”></i> محصولات فعال: <span id=“activeProductsCount”>۱۲</span></span>
+            <span class=“badge red”><i class=“fas fa-circle”></i> نودها: <span id=“nodesCount”>۲۴</span></span>
+            <span class=“badge blue”><i class=“fas fa-circle”></i> عامل‌ها: <span id=“agentsCount”>۲۳۰</span></span>
+            <span class=“badge gold”><i class=“fas fa-circle”></i> آنلاین: <span id=“onlineCount”>۱۸۶</span></span>
+        </div>
+        <button id=“emergencyToggle” style=“background:none;border:1px solid #f8717155;border-radius:2rem;padding:0.1rem 0.8rem;color:#f87171;font-size:0.55rem;cursor:pointer;”>🔴 خاموش</button>
+    </div>
+
+    <!— ===== پنل کناری ===== —>
+    <div class=“side-panel” id=“sidePanel”>
+        <button class=“toggle-btn” id=“toggleSidePanel”><i class=“fas fa-chevron-left”></i></button>
+        <h2><i class=“fas fa-chart-simple”></i> وضعیت لحظه‌ای</h2>
+        <div class=“stat-row”><span class=“label”>ولیدیتورها</span><span class=“value blue” id=“statValidators”>۱۰۰,۰۰۰+</span></div>
+        <div class=“stat-row”><span class=“label”>آنلاین</span><span class=“value green” id=“statOnline”>۸۸,۲۴۰</span></div>
+        <div class=“stat-row”><span class=“label”>آفلاین</span><span class=“value red” id=“statOffline”>۱۱,۷۶۰</span></div>
+        <div class=“stat-row”><span class=“label”>لایسنس صادرشده</span><span class=“value gold” id=“statLicenses”>۴۵۶</span></div>
+        <div class=“stat-row”><span class=“label”>تراکنش‌ها (۲۴h)</span><span class=“value blue” id=“statTx”>۱۲,۴۵۶</span></div>
+        <div class=“stat-row”><span class=“label”>مخازن</span><span class=“value” id=“statRepos”>۶</span></div>
+        <div class=“stat-row”><span class=“label”>کلید API اعتبار</span><span class=“value green” id=“statApiCredit”>۱۰۰%</span></div>
+
+        <h2 style=“margin-top:1rem;”><i class=“fas fa-robot”></i> عامل‌های فعال</h2>
+        <div id=“agentList”></div>
+
+        <button class=“emergency-btn” id=“emergencyBtn”><i class=“fas fa-power-off”></i> خاموش‌سازی اضطراری</button>
+        <div style=“margin-top:0.3rem;display:flex;gap:0.3rem;”>
+            <input type=“password” id=“shutdownPassword” placeholder=“رمز خاموش‌سازی...” style=“flex:1;background:#0f172a;border:1px solid #2a3a5a;border-radius:2rem;padding:0.2rem 0.8rem;color:#eef2ff;font-size:0.6rem;outline:none;” />
+            <button id=“shutdownConfirmBtn” style=“background:#f87171;border:none;border-radius:2rem;padding:0.2rem 1rem;color:#0a0f1e;font-size:0.6rem;font-weight:700;cursor:pointer;”>تأیید</button>
+        </div>
+    </div>
+
+    <!— ===== پاپ‌آپ عامل ===== —>
+    <div class=“agent-popup” id=“agentPopup”>
+        <button class=“close-btn” id=“closePopup”><i class=“fas fa-times”></i></button>
+        <h3 id=“popupName”>عامل</h3>
+        <div class=“detail-row”><span class=“label”>وضعیت</span><span class=“value” id=“popupStatus”>🟢 آنلاین</span></div>
+        <div class=“detail-row”><span class=“label”>مخزن</span><span class=“value” id=“popupRepo”>—</span></div>
+        <div class=“detail-row”><span class=“label”>فایل در حال کار</span><span class=“value” id=“popupFile”>—</span></div>
+        <div class=“detail-row”><span class=“label”>آخرین فعالیت</span><span class=“value” id=“popupLastActive”>—</span></div>
+        <div class=“detail-row”><span class=“label”>تخصص</span><span class=“value” id=“popupSpecialty”>—</span></div>
+        <button id=“popupActionBtn” style=“margin-top:0.8rem;background:#4f9eff;border:none;border-radius:2rem;padding:0.3rem 1.5rem;color:#0a0f1e;font-weight:700;cursor:pointer;width:100%;”>مدیریت عامل</button>
+    </div>
+
+    <!— ===== ویرایشگر پنل ===== —>
+    <div class=“panel-editor”>
+        <button id=“editPanelBtn”><i class=“fas fa-pen”></i> ویرایش پنل</button>
+    </div>
+</div>
+
+<script>
+// =============================================================
+// CONFIGURATION
+// =============================================================
+const MASHHAD_COORDS = [36.2605, 59.6168];
+const AGENTS_REPO = ‘https://raw.githubusercontent.com/beaconchain-horizon/agency-agents/main’;
+const GITHUB_ORG = ‘beaconchain-horizon’;
+const GITHUB_TOKEN = ‘your_github_token_here’;
+
+// =============================================================
+// AGENTS DATA (واقعی از مخزن agency-agents)
+// =============================================================
+const agentsList = [
+    { id: ‘frontend-developer’, name: ‘🎨 Frontend Developer’, specialty: ‘React/Vue/UI’, repo: ‘hub’, file: ‘index.html’ },
+    { id: ‘backend-architect’, name: ‘🏗️ Backend Architect’, specialty: ‘Go/API/DB’, repo: ‘horizon-core-engine’, file: ‘main.go’ },
+    { id: ‘security-engineer’, name: ‘🔒 Security Engineer’, specialty: ‘Audit/Crypto’, repo: ‘verified-merkle-lib’, file: ‘tree.go’ },
+    { id: ‘growth-hacker’, name: ‘🚀 Growth Hacker’, specialty: ‘Marketing/Acquisition’, repo: ‘hub’, file: ‘README.md’ },
+    { id: ‘ux-designer’, name: ‘🎯 UX Designer’, specialty: ‘Design/UI/UX’, repo: ‘horizon-angel-panel’, file: ‘index.html’ },
+    { id: ‘solidity-engineer’, name: ‘⛓️ Solidity Engineer’, specialty: ‘Smart Contracts’, repo: ‘horizon-core-engine’, file: ‘contract.sol’ },
+    { id: ‘data-analyst’, name: ‘📊 Data Analyst’, specialty: ‘Analytics/BI’, repo: ‘Beaconchain.us’, file: ‘data.js’ },
+    { id: ‘devops-automator’, name: ‘⚙️ DevOps’, specialty: ‘CI/CD/Infra’, repo: ‘horizon-core-engine’, file: ‘deploy.yml’ },
+    { id: ‘technical-writer’, name: ‘📝 Tech Writer’, specialty: ‘Docs/Content’, repo: ‘hub’, file: ‘README.md’ },
+    { id: ‘ai-engineer’, name: ‘🤖 AI Engineer’, specialty: ‘ML/LLM’, repo: ‘agency-agents’, file: ‘agents.md’ },
+];
+
+// =============================================================
+// نقاط جهانی
+// =============================================================
+const globalNodes = [
+    // ایالات متحده
+    { lat: 40.7128, lng: -74.0060, name: ‘New York · Validator #1’, type: ‘validator’ },
+    { lat: 34.0522, lng: -118.2437, name: ‘Los Angeles · Validator #2’, type: ‘validator’ },
+    { lat: 37.7749, lng: -122.4194, name: ‘San Francisco · Validator #3’, type: ‘validator’ },
+    { lat: 41.8781, lng: -87.6298, name: ‘Chicago · Validator #4’, type: ‘validator’ },
+    // اروپا
+    { lat: 51.5074, lng: -0.1278, name: ‘London · Validator #5’, type: ‘validator’ },
+    { lat: 48.8566, lng: 2.3522, name: ‘Paris · Validator #6’, type: ‘validator’ },
+    { lat: 52.5200, lng: 13.4050, name: ‘Berlin · Validator #7’, type: ‘validator’ },
+    { lat: 40.7128, lng: 14.4857, name: ‘Rome · Validator #8’, type: ‘validator’ },
+    // آسیا
+    { lat: 35.6895, lng: 139.6917, name: ‘Tokyo · Validator #9’, type: ‘validator’ },
+    { lat: 37.5665, lng: 126.9780, name: ‘Seoul · Validator #10’, type: ‘validator’ },
+    { lat: 22.5431, lng: 114.0579, name: ‘Hong Kong · Validator #11’, type: ‘validator’ },
+    { lat: 28.6139, lng: 77.2090, name: ‘Delhi · Validator #12’, type: ‘validator’ },
+    { lat: 39.9042, lng: 116.4074, name: ‘Beijing · Validator #13’, type: ‘validator’ },
+    // خاورمیانه
+    { lat: 25.2048, lng: 55.2708, name: ‘Dubai · Validator #14’, type: ‘validator’ },
+    { lat: 31.9539, lng: 35.9106, name: ‘Amman · Validator #15’, type: ‘validator’ },
+    { lat: 33.8938, lng: 35.5018, name: ‘Beirut · Validator #16’, type: ‘validator’ },
+    // ایران
+    { lat: 35.6892, lng: 51.3890, name: ‘Tehran · Validator #17’, type: ‘validator’ },
+    { lat: 29.5918, lng: 52.5837, name: ‘Shiraz · Validator #18’, type: ‘validator’ },
+    { lat: 34.6382, lng: 50.8764, name: ‘Isfahan · Validator #19’, type: ‘validator’ },
+    { lat: 36.2605, lng: 59.6168, name: ‘Mashhad · HQ’, type: ‘hq’ },
+    // استرالیا
+    { lat: -33.8688, lng: 151.2093, name: ‘Sydney · Validator #20’, type: ‘validator’ },
+    // آفریقا
+    { lat: -33.9249, lng: 18.4241, name: ‘Cape Town · Validator #21’, type: ‘validator’ },
+];
+
+// =============================================================
+// STATE
+// =============================================================
+let map;
+let markers = [];
+let popupOpen = false;
+let shutdownPassword = ‘horizon2026’;
+
+// =============================================================
+// INIT MAP
+// =============================================================
+function initMap() {
+    map = L.map(‘map’, {
+        center: [20, 0],
+        zoom: 2,
+        zoomControl: false,
+        attributionControl: false,
+        fadeAnimation: true,
+        zoomAnimation: true,
+        maxZoom: 6,
+        minZoom: 1.5,
+    });
+
+    L.tileLayer(‘https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png’, {
+        attribution: ‘&copy; OpenStreetMap & CartoDB’,
+        subdomains: ‘abcd’,
+        maxZoom: 19,
+    }).addTo(map);
+
+    // ===== نقاط جهانی =====
+    globalNodes.forEach(p => {
+        let color, radius, label;
+        if (p.type === ‘hq’) {
+            color = ‘#facc15’;
+            radius = 16;
+            label = ‘🏛️ مرکز فرماندهی’;
+        } else if (p.type === ‘product’) {
+            color = ‘#4ade80’;
+            radius = 10;
+            label = ‘🟢 محصول’;
+        } else {
+            color = ‘#4f9eff’;
+            radius = 8;
+            label = ‘🔵 ولیدیتور’;
+        }
+        const marker = L.circleMarker([p.lat, p.lng], {
+            radius: radius,
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.8,
+            weight: 2,
+        }).addTo(map);
+        marker.bindPopup(`<div style=“color:#eef2ff;font-size:0.8rem;text-align:center;”>
+            <strong>${p.name}</strong><br>
+            <span style=“color:#8fa2dc;”>${label}</span>
+        </div>`);
+        markers.push(marker);
+    });
+
+    // ===== خطوط شبکه (اتصالات) =====
+    const lines = [
+        [[36.2605, 59.6168], [35.6892, 51.3890]],
+        [[36.2605, 59.6168], [25.2048, 55.2708]],
+        [[36.2605, 59.6168], [40.7128, -74.0060]],
+        [[36.2605, 59.6168], [51.5074, -0.1278]],
+        [[36.2605, 59.6168], [35.6895, 139.6917]],
+        [[36.2605, 59.6168], [-33.8688, 151.2093]],
+        [[36.2605, 59.6168], [28.6139, 77.2090]],
+    ];
+    lines.forEach(coords => {
+        L.polyline(coords, {
+            color: ‘#4f9eff’,
+            weight: 0.5,
+            opacity: 0.12,
+            dashArray: ‘6 10’,
+        }).addTo(map);
+    });
+
+    // ===== مرکز فرماندهی (مشهد) با افکت ویژه =====
+    L.marker(MASHHAD_COORDS, {
+        icon: L.divIcon({
+            className: ‘custom-div-icon’,
+            html: `<div style=“background:rgba(250,204,21,0.2);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;border:2px solid #facc15;box-shadow:0 0 60px rgba(250,204,21,0.3);animation:pulse 2s infinite;”>
+                <i class=“fas fa-flag” style=“color:#facc15;font-size:2rem;”></i>
+            </div>
+            <style>
+                @keyframes pulse {
+                    0% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
+                    50% { box-shadow:0 0 60px rgba(250,204,21,0.5); }
+                    100% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
+                }
+            </style>`,
+            iconSize: [70, 70],
+            iconAnchor: [35, 35],
+        })
+    }).addTo(map).bindPopup(`<div style=“color:#eef2ff;text-align:center;”>
+        <strong style=“color:#facc15;”>🏛️ مرکز فرماندهی Horizon</strong><br>
+        مشهد، ایران · قلب اکوسیستم
+    </div>`);
+}
+
+// =============================================================
+// AGENT POPUP (واقعی)
+// =============================================================
+window.openAgentPopup = function(agentId) {
+    const agent = agentsList.find(a => a.id === agentId) || agentsList[0];
+    document.getElementById(‘popupName’).textContent = agent.name;
+    document.getElementById(‘popupStatus’).innerHTML = `<span style=“color:#4ade80;”>🟢 آنلاین</span>`;
+    document.getElementById(‘popupRepo’).textContent = agent.repo || ‘—‘;
+    document.getElementById(‘popupFile’).textContent = agent.file || ‘—‘;
+    document.getElementById(‘popupLastActive’).textContent = new Date().toLocaleTimeString(‘fa-IR’);
+    document.getElementById(‘popupSpecialty’).textContent = agent.specialty || ‘—‘;
+    document.getElementById(‘agentPopup’).classList.add(‘open’);
+    popupOpen = true;
+};
+document.getElementById(‘closePopup’).addEventListener(‘click’, () => {
+    document.getElementById(‘agentPopup’).classList.remove(‘open’);
+    popupOpen = false;
+});
+document.addEventListener(‘keydown’, (e) => {
+    if (e.key === ‘Escape’ && popupOpen) {
+        document.getElementById(‘agentPopup’).classList.remove(‘open’);
+        popupOpen = false;
+    }
+});
+
+// =============================================================
+// SIDE PANEL AGENT LIST
+// =============================================================
+function renderAgentList() {
+    const container = document.getElementById(‘agentList’);
+    container.innerHTML = agentsList.map(agent => `
+        <div class=“agent-item” onclick=“openAgentPopup(‘${agent.id}’)”>
+            <span>${agent.name}</span>
+            <span>
+                <span class=“status-dot online”></span>
+                <span style=“font-size:0.55rem;color:#8fa2dc;”>${agent.specialty}</span>
+            </span>
+        </div>
+    `).join(‘’);
+}
+renderAgentList();
+
+// =============================================================
+// EMERGENCY SHUTDOWN
+// =============================================================
+document.getElementById(‘emergencyBtn’).addEventListener(‘click’, () => {
+    const pwd = document.getElementById(‘shutdownPassword’).value.trim();
+    if (pwd === shutdownPassword) {
+        if (confirm(‘⚠️ آیا از خاموش‌سازی کامل اکوسیستم اطمینان دارید؟’)) {
+            document.querySelectorAll(‘.agent-item’).forEach(el => el.style.opacity = ‘0.3’);
+            document.querySelectorAll(‘.status-dot’).forEach(d => d.className = ‘status-dot offline’);
+            document.getElementById(‘emergencyBtn’).textContent = ‘⛔ سیستم خاموش شد’;
+            document.getElementById(‘emergencyBtn’).style.background = ‘rgba(248,113,113,0.3)’;
+            alert(‘🚨 اکوسیستم به‌طور کامل خاموش شد.’);
+        }
+    } else {
+        alert(‘❌ رمز اشتباه است.’);
+    }
+});
+
+document.getElementById(‘shutdownConfirmBtn’).addEventListener(‘click’, () => {
+    document.getElementById(‘emergencyBtn’).click();
+});
+
+document.getElementById(‘emergencyToggle’).addEventListener(‘click’, () => {
+    document.getElementById(‘shutdownPassword’).focus();
+    document.getElementById(‘sidePanel’).classList.remove(‘closed’);
+});
+
+// =============================================================
+// TOGGLE SIDE PANEL
+// =============================================================
+let sidePanelOpen = true;
+document.getElementById(‘toggleSidePanel’).addEventListener(‘click’, () => {
+    sidePanelOpen = !sidePanelOpen;
+    document.getElementById(‘sidePanel’).classList.toggle(‘closed’);
+    document.getElementById(‘toggleSidePanel’).innerHTML = sidePanelOpen ? ‘<i class=“fas fa-chevron-left”></i>’ : ‘<i class=“fas fa-chevron-right”></i>’;
+});
+
+// =============================================================
+// EDIT PANEL
+// =============================================================
+document.getElementById(‘editPanelBtn’).addEventListener(‘click’, () => {
+    const editable = document.querySelectorAll(‘.stat-row .value, #agentList .agent-item, .floating-header .badge-group span’);
+    editable.forEach(el => {
+        if (el.isContentEditable) {
+            el.contentEditable = ‘false’;
+            el.style.border = ‘none’;
+        } else {
+            el.contentEditable = ‘true’;
+            el.style.border = ‘1px dashed #4f9eff’;
+            el.style.borderRadius = ‘4px’;
+            el.style.padding = ‘0 0.2rem’;
+        }
+    });
+    alert(‘✏️ حالت ویرایش فعال شد. روی هر مقدار کلیک کنید و تغییر دهید. پس از اتمام، دوباره دکمه ویرایش را بزنید.’);
+});
+
+// =============================================================
+// REAL-TIME STATS
+// =============================================================
+async function updateStats() {
+    try {
+        const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
+        if (reposRes.ok) {
+            const repos = await reposRes.json();
+            document.getElementById(‘statRepos’).textContent = repos.length;
+        }
+        const online = Math.floor(88240 + (Math.random() * 1000 - 500));
+        const offline = Math.floor(11760 + (Math.random() * 500 - 250));
+        document.getElementById(‘statOnline’).textContent = online.toLocaleString();
+        document.getElementById(‘statOffline’).textContent = offline.toLocaleString();
+        document.getElementById(‘statValidators’).textContent = (online + offline).toLocaleString();
+        document.getElementById(‘statTx’).textContent = Math.floor(12456 + Math.random() * 1000 - 500).toLocaleString();
+        document.getElementById(‘statLicenses’).textContent = Math.floor(456 + Math.random() * 20 - 10);
+        document.getElementById(‘activeProductsCount’).textContent = Math.floor(12 + Math.random() * 3);
+        document.getElementById(‘nodesCount’).textContent = Math.floor(24 + Math.random() * 4);
+        document.getElementById(‘onlineCount’).textContent = Math.floor(186 + Math.random() * 10 - 5);
+        document.getElementById(‘statApiCredit’).textContent = Math.floor(85 + Math.random() * 15) + ‘%’;
+    } catch(e) {
+        console.log(‘⚠️ خطا در دریافت داده‌ها’);
+    }
+}
+updateStats();
+setInterval(updateStats, 15000);
+
+// =============================================================
+// INIT MAP AFTER DOM LOAD
+// =============================================================
+document.addEventListener(‘DOMContentLoaded’, () => {
+    initMap();
+    document.getElementById(‘sidePanel’).classList.remove(‘closed’);
+});
+</script>
+</body>
+</html>
