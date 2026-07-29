@@ -319,7 +319,8 @@
 // =============================================================
 const MASHHAD_COORDS = [36.2605, 59.6168];
 const GITHUB_ORG = 'beaconchain-horizon';
-const GITHUB_TOKEN = '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';
+// توجه: توکن حذف شد. برای دریافت داده از GitHub API بدون توکن، محدودیت نرخ دارید.
+// برای استفادهٔ واقعی، توکن را در متغیر محیطی قرار دهید و از سرور خود فراخوانی کنید.
 
 // =============================================================
 // AGENTS DATA (نمونه‌ای از agency-agents)
@@ -558,15 +559,18 @@ document.getElementById('editPanelBtn').addEventListener('click', () => {
 });
 
 // =============================================================
-// REAL-TIME STATS
+// REAL-TIME STATS (بدون توکن)
 // =============================================================
 async function updateStats() {
     try {
+        // دریافت تعداد مخازن از GitHub API (بدون توکن - محدودیت نرخ)
         const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
         if (reposRes.ok) {
             const repos = await reposRes.json();
             document.getElementById('statRepos').textContent = repos.length;
         }
+
+        // شبیه‌سازی داده‌های پویا (در حالت واقعی از Core Engine دریافت می‌شوند)
         const online = Math.floor(88240 + (Math.random() * 1000 - 500));
         const offline = Math.floor(11760 + (Math.random() * 500 - 250));
         document.getElementById('statOnline').textContent = online.toLocaleString();
@@ -579,7 +583,7 @@ async function updateStats() {
         document.getElementById('onlineCount').textContent = Math.floor(186 + Math.random() * 10 - 5);
         document.getElementById('statApiCredit').textContent = Math.floor(85 + Math.random() * 15) + '%';
     } catch(e) {
-        console.log('⚠️ خطا در دریافت داده‌ها');
+        console.log('⚠️ خطا در دریافت داده‌ها:', e);
     }
 }
 updateStats();
