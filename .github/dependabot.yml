@@ -1,0 +1,68 @@
+# To get started with Dependabot version updates
+# This file configures Dependabot to automatically check for dependency updates
+# Documentation: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Go modules (for Horizon Core Engine backend)
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "go"
+      - "security"
+    commit-message:
+      prefix: "chore: "
+      include: "scope"
+    reviewers:
+      - "Mahdi-amolimoghaddam"
+    assignees:
+      - "Mahdi-amolimoghaddam"
+    # Optional: ignore specific dependencies if needed
+    # ignore:
+    #   - dependency-name: "github.com/example/legacy-package"
+    #     versions: ["2.x.x"]
+
+  # GitHub Actions (for CI/CD workflows)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "10:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+    commit-message:
+      prefix: "ci: "
+    reviewers:
+      - "Mahdi-amolimoghaddam"
+
+  # Docker (if you have a Dockerfile in the root)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "08:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    target-branch: "dev"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "docker: "
+    reviewers:
+      - "Mahdi-amolimoghaddam"
