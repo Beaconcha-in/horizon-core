@@ -288,6 +288,10 @@
         <h2 style="margin-top:1rem;"><i class="fas fa-robot"></i> عامل‌های فعال</h2>
         <div id="agentList"></div>
 
+        <!-- لیست تراکنش‌ها (برای جاوااسکریپت) -->
+        <h2 style="margin-top:1rem;"><i class="fas fa-exchange-alt"></i> تراکنش‌های اخیر</h2>
+        <div id="txList"></div>
+
         <button class="emergency-btn" id="emergencyBtn"><i class="fas fa-power-off"></i> خاموش‌سازی اضطراری</button>
         <div style="margin-top:0.3rem;display:flex;gap:0.3rem;">
             <input type="password" id="shutdownPassword" placeholder="رمز خاموش‌سازی..." style="flex:1;background:#0f172a;border:1px solid #2a3a5a;border-radius:2rem;padding:0.2rem 0.8rem;color:#eef2ff;font-size:0.6rem;outline:none;" />
@@ -319,8 +323,6 @@
 // =============================================================
 const MASHHAD_COORDS = [36.2605, 59.6168];
 const GITHUB_ORG = 'beaconchain-horizon';
-// توجه: توکن حذف شد. برای دریافت داده از GitHub API بدون توکن، محدودیت نرخ دارید.
-// برای استفادهٔ واقعی، توکن را در متغیر محیطی قرار دهید و از سرور خود فراخوانی کنید.
 
 // =============================================================
 // AGENTS DATA (نمونه‌ای از agency-agents)
@@ -563,13 +565,11 @@ document.getElementById('editPanelBtn').addEventListener('click', () => {
 // =============================================================
 async function updateStats() {
     try {
-        // دریافت تعداد مخازن از GitHub API (بدون توکن - محدودیت نرخ)
         const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
         if (reposRes.ok) {
             const repos = await reposRes.json();
             document.getElementById('statRepos').textContent = repos.length;
         }
-
         // شبیه‌سازی داده‌های پویا (در حالت واقعی از Core Engine دریافت می‌شوند)
         const online = Math.floor(88240 + (Math.random() * 1000 - 500));
         const offline = Math.floor(11760 + (Math.random() * 500 - 250));
@@ -597,5 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sidePanel').classList.remove('closed');
 });
 </script>
+
+<!-- ===== اضافه شدن فایل جاوااسکریپت جداگانه برای اتصال به Core Engine ===== -->
+<script src="assets/js/dashboard.js"></script>
+
 </body>
 </html>
