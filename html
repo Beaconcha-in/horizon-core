@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizon Core · بانک مرکزی ایران</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #060b18;
+            color: #eef2ff;
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1500px;
+            width: 100%;
+            background: rgba(12,18,34,0.85);
+            backdrop-filter: blur(24px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(79,158,255,0.12);
+            padding: 1.8rem;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(79,158,255,0.1);
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #4f9eff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            font-size: 0.75rem;
+            color: #8fa2dc;
+            display: block;
+        }
+        .badge-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: rgba(79,158,255,0.1);
+            border: 1px solid #4f9eff33;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            color: #9bb2ff;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .badge.green { background: rgba(74,222,128,0.12); border-color: #4ade8044; color: #4ade80; }
+        .badge.red { background: rgba(248,113,113,0.12); border-color: #f8717144; color: #f87171; }
+        .badge.gold { background: rgba(251,191,36,0.12); border-color: #facc1544; color: #facc15; }
+        .badge.blue { background: rgba(79,158,255,0.15); border-color: #4f9eff66; color: #4f9eff; }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: rgba(20,26,44,0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .card h3 {
+            font-size: 0.9rem;
+            color: #4f9eff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card h3 .badge-sm {
+            font-size: 0.6rem;
+            background: rgba(79,158,255,0.15);
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            color: #4f9eff;
+            margin-right: auto;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1a2240;
+            font-size: 0.75rem;
+        }
+        .stat-row .label { color: #8fa2dc; }
+        .stat-row .value { font-weight: 600; }
+        .stat-row .value.green { color: #4ade80; }
+        .stat-row .value.red { color: #f87171; }
+        .stat-row .value.gold { color: #facc15; }
+        .stat-row .value.blue { color: #4f9eff; }
+
+        .branch-list, .tx-list {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .branch-item, .tx-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 0.7rem;
+            padding: 0.5rem 0.8rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-right: 3px solid #4f9eff;
+        }
+        .branch-item .balance { color: #4ade80; font-weight: 700; }
+        .branch-item .status { font-size: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 40px; }
+        .branch-item .status.online { background: rgba(74,222,128,0.15); color: #4ade80; }
+        .branch-item .status.offline { background: rgba(248,113,113,0.15); color: #f87171; }
+        .branch-item .ip { color: #4f9eff; font-family: monospace; font-size: 0.6rem; }
+
+        .tx-item .tx-hash { color: #4ade80; }
+        .tx-item .tx-status { font-size: 0.6rem; }
+        .tx-item .tx-status.online { color: #4ade80; }
+        .tx-item .tx-status.offline { color: #facc15; }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        .btn {
+            background: #4f9eff;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #0a0f1e;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn:hover { background: #3a7bd5; transform: scale(1.02); }
+        .btn.outline {
+            background: transparent;
+            border: 1px solid #4f9eff55;
+            color: #4f9eff;
+        }
+        .btn.outline:hover { background: rgba(79,158,255,0.1); }
+        .btn.danger { background: #f87171; color: #0a0f1e; }
+        .btn.danger:hover { background: #ef4444; }
+        .btn.success { background: #4ade80; color: #0a0f1e; }
+        .btn.success:hover { background: #22c55e; }
+        .btn.gold { background: #facc15; color: #0a0f1e; }
+        .btn.gold:hover { background: #eab308; }
+
+        .ip-table {
+            width: 100%;
+            font-size: 0.65rem;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .ip-table th {
+            text-align: right;
+            padding: 0.2rem 0.4rem;
+            color: #8fa2dc;
+            border-bottom: 1px solid #1a2240;
+        }
+        .ip-table td {
+            padding: 0.2rem 0.4rem;
+            border-bottom: 1px solid #1a2240;
+            font-family: monospace;
+        }
+        .ip-table .ip-address { color: #4f9eff; }
+        .ip-table .ip-status.online { color: #4ade80; }
+        .ip-table .ip-status.offline { color: #f87171; }
+
+        .map-container {
+            height: 200px;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            border: 1px solid rgba(79,158,255,0.1);
+        }
+        #map { height: 100%; width: 100%; }
+
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #475569;
+            border-top: 1px solid #1a2240;
+            padding-top: 1rem;
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1>🏛️ Horizon · بانک مرکزی ایران</h1>
+            <span>سامانهٔ یکپارچهٔ تراکنش‌های مشتری-بانک · مبتنی بر Core Engine</span>
+        </div>
+        <div class="badge-group">
+            <span class="badge green" id="connectionBadge"><i class="fas fa-circle"></i> وضعیت: <span id="connectionStatus">آنلاین</span></span>
+            <span class="badge gold"><i class="fas fa-sync"></i> همگام‌سازی: <span id="syncStatus">فعال</span></span>
+            <span class="badge blue"><i class="fas fa-university"></i> شعب: <span id="branchCount">۰</span></span>
+            <span class="badge red"><i class="fas fa-exclamation-triangle"></i> هشدار: <span id="alertCount">۰</span></span>
+        </div>
+    </div>
+
+    <!-- ===== GRID 3: شعب، تراکنش‌ها، IPها ===== -->
+    <div class="grid-3">
+        <div class="card">
+            <h3><i class="fas fa-university"></i> شعب <span class="badge-sm" id="branchOnlineCount">آنلاین: ۰</span></h3>
+            <div class="branch-list" id="branchList"></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-exchange-alt"></i> تراکنش‌ها <span class="badge-sm" id="txCount">۰</span></h3>
+            <div class="tx-list" id="txList"></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-network-wired"></i> IPهای مالی</h3>
+            <table class="ip-table">
+                <thead><tr><th>آدرس IP</th><th>شعبه</th><th>وضعیت</th></tr></thead>
+                <tbody id="ipTableBody"></tbody>
+            </table>
+            <div style="margin-top:0.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;">
+                <button class="btn outline btn-sm" id="addIpBtn"><i class="fas fa-plus"></i> IP</button>
+                <button class="btn outline btn-sm" id="blockIpBtn"><i class="fas fa-ban"></i> مسدود</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GRID 2: نقشه و عملیات ===== -->
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fas fa-map-marked-alt"></i> موقعیت شعب</h3>
+            <div class="map-container"><div id="map"></div></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-cogs"></i> عملیات</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+                <button class="btn" id="refreshBtn"><i class="fas fa-sync"></i> به‌روزرسانی</button>
+                <button class="btn outline" id="toggleOffline"><i class="fas fa-plug"></i> قطع/اتصال</button>
+                <button class="btn gold" id="newTxBtn"><i class="fas fa-plus"></i> تراکنش جدید</button>
+                <button class="btn success" id="forceSyncBtn"><i class="fas fa-cloud-upload-alt"></i> همگام‌سازی</button>
+                <button class="btn danger" id="auditBtn"><i class="fas fa-search-dollar"></i> حسابرسی</button>
+                <button class="btn outline" id="resetBtn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div>© Horizon Core Engine · سامانهٔ یکپارچهٔ تراکنش‌های مشتری-بانک</div>
+        <div style="margin-top:0.3rem;">نسخهٔ عملیاتی · ارائه به روسای بانک مرکزی</div>
+    </div>
+</div>
+
+<script>
+// =============================================================
+// 🧠 Horizon Core · بانک مرکزی ایران
+// =============================================================
+
+let isOnline = true;
+let branchData = [];
+let txData = [];
+let txCounter = 1000;
+let syncQueue = [];
+
+const branchNames = [
+    'شعبهٔ مرکزی', 'شعبهٔ ولیعصر', 'شعبهٔ آزادی', 'شعبهٔ انقلاب',
+    'شعبهٔ پاسداران', 'شعبهٔ ونک', 'شعبهٔ جردن', 'شعبهٔ سهروردی',
+    'شعبهٔ قلهک', 'شعبهٔ شمال', 'شعبهٔ جنوب', 'شعبهٔ شرق',
+    'شعبهٔ غرب', 'اصفهان مرکزی', 'مشهد مرکزی',
+    'شیراز مرکزی', 'تبریز مرکزی', 'کرج مرکزی',
+    'قم مرکزی', 'اهواز مرکزی'
+];
+
+const cities = [
+    'تهران', 'تهران', 'تهران', 'تهران',
+    'تهران', 'تهران', 'تهران', 'تهران',
+    'تهران', 'تهران', 'تهران', 'تهران',
+    'تهران', 'اصفهان', 'مشهد',
+    'شیراز', 'تبریز', 'کرج',
+    'قم', 'اهواز'
+];
+
+const coords = [
+    [35.6892, 51.3890], [35.7248, 51.4080], [35.6917, 51.4070], [35.6880, 51.3890],
+    [35.7560, 51.4960], [35.7630, 51.4100], [35.7630, 51.4100], [35.7630, 51.4100],
+    [35.7630, 51.4100], [35.7630, 51.4100], [35.6892, 51.3890], [35.6892, 51.3890],
+    [35.6892, 51.3890], [32.6525, 51.6740], [36.2605, 59.6168],
+    [29.5918, 52.5837], [38.0800, 46.2900], [35.8327, 50.9915],
+    [34.6400, 50.8764], [31.3183, 48.6706]
+];
+
+// =============================================================
+// 📊 تولید داده‌ها
+// =============================================================
+function generateBranchData() {
+    const count = branchNames.length;
+    const onlineCount = Math.floor(count * 0.82) + Math.floor(Math.random() * 3);
+    branchData = branchNames.map((name, i) => {
+        const isOnlineStatus = i < onlineCount && Math.random() > 0.12;
+        const balance = Math.floor(Math.random() * 5000000000 + 50000000);
+        const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        return {
+            id: i + 1,
+            name,
+            city: cities[i] || 'تهران',
+            balance,
+            ip,
+            isOnline: isOnlineStatus,
+            lastSync: new Date().toLocaleTimeString('fa-IR'),
+            lat: coords[i]?.[0] || 35.6892,
+            lng: coords[i]?.[1] || 51.3890
+        };
+    });
+    document.getElementById('branchCount').textContent = count;
+    const onlineNow = branchData.filter(b => b.isOnline).length;
+    document.getElementById('branchOnlineCount').textContent = `آنلاین: ${onlineNow}`;
+    document.getElementById('alertCount').textContent = Math.floor(Math.random() * 3);
+}
+
+function generateTransaction(from, to, type, amount) {
+    const customers = ['علی رضایی', 'سارا کریمی', 'محمد حسینی', 'زهرا موسوی', 'رضا احمدی', 'نگار رحیمی', 'حسین نوری', 'مریم لطفی'];
+    const banks = ['ملی', 'صادرات', 'ملت', 'تجارت', 'سپه', 'رفاه'];
+    const txTypes = ['واریز', 'برداشت', 'انتقال', 'خرید', 'فروش', 'سود'];
+    const isOnlineTx = isOnline && Math.random() > 0.25;
+    return {
+        id: txCounter++,
+        type: type || txTypes[Math.floor(Math.random() * txTypes.length)],
+        amount: amount || Math.floor(Math.random() * 20000000 + 100000),
+        from: from || customers[Math.floor(Math.random() * customers.length)],
+        to: to || banks[Math.floor(Math.random() * banks.length)],
+        status: isOnlineTx ? 'تأییدشده' : 'در انتظار (آفلاین)',
+        statusClass: isOnlineTx ? 'online' : 'offline',
+        time: new Date().toLocaleTimeString('fa-IR'),
+        hash: `0x${Math.random().toString(36).slice(2, 12)}${Math.random().toString(36).slice(2, 12)}`
+    };
+}
+
+function addTransaction(from, to, type, amount) {
+    const tx = generateTransaction(from, to, type, amount);
+    if (!isOnline && tx.status === 'تأییدشده') {
+        tx.status = 'در انتظار (آفلاین)';
+        tx.statusClass = 'offline';
+        syncQueue.push(tx);
+    }
+    txData.unshift(tx);
+    if (txData.length > 50) txData.pop();
+    renderTransactions();
+    document.getElementById('txCount').textContent = txData.length;
+    return tx;
+}
+
+function generateInitialData() {
+    for (let i = 0; i < 10; i++) {
+        addTransaction();
+    }
+}
+
+// =============================================================
+// 🖨️ رندرها
+// =============================================================
+function renderBranches() {
+    const container = document.getElementById('branchList');
+    container.innerHTML = branchData.map(b => `
+        <div class="branch-item">
+            <div>
+                <strong>${b.name}</strong>
+                <span style="font-size:0.6rem;color:#8fa2dc;display:block;">${b.city}</span>
+            </div>
+            <div style="text-align:left;">
+                <div class="balance">${b.balance.toLocaleString()} ریال</div>
+                <div style="display:flex;gap:0.4rem;align-items:center;justify-content:flex-end;margin-top:0.1rem;">
+                    <span class="ip">${b.ip}</span>
+                    <span class="status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    const onlineNow = branchData.filter(b => b.isOnline).length;
+    document.getElementById('branchOnlineCount').textContent = `آنلاین: ${onlineNow}`;
+}
+
+function renderTransactions() {
+    const container = document.getElementById('txList');
+    const recent = txData.slice(0, 15);
+    container.innerHTML = recent.map(tx => `
+        <div class="tx-item">
+            <div>
+                <div style="font-weight:600;font-size:0.7rem;">${tx.from} → ${tx.to}</div>
+                <div style="font-size:0.55rem;color:#8fa2dc;">${tx.time} · ${tx.hash.slice(0, 10)}...</div>
+            </div>
+            <div style="text-align:left;">
+                <div style="font-weight:700;color:#4ade80;font-size:0.75rem;">${tx.type} ${tx.amount.toLocaleString()} ریال</div>
+                <span class="tx-status ${tx.statusClass}" style="font-size:0.55rem;">${tx.status === 'تأییدشده' ? '✅' : '⏳'} ${tx.status}</span>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('txCount').textContent = txData.length;
+}
+
+function renderIPs() {
+    const container = document.getElementById('ipTableBody');
+    const selected = branchData.slice(0, 12);
+    container.innerHTML = selected.map(b => `
+        <tr>
+            <td class="ip-address">${b.ip}</td>
+            <td>${b.name}</td>
+            <td class="ip-status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</td>
+        </tr>
+    `).join('');
+}
+
+// =============================================================
+// 🗺️ نقشه
+// =============================================================
+let map;
+
+function initMap() {
+    map = L.map('map', { center: [33.5, 51.5], zoom: 5, zoomControl: false, attributionControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+    }).addTo(map);
+    updateMapMarkers();
+}
+
+function updateMapMarkers() {
+    if (!map) return;
+    map.eachLayer(layer => { if (layer instanceof L.CircleMarker) map.removeLayer(layer); });
+    branchData.forEach(b => {
+        const color = b.isOnline ? '#4ade80' : '#f87171';
+        L.circleMarker([b.lat, b.lng], {
+            radius: b.isOnline ? 8 : 5,
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.8,
+            weight: 2
+        }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;font-size:0.7rem;">
+            <strong>${b.name}</strong><br>${b.city}<br><span style="color:${b.isOnline ? '#4ade80' : '#f87171'};">${b.isOnline ? '🟢' : '🔴'}</span>
+        </div>`);
+    });
+}
+
+// =============================================================
+// 🔌 عملیات
+// =============================================================
+function toggleNetwork() {
+    isOnline = !isOnline;
+    document.getElementById('connectionStatus').textContent = isOnline ? 'آنلاین' : 'آفلاین';
+    document.getElementById('connectionBadge').className = `badge ${isOnline ? 'green' : 'red'}`;
+    document.getElementById('syncStatus').textContent = isOnline ? 'فعال' : '⏸️ متوقف';
+    branchData.forEach(b => { b.isOnline = isOnline && Math.random() > 0.15; });
+    renderBranches();
+    renderIPs();
+    updateMapMarkers();
+    if (isOnline && syncQueue.length > 0) {
+        document.getElementById('syncStatus').textContent = '🔄 همگام‌سازی...';
+        setTimeout(() => {
+            syncQueue.forEach(tx => {
+                tx.status = 'تأییدشده';
+                tx.statusClass = 'online';
+            });
+            syncQueue = [];
+            renderTransactions();
+            document.getElementById('syncStatus').textContent = '✅ همگام‌سازی شد';
+            setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 1500);
+        }, 2000);
+    }
+}
+
+function refreshAll() {
+    generateBranchData();
+    renderBranches();
+    renderIPs();
+    updateMapMarkers();
+    document.getElementById('syncStatus').textContent = '🔄 به‌روزرسانی...';
+    setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 1000);
+}
+
+function forceSync() {
+    if (syncQueue.length === 0) { alert('✅ هیچ تراکنش آفلاینی در صف نیست.'); return; }
+    if (!isOnline) { alert('⚠️ ابتدا شبکه را وصل کنید.'); return; }
+    document.getElementById('syncStatus').textContent = '🔄 همگام‌سازی اجباری...';
+    setTimeout(() => {
+        syncQueue.forEach(tx => {
+            tx.status = 'تأییدشده';
+            tx.statusClass = 'online';
+        });
+        const count = syncQueue.length;
+        syncQueue = [];
+        renderTransactions();
+        document.getElementById('syncStatus').textContent = `✅ ${count} تراکنش همگام شد`;
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 2000);
+    }, 2000);
+}
+
+function newTransaction() {
+    const from = ['علی رضایی', 'سارا کریمی', 'محمد حسینی', 'زهرا موسوی', 'رضا احمدی', 'نگار رحیمی', 'حسین نوری', 'مریم لطفی'][Math.floor(Math.random() * 8)];
+    const to = ['ملی', 'صادرات', 'ملت', 'تجارت', 'سپه', 'رفاه', 'پارسیان', 'خاورمیانه'][Math.floor(Math.random() * 8)];
+    const types = ['واریز', 'برداشت', 'انتقال', 'خرید', 'فروش', 'سود'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    const amount = Math.floor(Math.random() * 15000000 + 50000);
+    addTransaction(from, to, type, amount);
+}
+
+function forceAudit() {
+    document.getElementById('syncStatus').textContent = '🔍 حسابرسی...';
+    setTimeout(() => {
+        branchData.forEach(b => {
+            b.balance += Math.floor(Math.random() * 5000000 - 2000000);
+        });
+        renderBranches();
+        renderIPs();
+        document.getElementById('syncStatus').textContent = '✅ حسابرسی تکمیل شد';
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 1500);
+    }, 1500);
+}
+
+function resetSystem() {
+    if (!confirm('آیا مطمئن هستید؟ همه داده‌ها بازنشانی می‌شوند.')) return;
+    txData = [];
+    syncQueue = [];
+    txCounter = 1000;
+    generateBranchData();
+    generateInitialData();
+    renderBranches();
+    renderIPs();
+    renderTransactions();
+    updateMapMarkers();
+    document.getElementById('txCount').textContent = txData.length;
+    document.getElementById('syncStatus').textContent = 'فعال';
+}
+
+function addIP() {
+    const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+    const branch = branchData[Math.floor(Math.random() * branchData.length)];
+    alert(`✅ IP جدید ${ip} به شعبهٔ ${branch.name} اختصاص یافت.`);
+    branch.ip = ip;
+    renderIPs();
+    renderBranches();
+}
+
+function blockIP() {
+    const branch = branchData[Math.floor(Math.random() * branchData.length)];
+    alert(`🚫 IP ${branch.ip} از شعبهٔ ${branch.name} مسدود شد.`);
+    branch.isOnline = false;
+    renderIPs();
+    renderBranches();
+    updateMapMarkers();
+}
+
+// =============================================================
+// 🚀 راه‌اندازی
+// =============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    generateBranchData();
+    generateInitialData();
+    renderBranches();
+    renderIPs();
+    renderTransactions();
+    initMap();
+    document.getElementById('txCount').textContent = txData.length;
+
+    document.getElementById('refreshBtn').addEventListener('click', refreshAll);
+    document.getElementById('toggleOffline').addEventListener('click', toggleNetwork);
+    document.getElementById('newTxBtn').addEventListener('click', newTransaction);
+    document.getElementById('forceSyncBtn').addEventListener('click', forceSync);
+    document.getElementById('auditBtn').addEventListener('click', forceAudit);
+    document.getElementById('resetBtn').addEventListener('click', resetSystem);
+    document.getElementById('addIpBtn').addEventListener('click', addIP);
+    document.getElementById('blockIpBtn').addEventListener('click', blockIP);
+
+    setInterval(() => {
+        if (isOnline && Math.random() > 0.5) newTransaction();
+    }, 10000);
+
+    setInterval(() => {
+        if (isOnline) {
+            generateBranchData();
+            renderBranches();
+            renderIPs();
+            updateMapMarkers();
+        }
+    }, 25000);
+
+    console.log('🏛️ Horizon Core · بانک مرکزی ایران راه‌اندازی شد.');
+});
+</script>
+</body>
+</html>
