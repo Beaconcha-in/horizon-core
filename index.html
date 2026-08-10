@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Horizon Core · بانک مرکزی ایران</title>
-
+    <title>Horizon Core · بانک مرکزی</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -81,16 +79,8 @@
             0%, 100% { filter: drop-shadow(0 0 8px rgba(79, 158, 255, 0.3)); }
             50% { filter: drop-shadow(0 0 20px rgba(79, 158, 255, 0.8)); }
         }
-        .logo span {
-            font-size: 0.75rem;
-            color: #8fa2dc;
-            display: block;
-        }
-        .badge-group {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
+        .logo span { font-size: 0.75rem; color: #8fa2dc; display: block; }
+        .badge-group { display: flex; gap: 0.8rem; flex-wrap: wrap; }
         .badge {
             background: rgba(79, 158, 255, 0.1);
             border: 1px solid #4f9eff33;
@@ -104,7 +94,6 @@
             transition: all 0.3s;
             animation: badgePulse 2s infinite alternate;
         }
-        .badge:hover { transform: scale(1.05); background: rgba(79, 158, 255, 0.2); }
         .badge.green { background: rgba(74, 222, 128, 0.12); border-color: #4ade8044; color: #4ade80; }
         .badge.red { background: rgba(248, 113, 113, 0.12); border-color: #f8717144; color: #f87171; }
         .badge.gold { background: rgba(251, 191, 36, 0.12); border-color: #facc1544; color: #facc15; }
@@ -113,12 +102,10 @@
             0% { opacity: 0.8; }
             100% { opacity: 1; }
         }
-
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
-
         .card {
             background: rgba(20, 26, 44, 0.6);
             backdrop-filter: blur(12px);
@@ -172,7 +159,6 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
         }
-
         .branch-list, .tx-list {
             max-height: 280px;
             overflow-y: auto;
@@ -202,12 +188,10 @@
         .branch-item .status.online { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
         .branch-item .status.offline { background: rgba(248, 113, 113, 0.15); color: #f87171; }
         .branch-item .ip { color: #4f9eff; font-family: monospace; font-size: 0.6rem; }
-
         .tx-item .tx-hash { color: #4ade80; }
         .tx-item .tx-status { font-size: 0.6rem; }
         .tx-item .tx-status.online { color: #4ade80; }
         .tx-item .tx-status.offline { color: #facc15; }
-
         .btn-group {
             display: flex;
             gap: 0.5rem;
@@ -250,7 +234,6 @@
         .btn.success:hover { background: #22c55e; }
         .btn.gold { background: #facc15; color: #0a0f1e; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3); }
         .btn.gold:hover { background: #eab308; }
-
         .ip-table {
             width: 100%;
             font-size: 0.65rem;
@@ -273,7 +256,6 @@
         .ip-table .ip-address { color: #4f9eff; }
         .ip-table .ip-status.online { color: #4ade80; }
         .ip-table .ip-status.offline { color: #f87171; }
-
         .map-container {
             height: 200px;
             border-radius: 1.2rem;
@@ -283,7 +265,6 @@
             z-index: 1;
         }
         #map { height: 100%; width: 100%; }
-
         .footer {
             margin-top: 1.5rem;
             text-align: center;
@@ -314,11 +295,9 @@
             color: #c084fc;
             font-weight: 700;
         }
-
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
-
         .core-status {
             display: inline-flex;
             align-items: center;
@@ -353,15 +332,24 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); }
         }
+        .status-license {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+        .status-license.valid { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .status-license.invalid { background: rgba(248, 113, 113, 0.15); color: #f87171; }
     </style>
 </head>
-
 <body>
 <div class="container">
+    <!-- ===== HEADER ===== -->
     <div class="header">
         <div class="logo">
-            <h1><i class="fas fa-university icon-pulse" style="color:#4f9eff;"></i> Horizon · بانک مرکزی ایران</h1>
-            <span>سامانهٔ یکپارچهٔ تراکنش‌های مشتری-بانک · متصل به Core Engine</span>
+            <h1><i class="fas fa-university icon-pulse" style="color:#4f9eff;"></i> Horizon · بانک مرکزی</h1>
+            <span>سامانهٔ یکپارچه · متصل به Core Engine + License Server</span>
         </div>
         <div class="badge-group">
             <span class="badge green" id="connectionBadge"><i class="fas fa-circle"></i> وضعیت: <span id="connectionStatus">آنلاین</span></span>
@@ -369,9 +357,11 @@
             <span class="badge blue" id="branchCountBadge"><i class="fas fa-university"></i> شعب: <span id="branchCount">۰</span></span>
             <span class="badge red" id="alertBadge"><i class="fas fa-exclamation-triangle"></i> هشدار: <span id="alertCount">۰</span></span>
             <span class="badge" id="coreStatusBadge"><i class="fas fa-server"></i> Core: <span id="coreStatus">❌ قطع</span></span>
+            <span class="badge" id="licenseBadge"><i class="fas fa-key"></i> لایسنس: <span id="licenseStatus">⏳</span></span>
         </div>
     </div>
 
+    <!-- ===== GRID 3 ===== -->
     <div class="grid-3">
         <div class="card">
             <h3><i class="fas fa-university"></i> شعب <span class="badge-sm" id="branchOnlineCount">آنلاین: ۰</span></h3>
@@ -405,6 +395,7 @@
         </div>
     </div>
 
+    <!-- ===== GRID 2 ===== -->
     <div class="grid-2">
         <div class="card">
             <h3><i class="fas fa-map-marked-alt"></i> موقعیت شعب</h3>
@@ -417,9 +408,11 @@
                 <button class="btn danger" id="resetBtn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
                 <button class="btn" id="connectCoreBtn"><i class="fas fa-server"></i> اتصال به Core</button>
                 <button class="btn gold" id="exportReportBtn"><i class="fas fa-file-export"></i> خروجی گزارش</button>
+                <button class="btn success" id="checkLicenseBtn" style="grid-column: span 2;"><i class="fas fa-key"></i> بررسی لایسنس</button>
             </div>
             <div style="margin-top:0.8rem;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:0.8rem;font-size:0.7rem;color:#8fa2dc;position:relative;z-index:1;">
                 <i class="fas fa-info-circle"></i> وضعیت Core: <span id="coreDetailedStatus" class="core-status offline">❌ قطع</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp; <i class="fas fa-key"></i> لایسنس: <span id="licenseDetailedStatus" class="status-license invalid">❌ نامعتبر</span>
             </div>
         </div>
     </div>
@@ -432,25 +425,28 @@
             <span><i class="fas fa-phone"></i> مرکز تلفن: ۲۹۹۵۰۰۰۰</span>
         </div>
         <div style="margin-top:0.3rem;color:#475569;font-size:0.6rem;">
-            <span class="footer-developer"><i class="fas fa-code"></i> توسعه‌دهنده: افق فرشته (Horizon)</span>
+            <span class="footer-developer"><i class="fas fa-code"></i> توسعه‌دهنده: Horizon</span>
             &nbsp;·&nbsp; <span>تمام حقوق محفوظ است</span>
         </div>
         <div style="margin-top:0.2rem;font-size:0.55rem;color:#334155;">
-            نسخهٔ عملیاتی · اتصال کامل به Core Engine · ارائه به روسای بانک مرکزی
+            نسخهٔ عملیاتی · اتصال کامل به Core Engine + License Server
         </div>
     </div>
 </div>
 
 <script>
     // ==========================================================
-    // ۱. تنظیمات اصلی – آدرس Core Engine واقعی
+    // ۱. تنظیمات اولیه – آدرس سرورها
     // ==========================================================
-    // این آدرس را به IP یا دامنه‌ی Core Engine خود تغییر دهید
-    const CORE_API_URL = 'http://localhost:3000'; // آدرس محلی Core Engine
-    // const CORE_API_URL = 'https://your-core-server.com'; // آدرس سرور واقعی
+    // آدرس Core Engine (روی سرور بانک)
+    const CORE_API_URL = 'http://localhost:3000'; // یا آدرس واقعی
+    // آدرس License Server (روی سرور شما)
+    const LICENSE_API_URL = 'https://your-license-server.com';
 
+    // وضعیت‌های اولیه
     let isOnline = true;
     let isCoreConnected = false;
+    let isLicenseValid = false;
     let branchData = [];
     let txData = [];
     let txCounter = 1000;
@@ -459,7 +455,7 @@
     let map = null;
 
     // ==========================================================
-    // ۲. داده‌های پیش‌فرض (Mock) برای زمان عدم دسترسی به Core
+    // ۲. داده‌های Mock (پشتیبان)
     // ==========================================================
     const branchDataRaw = [
         { name: 'شعبهٔ مرکزی تهران', city: 'تهران', lat: 35.6892, lng: 51.3890 },
@@ -586,7 +582,7 @@
     }
 
     // ==========================================================
-    // ۴. نقشه
+    // ۴. نقشه (Leaflet)
     // ==========================================================
     function initMap() {
         if (map) return;
@@ -647,7 +643,6 @@
             detailedEl.className = 'core-status offline';
             document.getElementById('coreStatusBadge').className = 'badge red';
             console.warn('⚠️ خطا در اتصال به Core:', error);
-            // استفاده از داده‌های ساختگی به‌عنوان پشتیبان
             loadMockData();
             alert('⚠️ اتصال به Core Engine برقرار نشد. داده‌های نمایشی (Mock) بارگذاری شدند.');
         }
@@ -656,7 +651,6 @@
     async function fetchRealDataFromCore() {
         if (!isCoreConnected) return;
         try {
-            // دریافت شعب
             const branchesRes = await fetch(`${CORE_API_URL}/api/v1/branches`);
             if (branchesRes.ok) {
                 const data = await branchesRes.json();
@@ -672,14 +666,9 @@
                     renderBranches();
                     renderIPs();
                     updateMapMarkers();
-                } else {
-                    loadMockData();
-                }
-            } else {
-                loadMockData();
-            }
+                } else { loadMockData(); }
+            } else { loadMockData(); }
 
-            // دریافت تراکنش‌ها
             const txRes = await fetch(`${CORE_API_URL}/api/v1/transactions?limit=20`);
             if (txRes.ok) {
                 const data = await txRes.json();
@@ -688,7 +677,6 @@
                     renderTransactions();
                     document.getElementById('txCount').textContent = txData.length;
                 } else {
-                    // تولید چند تراکنش ساختگی
                     for (let i = 0; i < 10; i++) txData.push(generateMockTx());
                     renderTransactions();
                 }
@@ -703,7 +691,7 @@
     }
 
     // ==========================================================
-    // ۶. داده‌های ساختگی (پشتیبان)
+    // ۶. داده‌های Mock (پشتیبان)
     // ==========================================================
     function loadMockData() {
         branchData = generateMockBranches();
@@ -717,18 +705,72 @@
     }
 
     // ==========================================================
-    // ۷. عملیات‌های دکمه‌ها
+    // ۷. بررسی لایسنس با License Server
+    // ==========================================================
+    async function checkLicense() {
+        const licenseStatusEl = document.getElementById('licenseStatus');
+        const detailedEl = document.getElementById('licenseDetailedStatus');
+        licenseStatusEl.textContent = '⏳';
+        detailedEl.textContent = '⏳ در حال بررسی...';
+        detailedEl.className = 'status-license';
+
+        // دریافت لایسنس از localStorage یا تنظیمات
+        let licenseKey = localStorage.getItem('horizon_license');
+        if (!licenseKey) {
+            const input = prompt('لطفاً کد لایسنس را وارد کنید:');
+            if (!input) { licenseStatusEl.textContent = '❌'; return; }
+            licenseKey = input.trim();
+            localStorage.setItem('horizon_license', licenseKey);
+        }
+
+        try {
+            const response = await fetch(`${LICENSE_API_URL}/api/v1/license/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ license: licenseKey })
+            });
+            if (response.ok) {
+                const result = await response.json();
+                if (result.valid) {
+                    isLicenseValid = true;
+                    licenseStatusEl.textContent = '✅';
+                    detailedEl.textContent = '✅ معتبر';
+                    detailedEl.className = 'status-license valid';
+                    document.getElementById('licenseBadge').className = 'badge green';
+                    alert('✅ لایسنس معتبر است.');
+                } else {
+                    isLicenseValid = false;
+                    licenseStatusEl.textContent = '❌';
+                    detailedEl.textContent = '❌ نامعتبر';
+                    detailedEl.className = 'status-license invalid';
+                    document.getElementById('licenseBadge').className = 'badge red';
+                    alert('❌ لایسنس نامعتبر است.');
+                }
+            } else {
+                throw new Error('پاسخ نامعتبر از License Server');
+            }
+        } catch (error) {
+            isLicenseValid = false;
+            licenseStatusEl.textContent = '⚠️';
+            detailedEl.textContent = '⚠️ خطا در اتصال';
+            detailedEl.className = 'status-license invalid';
+            document.getElementById('licenseBadge').className = 'badge red';
+            console.warn('⚠️ خطا در بررسی لایسنس:', error);
+            alert('⚠️ اتصال به License Server برقرار نشد.');
+        }
+    }
+
+    // ==========================================================
+    // ۸. عملیات‌های دکمه‌ها
     // ==========================================================
     function toggleNetwork() {
         isOnline = !isOnline;
         document.getElementById('connectionStatus').textContent = isOnline ? 'آنلاین' : 'آفلاین';
         document.getElementById('connectionBadge').className = `badge ${isOnline ? 'green' : 'red'}`;
         document.getElementById('syncStatus').textContent = isOnline ? 'فعال' : '⏸️ متوقف';
-        // به‌روزرسانی وضعیت شعب
         if (!isCoreConnected) {
             branchData.forEach(b => { b.isOnline = isOnline && Math.random() > 0.15; });
         } else {
-            // در صورت اتصال به Core، دوباره از API دریافت کن
             fetchRealDataFromCore();
         }
         renderBranches();
@@ -747,9 +789,8 @@
     }
 
     function refreshAllBranches() {
-        if (isCoreConnected) {
-            fetchRealDataFromCore();
-        } else {
+        if (isCoreConnected) { fetchRealDataFromCore(); }
+        else {
             branchData = generateMockBranches();
             renderBranches();
             renderIPs();
@@ -774,22 +815,12 @@
     }
 
     function newTransaction() {
-        if (!isCoreConnected) {
-            // حالت آفلاین – به صف اضافه کن
-            const tx = generateMockTx();
-            if (!isOnline) {
-                tx.status = 'در انتظار (آفلاین)';
-                tx.statusClass = 'offline';
-                syncQueue.push(tx);
-            }
-            txData.unshift(tx);
-            if (txData.length > 50) txData.pop();
-            renderTransactions();
-            document.getElementById('txCount').textContent = txData.length;
-            return;
-        }
-        // اگر Core وصل است، تراکنش را به سرور ارسال کن
         const tx = generateMockTx();
+        if (!isOnline) {
+            tx.status = 'در انتظار (آفلاین)';
+            tx.statusClass = 'offline';
+            syncQueue.push(tx);
+        }
         txData.unshift(tx);
         if (txData.length > 50) txData.pop();
         renderTransactions();
@@ -879,17 +910,15 @@
     }
 
     // ==========================================================
-    // ۸. راه‌اندازی اولیه
+    // ۹. راه‌اندازی اولیه
     // ==========================================================
     document.addEventListener('DOMContentLoaded', () => {
-        // بارگذاری داده‌های ساختگی اولیه
         loadMockData();
         initMap();
 
-        // تلاش برای اتصال به Core بعد از ۱ ثانیه
         setTimeout(() => { connectToCore(); }, 1000);
+        setTimeout(() => { checkLicense(); }, 2000);
 
-        // اتصال دکمه‌ها
         document.getElementById('refreshBranchesBtn').addEventListener('click', refreshAllBranches);
         document.getElementById('auditAllBtn').addEventListener('click', auditAllBranches);
         document.getElementById('toggleOffline').addEventListener('click', toggleNetwork);
@@ -897,17 +926,23 @@
         document.getElementById('forceSyncBtn').addEventListener('click', forceSync);
         document.getElementById('resetBtn').addEventListener('click', resetSystem);
         document.getElementById('connectCoreBtn').addEventListener('click', connectToCore);
+        document.getElementById('checkLicenseBtn').addEventListener('click', checkLicense);
         document.getElementById('addIpBtn').addEventListener('click', addIP);
         document.getElementById('blockIpBtn').addEventListener('click', blockIP);
         document.getElementById('connectApiBtn').addEventListener('click', connectAPI);
         document.getElementById('exportReportBtn').addEventListener('click', exportReport);
 
-        // تولید تراکنش خودکار (در صورت آنلاین بودن)
         setInterval(() => {
             if (isOnline && Math.random() > 0.5) newTransaction();
         }, 12000);
 
-        console.log('🏛️ Horizon Core · بانک مرکزی ایران – نسخهٔ متصل به Core Engine');
+        setInterval(() => {
+            if (isOnline && isCoreConnected) {
+                fetchRealDataFromCore();
+            }
+        }, 30000);
+
+        console.log('🏛️ Horizon Core · نسخه نهایی با اتصال به Core + License Server');
     });
 </script>
 </body>
