@@ -2,604 +2,913 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>افق فرشته · مرکز فرماندهی جهانی</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizon Core · بانک مرکزی ایران</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family:'Inter', sans-serif;
-            background: #0a0f1e;
-            color:#eef2ff;
-            overflow:hidden;
-            height:100vh;
-            width:100vw;
+            font-family: 'Inter', sans-serif;
+            background: #060b18;
+            color: #eef2ff;
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: bgPulse 15s infinite alternate;
         }
-        .main-container {
-            display:flex;
-            height:100vh;
-            width:100vw;
-            position:relative;
+        @keyframes bgPulse {
+            0% { background: #060b18; }
+            50% { background: #0a1628; }
+            100% { background: #060b18; }
         }
-        #map {
-            flex:1;
-            height:100%;
-            width:100%;
-            z-index:1;
-            background: #0a0f1e;
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            background: rgba(12, 18, 34, 0.75);
+            backdrop-filter: blur(24px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(79, 158, 255, 0.15);
+            padding: 1.8rem;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+            animation: containerFade 1.2s ease-out;
         }
-        .leaflet-control-zoom { display:none; }
-        .leaflet-tile-pane { filter: grayscale(0.3) brightness(0.5) contrast(1.3); }
+        @keyframes containerFade {
+            0% { opacity: 0; transform: scale(0.96); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(79, 158, 255, 0.15);
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4f9eff, #c084fc, transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #4f9eff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        @keyframes logoGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(79, 158, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(79, 158, 255, 0.8)); }
+        }
+        .logo span {
+            font-size: 0.75rem;
+            color: #8fa2dc;
+            display: block;
+        }
+        .badge-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: rgba(79, 158, 255, 0.1);
+            border: 1px solid #4f9eff33;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            color: #9bb2ff;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s;
+            animation: badgePulse 2s infinite alternate;
+        }
+        .badge:hover { transform: scale(1.05); background: rgba(79, 158, 255, 0.2); }
+        .badge.green { background: rgba(74, 222, 128, 0.12); border-color: #4ade8044; color: #4ade80; }
+        .badge.red { background: rgba(248, 113, 113, 0.12); border-color: #f8717144; color: #f87171; }
+        .badge.gold { background: rgba(251, 191, 36, 0.12); border-color: #facc1544; color: #facc15; }
+        .badge.blue { background: rgba(79, 158, 255, 0.15); border-color: #4f9eff66; color: #4f9eff; }
+        @keyframes badgePulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
 
-        .floating-header {
-            position:fixed;
-            top:1.2rem;
-            left:50%;
-            transform:translateX(-50%);
-            z-index:1000;
-            background:rgba(10,15,30,0.85);
-            backdrop-filter:blur(16px);
-            border-radius:3rem;
-            border:1px solid rgba(79,158,255,0.2);
-            padding:0.6rem 1.8rem;
-            display:flex;
-            align-items:center;
-            gap:1.5rem;
-            flex-wrap:wrap;
-            justify-content:center;
-            box-shadow:0 8px 40px rgba(0,0,0,0.6);
-            pointer-events:auto;
-        }
-        .floating-header .title {
-            font-size:1.1rem;
-            font-weight:800;
-            background:linear-gradient(135deg,#fff,#4f9eff,#c084fc);
-            -webkit-background-clip:text;
-            background-clip:text;
-            color:transparent;
-            white-space:nowrap;
-        }
-        .floating-header .badge-group {
-            display:flex;
-            gap:0.5rem;
-            flex-wrap:wrap;
-        }
-        .floating-header .badge {
-            background:rgba(79,158,255,0.12);
-            border:1px solid #4f9eff33;
-            padding:0.1rem 0.8rem;
-            border-radius:60px;
-            font-size:0.55rem;
-            color:#9bb2ff;
-            white-space:nowrap;
-        }
-        .floating-header .badge.green { background:rgba(74,222,128,0.12); border-color:#4ade8044; color:#4ade80; }
-        .floating-header .badge.red { background:rgba(248,113,113,0.12); border-color:#f8717144; color:#f87171; }
-        .floating-header .badge.blue { background:rgba(79,158,255,0.12); border-color:#4f9eff44; color:#4f9eff; }
-        .floating-header .badge.gold { background:rgba(251,191,36,0.12); border-color:#facc1544; color:#facc15; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
 
-        .side-panel {
-            position:fixed;
-            right:0;
-            top:0;
-            height:100%;
-            width:340px;
-            background:rgba(10,15,30,0.92);
-            backdrop-filter:blur(20px);
-            border-left:1px solid rgba(79,158,255,0.15);
-            z-index:500;
-            padding:1.5rem 1.2rem;
-            overflow-y:auto;
-            transform:translateX(0);
-            transition:0.4s cubic-bezier(0.4,0,0.2,1);
-            pointer-events:auto;
+        .card {
+            background: rgba(20, 26, 44, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.4s;
+            animation: cardFloat 6s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
         }
-        .side-panel.closed { transform:translateX(340px); }
-        .side-panel .toggle-btn {
-            position:absolute;
-            left:-40px;
-            top:50%;
-            transform:translateY(-50%);
-            background:rgba(10,15,30,0.9);
-            border:1px solid rgba(79,158,255,0.2);
-            border-right:none;
-            border-radius:1rem 0 0 1rem;
-            padding:0.6rem 0.8rem;
-            color:#4f9eff;
-            cursor:pointer;
-            font-size:1.2rem;
-            backdrop-filter:blur(8px);
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(79, 158, 255, 0.03), transparent 70%);
+            animation: cardShine 8s linear infinite;
+            pointer-events: none;
         }
-        .side-panel h2 {
-            font-size:0.9rem;
-            font-weight:700;
-            margin-bottom:0.8rem;
-            color:#4f9eff;
-            border-bottom:1px solid #1e2a44;
-            padding-bottom:0.4rem;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+        @keyframes cardShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        .side-panel .stat-row {
-            display:flex;
-            justify-content:space-between;
-            padding:0.3rem 0;
-            border-bottom:1px solid #1a2238;
-            font-size:0.7rem;
+        .card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: #4f9eff55;
+            box-shadow: 0 12px 40px rgba(79, 158, 255, 0.15);
         }
-        .side-panel .stat-row .label { color:#8fa2dc; }
-        .side-panel .stat-row .value { font-weight:600; color:#eef2ff; }
-        .side-panel .stat-row .value.green { color:#4ade80; }
-        .side-panel .stat-row .value.red { color:#f87171; }
-        .side-panel .stat-row .value.blue { color:#4f9eff; }
-        .side-panel .stat-row .value.gold { color:#facc15; }
+        .card h3 {
+            font-size: 0.9rem;
+            color: #4f9eff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card h3 .badge-sm {
+            font-size: 0.6rem;
+            background: rgba(79, 158, 255, 0.15);
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            color: #4f9eff;
+            margin-right: auto;
+        }
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
 
-        .agent-item {
-            background:rgba(20,24,36,0.5);
-            border-radius:0.8rem;
-            padding:0.4rem 0.8rem;
-            margin-bottom:0.3rem;
-            border-left:3px solid #4f9eff;
-            font-size:0.65rem;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            cursor:pointer;
-            transition:0.2s;
+        .branch-list, .tx-list {
+            max-height: 280px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
         }
-        .agent-item:hover { background:rgba(79,158,255,0.1); }
-        .agent-item .status-dot {
-            width:8px;
-            height:8px;
-            border-radius:50%;
-            display:inline-block;
-            margin-left:0.3rem;
+        .branch-item, .tx-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.7rem;
+            padding: 0.5rem 0.8rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-right: 3px solid #4f9eff;
+            transition: all 0.3s;
+            animation: slideIn 0.5s ease-out;
         }
-        .agent-item .status-dot.online { background:#4ade80; }
-        .agent-item .status-dot.offline { background:#f87171; }
-        .agent-item .status-dot.idle { background:#facc15; }
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .branch-item:hover { background: rgba(79, 158, 255, 0.08); border-right-color: #c084fc; }
+        .branch-item .balance { color: #4ade80; font-weight: 700; }
+        .branch-item .status { font-size: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 40px; }
+        .branch-item .status.online { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+        .branch-item .status.offline { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .branch-item .ip { color: #4f9eff; font-family: monospace; font-size: 0.6rem; }
 
-        .emergency-btn {
-            background:rgba(248,113,113,0.15);
-            border:1px solid #f8717155;
-            border-radius:2rem;
-            padding:0.4rem 1rem;
-            color:#f87171;
-            font-size:0.6rem;
-            font-weight:600;
-            cursor:pointer;
-            transition:0.3s;
-            width:100%;
-            text-align:center;
-            margin-top:0.5rem;
-        }
-        .emergency-btn:hover { background:rgba(248,113,113,0.25); }
+        .tx-item .tx-hash { color: #4ade80; }
+        .tx-item .tx-status { font-size: 0.6rem; }
+        .tx-item .tx-status.online { color: #4ade80; }
+        .tx-item .tx-status.offline { color: #facc15; }
 
-        .agent-popup {
-            position:fixed;
-            top:50%;
-            left:50%;
-            transform:translate(-50%,-50%) scale(0.9);
-            z-index:2000;
-            background:rgba(10,15,30,0.96);
-            backdrop-filter:blur(24px);
-            border-radius:2rem;
-            border:1px solid rgba(79,158,255,0.3);
-            padding:2rem;
-            max-width:500px;
-            width:90%;
-            opacity:0;
-            pointer-events:none;
-            transition:0.3s cubic-bezier(0.4,0,0.2,1);
-            box-shadow:0 24px 80px rgba(0,0,0,0.8);
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
         }
-        .agent-popup.open {
-            opacity:1;
-            pointer-events:auto;
-            transform:translate(-50%,-50%) scale(1);
+        .btn {
+            background: #4f9eff;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #0a0f1e;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(79, 158, 255, 0.3);
         }
-        .agent-popup .close-btn {
-            position:absolute;
-            top:0.8rem;
-            right:1.2rem;
-            background:none;
-            border:none;
-            color:#8fa2dc;
-            font-size:1.4rem;
-            cursor:pointer;
+        .btn:hover {
+            background: #3a7bd5;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 24px rgba(79, 158, 255, 0.5);
         }
-        .agent-popup h3 { font-size:1.2rem; margin-bottom:0.5rem; color:#4f9eff; }
-        .agent-popup .detail-row {
-            display:flex;
-            justify-content:space-between;
-            padding:0.2rem 0;
-            font-size:0.8rem;
-            border-bottom:1px solid #1a2238;
+        .btn:active { transform: scale(0.95); }
+        .btn.outline {
+            background: transparent;
+            border: 1px solid #4f9eff55;
+            color: #4f9eff;
+            box-shadow: none;
         }
-        .agent-popup .detail-row .label { color:#8fa2dc; }
-        .agent-popup .detail-row .value { color:#eef2ff; }
+        .btn.outline:hover { background: rgba(79, 158, 255, 0.15); }
+        .btn.danger { background: #f87171; color: #0a0f1e; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3); }
+        .btn.danger:hover { background: #ef4444; }
+        .btn.success { background: #4ade80; color: #0a0f1e; box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3); }
+        .btn.success:hover { background: #22c55e; }
+        .btn.gold { background: #facc15; color: #0a0f1e; box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3); }
+        .btn.gold:hover { background: #eab308; }
 
-        .panel-editor {
-            position:fixed;
-            bottom:2rem;
-            right:1rem;
-            z-index:3000;
+        .ip-table {
+            width: 100%;
+            font-size: 0.65rem;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
         }
-        .panel-editor button {
-            background:rgba(79,158,255,0.15);
-            border:1px solid #4f9eff44;
-            border-radius:2rem;
-            padding:0.4rem 1.2rem;
-            color:#4f9eff;
-            font-size:0.6rem;
-            cursor:pointer;
-            backdrop-filter:blur(8px);
-            transition:0.3s;
+        .ip-table th {
+            text-align: right;
+            padding: 0.2rem 0.4rem;
+            color: #8fa2dc;
+            border-bottom: 1px solid #1a2240;
         }
-        .panel-editor button:hover { background:rgba(79,158,255,0.25); }
+        .ip-table td {
+            padding: 0.2rem 0.4rem;
+            border-bottom: 1px solid #1a2240;
+            font-family: monospace;
+        }
+        .ip-table .ip-address { color: #4f9eff; }
+        .ip-table .ip-status.online { color: #4ade80; }
+        .ip-table .ip-status.offline { color: #f87171; }
 
-        ::-webkit-scrollbar { width:4px; }
-        ::-webkit-scrollbar-track { background:#0f172a; }
-        ::-webkit-scrollbar-thumb { background:#4f9eff; border-radius:4px; }
+        .map-container {
+            height: 200px;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            border: 1px solid rgba(79, 158, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        #map { height: 100%; width: 100%; }
 
-        @media (max-width:768px) {
-            .side-panel { width:280px; }
-            .side-panel.closed { transform:translateX(280px); }
-            .floating-header { padding:0.4rem 1rem; gap:0.8rem; top:0.6rem; }
-            .floating-header .title { font-size:0.9rem; }
-            .floating-header .badge { font-size:0.45rem; padding:0.05rem 0.5rem; }
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #475569;
+            border-top: 1px solid #1a2240;
+            padding-top: 1rem;
+            animation: footerFade 2s;
+        }
+        @keyframes footerFade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .footer-contact {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 0.5rem 0;
+            color: #8fa2dc;
+            font-size: 0.7rem;
+        }
+        .footer-contact i {
+            color: #4f9eff;
+            margin-left: 0.3rem;
+        }
+        .footer-developer {
+            color: #c084fc;
+            font-weight: 700;
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+
+        .core-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            transition: all 0.3s;
+        }
+        .core-status.online {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            animation: pulseGreen 1.5s infinite;
+        }
+        .core-status.offline {
+            background: rgba(248, 113, 113, 0.15);
+            color: #f87171;
+            animation: pulseRed 1.5s infinite;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+        }
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); }
+        }
+        .icon-pulse {
+            animation: iconPulse 2s infinite;
+        }
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
     </style>
 </head>
+
 <body>
-
-<div class="main-container">
-    <!-- ===== نقشه ===== -->
-    <div id="map"></div>
-
-    <!-- ===== هدر شناور ===== -->
-    <div class="floating-header">
-        <span class="title">🌍 Horizon Command Center · مشهد</span>
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <h1><i class="fas fa-university icon-pulse" style="color:#4f9eff;"></i> Horizon · بانک مرکزی ایران</h1>
+            <span>سامانهٔ یکپارچهٔ تراکنش‌های مشتری-بانک · متصل به Core Engine</span>
+        </div>
         <div class="badge-group">
-            <span class="badge green"><i class="fas fa-circle"></i> محصولات فعال: <span id="activeProductsCount">۱۲</span></span>
-            <span class="badge red"><i class="fas fa-circle"></i> نودها: <span id="nodesCount">۲۴</span></span>
-            <span class="badge blue"><i class="fas fa-circle"></i> عامل‌ها: <span id="agentsCount">۲۳۰</span></span>
-            <span class="badge gold"><i class="fas fa-circle"></i> آنلاین: <span id="onlineCount">۱۸۶</span></span>
-        </div>
-        <button id="emergencyToggle" style="background:none;border:1px solid #f8717155;border-radius:2rem;padding:0.1rem 0.8rem;color:#f87171;font-size:0.55rem;cursor:pointer;">🔴 خاموش</button>
-    </div>
-
-    <!-- ===== پنل کناری ===== -->
-    <div class="side-panel" id="sidePanel">
-        <button class="toggle-btn" id="toggleSidePanel"><i class="fas fa-chevron-left"></i></button>
-        <h2><i class="fas fa-chart-simple"></i> وضعیت لحظه‌ای</h2>
-        <div class="stat-row"><span class="label">ولیدیتورها</span><span class="value blue" id="statValidators">۱۰۰,۰۰۰+</span></div>
-        <div class="stat-row"><span class="label">آنلاین</span><span class="value green" id="statOnline">۸۸,۲۴۰</span></div>
-        <div class="stat-row"><span class="label">آفلاین</span><span class="value red" id="statOffline">۱۱,۷۶۰</span></div>
-        <div class="stat-row"><span class="label">لایسنس صادرشده</span><span class="value gold" id="statLicenses">۴۵۶</span></div>
-        <div class="stat-row"><span class="label">تراکنش‌ها (۲۴h)</span><span class="value blue" id="statTx">۱۲,۴۵۶</span></div>
-        <div class="stat-row"><span class="label">مخازن</span><span class="value" id="statRepos">۶</span></div>
-        <div class="stat-row"><span class="label">کلید API اعتبار</span><span class="value green" id="statApiCredit">۱۰۰%</span></div>
-
-        <h2 style="margin-top:1rem;"><i class="fas fa-robot"></i> عامل‌های فعال</h2>
-        <div id="agentList"></div>
-
-        <!-- لیست تراکنش‌ها (برای جاوااسکریپت) -->
-        <h2 style="margin-top:1rem;"><i class="fas fa-exchange-alt"></i> تراکنش‌های اخیر</h2>
-        <div id="txList"></div>
-
-        <button class="emergency-btn" id="emergencyBtn"><i class="fas fa-power-off"></i> خاموش‌سازی اضطراری</button>
-        <div style="margin-top:0.3rem;display:flex;gap:0.3rem;">
-            <input type="password" id="shutdownPassword" placeholder="رمز خاموش‌سازی..." style="flex:1;background:#0f172a;border:1px solid #2a3a5a;border-radius:2rem;padding:0.2rem 0.8rem;color:#eef2ff;font-size:0.6rem;outline:none;" />
-            <button id="shutdownConfirmBtn" style="background:#f87171;border:none;border-radius:2rem;padding:0.2rem 1rem;color:#0a0f1e;font-size:0.6rem;font-weight:700;cursor:pointer;">تأیید</button>
+            <span class="badge green" id="connectionBadge"><i class="fas fa-circle"></i> وضعیت: <span id="connectionStatus">آنلاین</span></span>
+            <span class="badge gold" id="syncBadge"><i class="fas fa-sync"></i> همگام‌سازی: <span id="syncStatus">فعال</span></span>
+            <span class="badge blue" id="branchCountBadge"><i class="fas fa-university"></i> شعب: <span id="branchCount">۰</span></span>
+            <span class="badge red" id="alertBadge"><i class="fas fa-exclamation-triangle"></i> هشدار: <span id="alertCount">۰</span></span>
+            <span class="badge" id="coreStatusBadge"><i class="fas fa-server"></i> Core: <span id="coreStatus">❌ قطع</span></span>
         </div>
     </div>
 
-    <!-- ===== پاپ‌آپ عامل ===== -->
-    <div class="agent-popup" id="agentPopup">
-        <button class="close-btn" id="closePopup"><i class="fas fa-times"></i></button>
-        <h3 id="popupName">عامل</h3>
-        <div class="detail-row"><span class="label">وضعیت</span><span class="value" id="popupStatus">🟢 آنلاین</span></div>
-        <div class="detail-row"><span class="label">مخزن</span><span class="value" id="popupRepo">—</span></div>
-        <div class="detail-row"><span class="label">فایل در حال کار</span><span class="value" id="popupFile">—</span></div>
-        <div class="detail-row"><span class="label">آخرین فعالیت</span><span class="value" id="popupLastActive">—</span></div>
-        <div class="detail-row"><span class="label">تخصص</span><span class="value" id="popupSpecialty">—</span></div>
-        <button id="popupActionBtn" style="margin-top:0.8rem;background:#4f9eff;border:none;border-radius:2rem;padding:0.3rem 1.5rem;color:#0a0f1e;font-weight:700;cursor:pointer;width:100%;">مدیریت عامل</button>
+    <div class="grid-3">
+        <div class="card">
+            <h3><i class="fas fa-university"></i> شعب <span class="badge-sm" id="branchOnlineCount">آنلاین: ۰</span></h3>
+            <div class="branch-list" id="branchList"></div>
+            <div class="btn-group">
+                <button class="btn" id="refreshBranchesBtn"><i class="fas fa-sync"></i> به‌روزرسانی شعب</button>
+                <button class="btn success" id="auditAllBtn"><i class="fas fa-search-dollar"></i> حسابرسی همه</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-exchange-alt"></i> تراکنش‌ها <span class="badge-sm" id="txCount">۰</span></h3>
+            <div class="tx-list" id="txList"></div>
+            <div class="btn-group">
+                <button class="btn gold" id="newTxBtn"><i class="fas fa-plus"></i> تراکنش جدید</button>
+                <button class="btn success" id="forceSyncBtn"><i class="fas fa-cloud-upload-alt"></i> همگام‌سازی</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-network-wired"></i> مدیریت IPهای مالی</h3>
+            <table class="ip-table">
+                <thead><tr><th>آدرس IP</th><th>شعبه</th><th>وضعیت</th></tr></thead>
+                <tbody id="ipTableBody"></tbody>
+            </table>
+            <div class="btn-group">
+                <button class="btn outline" id="addIpBtn"><i class="fas fa-plus"></i> افزودن IP</button>
+                <button class="btn danger" id="blockIpBtn"><i class="fas fa-ban"></i> مسدودسازی</button>
+                <button class="btn outline" id="connectApiBtn"><i class="fas fa-plug"></i> اتصال API</button>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== ویرایشگر پنل ===== -->
-    <div class="panel-editor">
-        <button id="editPanelBtn"><i class="fas fa-pen"></i> ویرایش پنل</button>
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fas fa-map-marked-alt"></i> موقعیت شعب</h3>
+            <div class="map-container"><div id="map"></div></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-cogs"></i> کنترل مرکزی</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;position:relative;z-index:1;">
+                <button class="btn outline" id="toggleOffline"><i class="fas fa-plug"></i> قطع/اتصال شبکه</button>
+                <button class="btn danger" id="resetBtn"><i class="fas fa-undo-alt"></i> بازنشانی</button>
+                <button class="btn" id="connectCoreBtn"><i class="fas fa-server"></i> اتصال به Core</button>
+                <button class="btn gold" id="exportReportBtn"><i class="fas fa-file-export"></i> خروجی گزارش</button>
+            </div>
+            <div style="margin-top:0.8rem;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:0.8rem;font-size:0.7rem;color:#8fa2dc;position:relative;z-index:1;">
+                <i class="fas fa-info-circle"></i> وضعیت Core: <span id="coreDetailedStatus" class="core-status offline">❌ قطع</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-contact">
+            <span><i class="fas fa-map-pin"></i> تهران - بلوار میرداماد - شماره ۱۹۸</span>
+            <span><i class="fas fa-mail-bulk"></i> کد پستی: ۳۳۱۱۱-۱۵۴۹۶</span>
+            <span><i class="fas fa-inbox"></i> صندوق پستی: ۱۵۸۷۵/۷۱۷۷</span>
+            <span><i class="fas fa-phone"></i> مرکز تلفن: ۲۹۹۵۰۰۰۰</span>
+        </div>
+        <div style="margin-top:0.3rem;color:#475569;font-size:0.6rem;">
+            <span class="footer-developer"><i class="fas fa-code"></i> توسعه‌دهنده: افق فرشته (Horizon)</span>
+            &nbsp;·&nbsp; <span>تمام حقوق محفوظ است</span>
+        </div>
+        <div style="margin-top:0.2rem;font-size:0.55rem;color:#334155;">
+            نسخهٔ عملیاتی · اتصال کامل به Core Engine · ارائه به روسای بانک مرکزی
+        </div>
     </div>
 </div>
 
 <script>
-// =============================================================
-// CONFIGURATION
-// =============================================================
-const MASHHAD_COORDS = [36.2605, 59.6168];
-const GITHUB_ORG = 'beaconchain-horizon';
+    // ==========================================================
+    // ۱. تنظیمات اصلی – آدرس Core Engine واقعی
+    // ==========================================================
+    // این آدرس را به IP یا دامنه‌ی Core Engine خود تغییر دهید
+    const CORE_API_URL = 'http://localhost:3000'; // آدرس محلی Core Engine
+    // const CORE_API_URL = 'https://your-core-server.com'; // آدرس سرور واقعی
 
-// =============================================================
-// AGENTS DATA (نمونه‌ای از agency-agents)
-// =============================================================
-const agentsList = [
-    { id: 'frontend-developer', name: '🎨 Frontend Developer', specialty: 'React/Vue/UI', repo: 'hub', file: 'index.html' },
-    { id: 'backend-architect', name: '🏗️ Backend Architect', specialty: 'Go/API/DB', repo: 'horizon-core-engine', file: 'main.go' },
-    { id: 'security-engineer', name: '🔒 Security Engineer', specialty: 'Audit/Crypto', repo: 'verified-merkle-lib', file: 'tree.go' },
-    { id: 'growth-hacker', name: '🚀 Growth Hacker', specialty: 'Marketing/Acquisition', repo: 'hub', file: 'README.md' },
-    { id: 'ux-designer', name: '🎯 UX Designer', specialty: 'Design/UI/UX', repo: 'horizon-angel-panel', file: 'index.html' },
-    { id: 'solidity-engineer', name: '⛓️ Solidity Engineer', specialty: 'Smart Contracts', repo: 'horizon-core-engine', file: 'contract.sol' },
-    { id: 'data-analyst', name: '📊 Data Analyst', specialty: 'Analytics/BI', repo: 'Beaconchain.us', file: 'data.js' },
-    { id: 'devops-automator', name: '⚙️ DevOps', specialty: 'CI/CD/Infra', repo: 'horizon-core-engine', file: 'deploy.yml' },
-    { id: 'technical-writer', name: '📝 Tech Writer', specialty: 'Docs/Content', repo: 'hub', file: 'README.md' },
-    { id: 'ai-engineer', name: '🤖 AI Engineer', specialty: 'ML/LLM', repo: 'agency-agents', file: 'agents.md' },
-];
+    let isOnline = true;
+    let isCoreConnected = false;
+    let branchData = [];
+    let txData = [];
+    let txCounter = 1000;
+    let syncQueue = [];
+    let auditLog = [];
+    let map = null;
 
-// =============================================================
-// نقاط جهانی
-// =============================================================
-const globalNodes = [
-    { lat: 40.7128, lng: -74.0060, name: 'New York · Validator #1', type: 'validator' },
-    { lat: 34.0522, lng: -118.2437, name: 'Los Angeles · Validator #2', type: 'validator' },
-    { lat: 37.7749, lng: -122.4194, name: 'San Francisco · Validator #3', type: 'validator' },
-    { lat: 41.8781, lng: -87.6298, name: 'Chicago · Validator #4', type: 'validator' },
-    { lat: 51.5074, lng: -0.1278, name: 'London · Validator #5', type: 'validator' },
-    { lat: 48.8566, lng: 2.3522, name: 'Paris · Validator #6', type: 'validator' },
-    { lat: 52.5200, lng: 13.4050, name: 'Berlin · Validator #7', type: 'validator' },
-    { lat: 40.7128, lng: 14.4857, name: 'Rome · Validator #8', type: 'validator' },
-    { lat: 35.6895, lng: 139.6917, name: 'Tokyo · Validator #9', type: 'validator' },
-    { lat: 37.5665, lng: 126.9780, name: 'Seoul · Validator #10', type: 'validator' },
-    { lat: 22.5431, lng: 114.0579, name: 'Hong Kong · Validator #11', type: 'validator' },
-    { lat: 28.6139, lng: 77.2090, name: 'Delhi · Validator #12', type: 'validator' },
-    { lat: 39.9042, lng: 116.4074, name: 'Beijing · Validator #13', type: 'validator' },
-    { lat: 25.2048, lng: 55.2708, name: 'Dubai · Validator #14', type: 'validator' },
-    { lat: 31.9539, lng: 35.9106, name: 'Amman · Validator #15', type: 'validator' },
-    { lat: 33.8938, lng: 35.5018, name: 'Beirut · Validator #16', type: 'validator' },
-    { lat: 35.6892, lng: 51.3890, name: 'Tehran · Validator #17', type: 'validator' },
-    { lat: 29.5918, lng: 52.5837, name: 'Shiraz · Validator #18', type: 'validator' },
-    { lat: 34.6382, lng: 50.8764, name: 'Isfahan · Validator #19', type: 'validator' },
-    { lat: 36.2605, lng: 59.6168, name: 'Mashhad · HQ', type: 'hq' },
-    { lat: -33.8688, lng: 151.2093, name: 'Sydney · Validator #20', type: 'validator' },
-    { lat: -33.9249, lng: 18.4241, name: 'Cape Town · Validator #21', type: 'validator' },
-];
-
-// =============================================================
-// STATE
-// =============================================================
-let map;
-let markers = [];
-let popupOpen = false;
-let shutdownPassword = 'horizon2026';
-
-// =============================================================
-// INIT MAP
-// =============================================================
-function initMap() {
-    map = L.map('map', {
-        center: [20, 0],
-        zoom: 2,
-        zoomControl: false,
-        attributionControl: false,
-        fadeAnimation: true,
-        zoomAnimation: true,
-        maxZoom: 6,
-        minZoom: 1.5,
-    });
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap & CartoDB',
-        subdomains: 'abcd',
-        maxZoom: 19,
-    }).addTo(map);
-
-    globalNodes.forEach(p => {
-        let color, radius, label;
-        if (p.type === 'hq') {
-            color = '#facc15';
-            radius = 16;
-            label = '🏛️ مرکز فرماندهی';
-        } else {
-            color = '#4f9eff';
-            radius = 8;
-            label = '🔵 ولیدیتور';
-        }
-        const marker = L.circleMarker([p.lat, p.lng], {
-            radius: radius,
-            color: color,
-            fillColor: color,
-            fillOpacity: 0.8,
-            weight: 2,
-        }).addTo(map);
-        marker.bindPopup(`<div style="color:#eef2ff;font-size:0.8rem;text-align:center;">
-            <strong>${p.name}</strong><br>
-            <span style="color:#8fa2dc;">${label}</span>
-        </div>`);
-        markers.push(marker);
-    });
-
-    // خطوط شبکه
-    const lines = [
-        [[36.2605, 59.6168], [35.6892, 51.3890]],
-        [[36.2605, 59.6168], [25.2048, 55.2708]],
-        [[36.2605, 59.6168], [40.7128, -74.0060]],
-        [[36.2605, 59.6168], [51.5074, -0.1278]],
-        [[36.2605, 59.6168], [35.6895, 139.6917]],
+    // ==========================================================
+    // ۲. داده‌های پیش‌فرض (Mock) برای زمان عدم دسترسی به Core
+    // ==========================================================
+    const branchDataRaw = [
+        { name: 'شعبهٔ مرکزی تهران', city: 'تهران', lat: 35.6892, lng: 51.3890 },
+        { name: 'شعبهٔ ولیعصر تهران', city: 'تهران', lat: 35.7248, lng: 51.4080 },
+        { name: 'شعبهٔ آزادی تهران', city: 'تهران', lat: 35.6917, lng: 51.4070 },
+        { name: 'شعبهٔ انقلاب تهران', city: 'تهران', lat: 35.6880, lng: 51.3890 },
+        { name: 'شعبهٔ پاسداران تهران', city: 'تهران', lat: 35.7560, lng: 51.4960 },
+        { name: 'شعبهٔ ونک تهران', city: 'تهران', lat: 35.7630, lng: 51.4100 },
+        { name: 'شعبهٔ جردن تهران', city: 'تهران', lat: 35.7630, lng: 51.4100 },
+        { name: 'شعبهٔ سهروردی تهران', city: 'تهران', lat: 35.7630, lng: 51.4100 },
+        { name: 'شعبهٔ قلهک تهران', city: 'تهران', lat: 35.7630, lng: 51.4100 },
+        { name: 'شعبهٔ شمال تهران', city: 'تهران', lat: 35.7630, lng: 51.4100 },
+        { name: 'شعبهٔ جنوب تهران', city: 'تهران', lat: 35.6892, lng: 51.3890 },
+        { name: 'شعبهٔ شرق تهران', city: 'تهران', lat: 35.6892, lng: 51.3890 },
+        { name: 'شعبهٔ غرب تهران', city: 'تهران', lat: 35.6892, lng: 51.3890 },
+        { name: 'شعبهٔ مرکزی اصفهان', city: 'اصفهان', lat: 32.6525, lng: 51.6740 },
+        { name: 'شعبهٔ مرکزی مشهد', city: 'مشهد', lat: 36.2605, lng: 59.6168 },
+        { name: 'شعبهٔ مرکزی شیراز', city: 'شیراز', lat: 29.5918, lng: 52.5837 },
+        { name: 'شعبهٔ مرکزی تبریز', city: 'تبریز', lat: 38.0800, lng: 46.2900 },
+        { name: 'شعبهٔ مرکزی کرج', city: 'کرج', lat: 35.8327, lng: 50.9915 },
+        { name: 'شعبهٔ مرکزی قم', city: 'قم', lat: 34.6400, lng: 50.8764 },
+        { name: 'شعبهٔ مرکزی اهواز', city: 'اهواز', lat: 31.3183, lng: 48.6706 },
+        { name: 'شعبهٔ مرکزی کرمانشاه', city: 'کرمانشاه', lat: 34.3142, lng: 47.0680 },
+        { name: 'شعبهٔ مرکزی رشت', city: 'رشت', lat: 37.2800, lng: 49.5830 },
+        { name: 'شعبهٔ مرکزی زاهدان', city: 'زاهدان', lat: 29.4963, lng: 60.8629 },
+        { name: 'شعبهٔ مرکزی همدان', city: 'همدان', lat: 34.8000, lng: 48.5160 },
+        { name: 'شعبهٔ مرکزی کرمان', city: 'کرمان', lat: 30.2830, lng: 57.0830 },
+        { name: 'شعبهٔ مرکزی ارومیه', city: 'ارومیه', lat: 37.5553, lng: 45.0725 },
+        { name: 'شعبهٔ مرکزی بندرعباس', city: 'بندرعباس', lat: 27.1832, lng: 56.2667 },
+        { name: 'شعبهٔ مرکزی سنندج', city: 'سنندج', lat: 35.3040, lng: 46.9980 },
+        { name: 'شعبهٔ مرکزی یزد', city: 'یزد', lat: 31.8974, lng: 54.3569 },
+        { name: 'شعبهٔ مرکزی بوشهر', city: 'بوشهر', lat: 28.9234, lng: 50.8203 },
+        { name: 'شعبهٔ مرکزی ساری', city: 'ساری', lat: 36.5633, lng: 53.0601 },
+        { name: 'شعبهٔ مرکزی شهرکرد', city: 'شهرکرد', lat: 32.3256, lng: 50.8644 }
     ];
-    lines.forEach(coords => {
-        L.polyline(coords, {
-            color: '#4f9eff',
-            weight: 0.5,
-            opacity: 0.12,
-            dashArray: '6 10',
-        }).addTo(map);
-    });
 
-    // مرکز فرماندهی مشهد
-    L.marker(MASHHAD_COORDS, {
-        icon: L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background:rgba(250,204,21,0.2);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;border:2px solid #facc15;box-shadow:0 0 60px rgba(250,204,21,0.3);animation:pulse 2s infinite;">
-                <i class="fas fa-flag" style="color:#facc15;font-size:2rem;"></i>
+    function generateMockBranches() {
+        return branchDataRaw.map((item, index) => ({
+            id: index + 1,
+            name: item.name,
+            city: item.city,
+            balance: Math.floor(Math.random() * 5000000000 + 50000000),
+            ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+            isOnline: isOnline && Math.random() > 0.12,
+            lat: item.lat,
+            lng: item.lng,
+            lastSync: new Date().toLocaleTimeString('fa-IR')
+        }));
+    }
+
+    function generateMockTx() {
+        const customers = ['علی رضایی', 'سارا کریمی', 'محمد حسینی', 'زهرا موسوی', 'رضا احمدی', 'نگار رحیمی', 'حسین نوری', 'مریم لطفی'];
+        const banks = ['ملی', 'صادرات', 'ملت', 'تجارت', 'سپه', 'رفاه', 'پارسیان', 'خاورمیانه'];
+        const txTypes = ['واریز', 'برداشت', 'انتقال', 'خرید', 'فروش', 'سود'];
+        const isOnlineTx = isOnline && Math.random() > 0.25;
+        return {
+            id: txCounter++,
+            type: txTypes[Math.floor(Math.random() * txTypes.length)],
+            amount: Math.floor(Math.random() * 20000000 + 100000),
+            from: customers[Math.floor(Math.random() * customers.length)],
+            to: banks[Math.floor(Math.random() * banks.length)],
+            status: isOnlineTx ? 'تأییدشده' : 'در انتظار (آفلاین)',
+            statusClass: isOnlineTx ? 'online' : 'offline',
+            time: new Date().toLocaleTimeString('fa-IR'),
+            hash: `0x${Math.random().toString(36).slice(2, 12)}${Math.random().toString(36).slice(2, 12)}`
+        };
+    }
+
+    // ==========================================================
+    // ۳. توابع رندرینگ
+    // ==========================================================
+    function renderBranches() {
+        const container = document.getElementById('branchList');
+        container.innerHTML = branchData.map(b => `
+            <div class="branch-item">
+                <div>
+                    <strong>${b.name}</strong>
+                    <span style="font-size:0.6rem;color:#8fa2dc;display:block;">${b.city}</span>
+                </div>
+                <div style="text-align:left;">
+                    <div class="balance">${b.balance.toLocaleString()} ریال</div>
+                    <div style="display:flex;gap:0.4rem;align-items:center;justify-content:flex-end;margin-top:0.1rem;">
+                        <span class="ip">${b.ip}</span>
+                        <span class="status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</span>
+                    </div>
+                </div>
             </div>
-            <style>
-                @keyframes pulse {
-                    0% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
-                    50% { box-shadow:0 0 60px rgba(250,204,21,0.5); }
-                    100% { box-shadow:0 0 20px rgba(250,204,21,0.2); }
+        `).join('');
+        const onlineNow = branchData.filter(b => b.isOnline).length;
+        document.getElementById('branchOnlineCount').textContent = `آنلاین: ${onlineNow}`;
+        document.getElementById('branchCount').textContent = branchData.length;
+        document.getElementById('alertCount').textContent = Math.floor(Math.random() * 3);
+        updateMapMarkers();
+    }
+
+    function renderTransactions() {
+        const container = document.getElementById('txList');
+        const recent = txData.slice(0, 15);
+        container.innerHTML = recent.map(tx => `
+            <div class="tx-item">
+                <div>
+                    <div style="font-weight:600;font-size:0.7rem;">${tx.from} → ${tx.to}</div>
+                    <div style="font-size:0.55rem;color:#8fa2dc;">${tx.time} · ${tx.hash.slice(0, 10)}...</div>
+                </div>
+                <div style="text-align:left;">
+                    <div style="font-weight:700;color:#4ade80;font-size:0.75rem;">${tx.type} ${tx.amount.toLocaleString()} ریال</div>
+                    <span class="tx-status ${tx.statusClass}" style="font-size:0.55rem;">${tx.status === 'تأییدشده' ? '✅' : '⏳'} ${tx.status}</span>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('txCount').textContent = txData.length;
+    }
+
+    function renderIPs() {
+        const container = document.getElementById('ipTableBody');
+        const selected = branchData.slice(0, 15);
+        container.innerHTML = selected.map(b => `
+            <tr>
+                <td class="ip-address">${b.ip}</td>
+                <td>${b.name}</td>
+                <td class="ip-status ${b.isOnline ? 'online' : 'offline'}">${b.isOnline ? '🟢' : '🔴'}</td>
+            </tr>
+        `).join('');
+    }
+
+    // ==========================================================
+    // ۴. نقشه
+    // ==========================================================
+    function initMap() {
+        if (map) return;
+        map = L.map('map', { center: [33.5, 51.5], zoom: 5, zoomControl: false, attributionControl: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap & CartoDB', subdomains: 'abcd', maxZoom: 19
+        }).addTo(map);
+        updateMapMarkers();
+    }
+
+    function updateMapMarkers() {
+        if (!map) return;
+        map.eachLayer(layer => { if (layer instanceof L.CircleMarker) map.removeLayer(layer); });
+        branchData.forEach(b => {
+            const color = b.isOnline ? '#4ade80' : '#f87171';
+            L.circleMarker([b.lat, b.lng], {
+                radius: b.isOnline ? 8 : 5,
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.8,
+                weight: 2
+            }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;font-size:0.7rem;">
+                <strong>${b.name}</strong><br>${b.city}<br><span style="color:${b.isOnline ? '#4ade80' : '#f87171'};">${b.isOnline ? '🟢' : '🔴'}</span>
+            </div>`);
+        });
+    }
+
+    // ==========================================================
+    // ۵. اتصال به Core Engine واقعی
+    // ==========================================================
+    async function connectToCore() {
+        const statusEl = document.getElementById('coreStatus');
+        const detailedEl = document.getElementById('coreDetailedStatus');
+        statusEl.textContent = '⏳ در حال اتصال...';
+        detailedEl.textContent = '⏳ در حال اتصال...';
+        detailedEl.className = 'core-status';
+
+        try {
+            const response = await fetch(`${CORE_API_URL}/api/v1/status`, {
+                method: 'HEAD',
+                signal: AbortSignal.timeout(5000)
+            });
+            if (response.ok) {
+                isCoreConnected = true;
+                statusEl.textContent = '✅ متصل';
+                detailedEl.textContent = '✅ متصل به Core';
+                detailedEl.className = 'core-status online';
+                document.getElementById('coreStatusBadge').className = 'badge green';
+                await fetchRealDataFromCore();
+                alert('✅ اتصال به Core Engine با موفقیت برقرار شد.');
+            } else {
+                throw new Error('پاسخ نامعتبر از سرور');
+            }
+        } catch (error) {
+            isCoreConnected = false;
+            statusEl.textContent = '❌ قطع';
+            detailedEl.textContent = '❌ قطع (خطا در اتصال)';
+            detailedEl.className = 'core-status offline';
+            document.getElementById('coreStatusBadge').className = 'badge red';
+            console.warn('⚠️ خطا در اتصال به Core:', error);
+            // استفاده از داده‌های ساختگی به‌عنوان پشتیبان
+            loadMockData();
+            alert('⚠️ اتصال به Core Engine برقرار نشد. داده‌های نمایشی (Mock) بارگذاری شدند.');
+        }
+    }
+
+    async function fetchRealDataFromCore() {
+        if (!isCoreConnected) return;
+        try {
+            // دریافت شعب
+            const branchesRes = await fetch(`${CORE_API_URL}/api/v1/branches`);
+            if (branchesRes.ok) {
+                const data = await branchesRes.json();
+                if (data && data.length > 0) {
+                    branchData = data.map(b => ({
+                        ...b,
+                        isOnline: b.status === 'online' || b.isOnline === true,
+                        balance: b.balance || 0,
+                        ip: b.ip || '0.0.0.0',
+                        lat: b.lat || 35.6892,
+                        lng: b.lng || 51.3890
+                    }));
+                    renderBranches();
+                    renderIPs();
+                    updateMapMarkers();
+                } else {
+                    loadMockData();
                 }
-            </style>`,
-            iconSize: [70, 70],
-            iconAnchor: [35, 35],
-        })
-    }).addTo(map).bindPopup(`<div style="color:#eef2ff;text-align:center;">
-        <strong style="color:#facc15;">🏛️ مرکز فرماندهی Horizon</strong><br>
-        مشهد، ایران · قلب اکوسیستم
-    </div>`);
-}
+            } else {
+                loadMockData();
+            }
 
-// =============================================================
-// AGENT POPUP
-// =============================================================
-window.openAgentPopup = function(agentId) {
-    const agent = agentsList.find(a => a.id === agentId) || agentsList[0];
-    document.getElementById('popupName').textContent = agent.name;
-    document.getElementById('popupStatus').innerHTML = `<span style="color:#4ade80;">🟢 آنلاین</span>`;
-    document.getElementById('popupRepo').textContent = agent.repo || '—';
-    document.getElementById('popupFile').textContent = agent.file || '—';
-    document.getElementById('popupLastActive').textContent = new Date().toLocaleTimeString('fa-IR');
-    document.getElementById('popupSpecialty').textContent = agent.specialty || '—';
-    document.getElementById('agentPopup').classList.add('open');
-    popupOpen = true;
-};
-document.getElementById('closePopup').addEventListener('click', () => {
-    document.getElementById('agentPopup').classList.remove('open');
-    popupOpen = false;
-});
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && popupOpen) {
-        document.getElementById('agentPopup').classList.remove('open');
-        popupOpen = false;
-    }
-});
-
-// =============================================================
-// SIDE PANEL AGENT LIST
-// =============================================================
-function renderAgentList() {
-    const container = document.getElementById('agentList');
-    container.innerHTML = agentsList.map(agent => `
-        <div class="agent-item" onclick="openAgentPopup('${agent.id}')">
-            <span>${agent.name}</span>
-            <span>
-                <span class="status-dot online"></span>
-                <span style="font-size:0.55rem;color:#8fa2dc;">${agent.specialty}</span>
-            </span>
-        </div>
-    `).join('');
-}
-renderAgentList();
-
-// =============================================================
-// EMERGENCY SHUTDOWN
-// =============================================================
-document.getElementById('emergencyBtn').addEventListener('click', () => {
-    const pwd = document.getElementById('shutdownPassword').value.trim();
-    if (pwd === shutdownPassword) {
-        if (confirm('⚠️ آیا از خاموش‌سازی کامل اکوسیستم اطمینان دارید؟')) {
-            document.querySelectorAll('.agent-item').forEach(el => el.style.opacity = '0.3');
-            document.querySelectorAll('.status-dot').forEach(d => d.className = 'status-dot offline');
-            document.getElementById('emergencyBtn').textContent = '⛔ سیستم خاموش شد';
-            document.getElementById('emergencyBtn').style.background = 'rgba(248,113,113,0.3)';
-            alert('🚨 اکوسیستم به‌طور کامل خاموش شد.');
+            // دریافت تراکنش‌ها
+            const txRes = await fetch(`${CORE_API_URL}/api/v1/transactions?limit=20`);
+            if (txRes.ok) {
+                const data = await txRes.json();
+                if (data && data.transactions && data.transactions.length > 0) {
+                    txData = data.transactions;
+                    renderTransactions();
+                    document.getElementById('txCount').textContent = txData.length;
+                } else {
+                    // تولید چند تراکنش ساختگی
+                    for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+                    renderTransactions();
+                }
+            } else {
+                for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+                renderTransactions();
+            }
+        } catch (error) {
+            console.warn('⚠️ دریافت داده‌های واقعی با خطا مواجه شد:', error);
+            loadMockData();
         }
-    } else {
-        alert('❌ رمز اشتباه است.');
     }
-});
 
-document.getElementById('shutdownConfirmBtn').addEventListener('click', () => {
-    document.getElementById('emergencyBtn').click();
-});
+    // ==========================================================
+    // ۶. داده‌های ساختگی (پشتیبان)
+    // ==========================================================
+    function loadMockData() {
+        branchData = generateMockBranches();
+        txData = [];
+        for (let i = 0; i < 10; i++) txData.push(generateMockTx());
+        renderBranches();
+        renderIPs();
+        renderTransactions();
+        updateMapMarkers();
+        document.getElementById('txCount').textContent = txData.length;
+    }
 
-document.getElementById('emergencyToggle').addEventListener('click', () => {
-    document.getElementById('shutdownPassword').focus();
-    document.getElementById('sidePanel').classList.remove('closed');
-});
-
-// =============================================================
-// TOGGLE SIDE PANEL
-// =============================================================
-let sidePanelOpen = true;
-document.getElementById('toggleSidePanel').addEventListener('click', () => {
-    sidePanelOpen = !sidePanelOpen;
-    document.getElementById('sidePanel').classList.toggle('closed');
-    document.getElementById('toggleSidePanel').innerHTML = sidePanelOpen ? '<i class="fas fa-chevron-left"></i>' : '<i class="fas fa-chevron-right"></i>';
-});
-
-// =============================================================
-// EDIT PANEL
-// =============================================================
-document.getElementById('editPanelBtn').addEventListener('click', () => {
-    const editable = document.querySelectorAll('.stat-row .value, #agentList .agent-item, .floating-header .badge-group span');
-    editable.forEach(el => {
-        if (el.isContentEditable) {
-            el.contentEditable = 'false';
-            el.style.border = 'none';
+    // ==========================================================
+    // ۷. عملیات‌های دکمه‌ها
+    // ==========================================================
+    function toggleNetwork() {
+        isOnline = !isOnline;
+        document.getElementById('connectionStatus').textContent = isOnline ? 'آنلاین' : 'آفلاین';
+        document.getElementById('connectionBadge').className = `badge ${isOnline ? 'green' : 'red'}`;
+        document.getElementById('syncStatus').textContent = isOnline ? 'فعال' : '⏸️ متوقف';
+        // به‌روزرسانی وضعیت شعب
+        if (!isCoreConnected) {
+            branchData.forEach(b => { b.isOnline = isOnline && Math.random() > 0.15; });
         } else {
-            el.contentEditable = 'true';
-            el.style.border = '1px dashed #4f9eff';
-            el.style.borderRadius = '4px';
-            el.style.padding = '0 0.2rem';
+            // در صورت اتصال به Core، دوباره از API دریافت کن
+            fetchRealDataFromCore();
         }
-    });
-    alert('✏️ حالت ویرایش فعال شد. روی هر مقدار کلیک کنید و تغییر دهید. پس از اتمام، دوباره دکمه ویرایش را بزنید.');
-});
-
-// =============================================================
-// REAL-TIME STATS (بدون توکن)
-// =============================================================
-async function updateStats() {
-    try {
-        const reposRes = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos?per_page=100`);
-        if (reposRes.ok) {
-            const repos = await reposRes.json();
-            document.getElementById('statRepos').textContent = repos.length;
+        renderBranches();
+        renderIPs();
+        updateMapMarkers();
+        if (isOnline && syncQueue.length > 0) {
+            document.getElementById('syncStatus').textContent = '🔄 همگام‌سازی...';
+            setTimeout(() => {
+                syncQueue.forEach(tx => { tx.status = 'تأییدشده'; tx.statusClass = 'online'; });
+                syncQueue = [];
+                renderTransactions();
+                document.getElementById('syncStatus').textContent = '✅ همگام‌سازی شد';
+                setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 1500);
+            }, 2000);
         }
-        // شبیه‌سازی داده‌های پویا (در حالت واقعی از Core Engine دریافت می‌شوند)
-        const online = Math.floor(88240 + (Math.random() * 1000 - 500));
-        const offline = Math.floor(11760 + (Math.random() * 500 - 250));
-        document.getElementById('statOnline').textContent = online.toLocaleString();
-        document.getElementById('statOffline').textContent = offline.toLocaleString();
-        document.getElementById('statValidators').textContent = (online + offline).toLocaleString();
-        document.getElementById('statTx').textContent = Math.floor(12456 + Math.random() * 1000 - 500).toLocaleString();
-        document.getElementById('statLicenses').textContent = Math.floor(456 + Math.random() * 20 - 10);
-        document.getElementById('activeProductsCount').textContent = Math.floor(12 + Math.random() * 3);
-        document.getElementById('nodesCount').textContent = Math.floor(24 + Math.random() * 4);
-        document.getElementById('onlineCount').textContent = Math.floor(186 + Math.random() * 10 - 5);
-        document.getElementById('statApiCredit').textContent = Math.floor(85 + Math.random() * 15) + '%';
-    } catch(e) {
-        console.log('⚠️ خطا در دریافت داده‌ها:', e);
     }
-}
-updateStats();
-setInterval(updateStats, 15000);
 
-// =============================================================
-// INIT MAP AFTER DOM LOAD
-// =============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    initMap();
-    document.getElementById('sidePanel').classList.remove('closed');
-});
+    function refreshAllBranches() {
+        if (isCoreConnected) {
+            fetchRealDataFromCore();
+        } else {
+            branchData = generateMockBranches();
+            renderBranches();
+            renderIPs();
+            updateMapMarkers();
+        }
+        document.getElementById('syncStatus').textContent = '🔄 به‌روزرسانی...';
+        setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 1000);
+    }
+
+    function forceSync() {
+        if (syncQueue.length === 0) { alert('✅ هیچ تراکنش آفلاینی در صف نیست.'); return; }
+        if (!isOnline) { alert('⚠️ ابتدا شبکه را وصل کنید.'); return; }
+        document.getElementById('syncStatus').textContent = '🔄 همگام‌سازی اجباری...';
+        setTimeout(() => {
+            syncQueue.forEach(tx => { tx.status = 'تأییدشده'; tx.statusClass = 'online'; });
+            const count = syncQueue.length;
+            syncQueue = [];
+            renderTransactions();
+            document.getElementById('syncStatus').textContent = `✅ ${count} تراکنش همگام شد`;
+            setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 2000);
+        }, 2000);
+    }
+
+    function newTransaction() {
+        if (!isCoreConnected) {
+            // حالت آفلاین – به صف اضافه کن
+            const tx = generateMockTx();
+            if (!isOnline) {
+                tx.status = 'در انتظار (آفلاین)';
+                tx.statusClass = 'offline';
+                syncQueue.push(tx);
+            }
+            txData.unshift(tx);
+            if (txData.length > 50) txData.pop();
+            renderTransactions();
+            document.getElementById('txCount').textContent = txData.length;
+            return;
+        }
+        // اگر Core وصل است، تراکنش را به سرور ارسال کن
+        const tx = generateMockTx();
+        txData.unshift(tx);
+        if (txData.length > 50) txData.pop();
+        renderTransactions();
+        document.getElementById('txCount').textContent = txData.length;
+    }
+
+    function auditAllBranches() {
+        document.getElementById('syncStatus').textContent = '🔍 حسابرسی همه شعب...';
+        const startTime = Date.now();
+        setTimeout(() => {
+            let totalAudited = 0;
+            branchData.forEach(b => {
+                const change = Math.floor(Math.random() * 10000000 - 3000000);
+                b.balance += change;
+                b.isOnline = isOnline && Math.random() > 0.08;
+                totalAudited++;
+                auditLog.push({
+                    branch: b.name,
+                    time: new Date().toLocaleTimeString('fa-IR'),
+                    change: change,
+                    newBalance: b.balance
+                });
+            });
+            renderBranches();
+            renderIPs();
+            updateMapMarkers();
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            document.getElementById('syncStatus').textContent = `✅ حسابرسی ${totalAudited} شعبه در ${elapsed} ثانیه تکمیل شد`;
+            alert(`✅ حسابرسی ${totalAudited} شعبه با موفقیت انجام شد.\nتغییرات در موجودی شعب اعمال شد.`);
+            setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 3000);
+        }, 2000);
+    }
+
+    function addIP() {
+        const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        const branch = branchData[Math.floor(Math.random() * branchData.length)];
+        alert(`✅ IP جدید ${ip} به شعبهٔ ${branch.name} اختصاص یافت.`);
+        branch.ip = ip;
+        renderIPs();
+        renderBranches();
+    }
+
+    function blockIP() {
+        const branch = branchData[Math.floor(Math.random() * branchData.length)];
+        alert(`🚫 IP ${branch.ip} از شعبهٔ ${branch.name} مسدود شد.`);
+        branch.isOnline = false;
+        renderIPs();
+        renderBranches();
+        updateMapMarkers();
+    }
+
+    function connectAPI() {
+        alert('🔌 درخواست اتصال به API بانک مرکزی ارسال شد.\nوضعیت: در حال انتظار برای تأیید...');
+        document.getElementById('syncStatus').textContent = '🔄 درخواست اتصال API...';
+        setTimeout(() => {
+            document.getElementById('syncStatus').textContent = '✅ API متصل شد';
+            setTimeout(() => { document.getElementById('syncStatus').textContent = 'فعال'; }, 2000);
+        }, 2000);
+    }
+
+    function exportReport() {
+        const report = {
+            time: new Date().toISOString(),
+            branches: branchData.map(b => ({ name: b.name, balance: b.balance, online: b.isOnline, ip: b.ip })),
+            transactions: txData.slice(0, 20),
+            auditLog: auditLog.slice(-10)
+        };
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `horizon-audit-report-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('📊 گزارش حسابرسی با موفقیت ذخیره شد.');
+    }
+
+    function resetSystem() {
+        if (!confirm('آیا مطمئن هستید؟ همه داده‌ها بازنشانی می‌شوند.')) return;
+        txData = [];
+        syncQueue = [];
+        auditLog = [];
+        txCounter = 1000;
+        loadMockData();
+        document.getElementById('syncStatus').textContent = 'فعال';
+        alert('✅ سیستم با موفقیت بازنشانی شد.');
+    }
+
+    // ==========================================================
+    // ۸. راه‌اندازی اولیه
+    // ==========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // بارگذاری داده‌های ساختگی اولیه
+        loadMockData();
+        initMap();
+
+        // تلاش برای اتصال به Core بعد از ۱ ثانیه
+        setTimeout(() => { connectToCore(); }, 1000);
+
+        // اتصال دکمه‌ها
+        document.getElementById('refreshBranchesBtn').addEventListener('click', refreshAllBranches);
+        document.getElementById('auditAllBtn').addEventListener('click', auditAllBranches);
+        document.getElementById('toggleOffline').addEventListener('click', toggleNetwork);
+        document.getElementById('newTxBtn').addEventListener('click', newTransaction);
+        document.getElementById('forceSyncBtn').addEventListener('click', forceSync);
+        document.getElementById('resetBtn').addEventListener('click', resetSystem);
+        document.getElementById('connectCoreBtn').addEventListener('click', connectToCore);
+        document.getElementById('addIpBtn').addEventListener('click', addIP);
+        document.getElementById('blockIpBtn').addEventListener('click', blockIP);
+        document.getElementById('connectApiBtn').addEventListener('click', connectAPI);
+        document.getElementById('exportReportBtn').addEventListener('click', exportReport);
+
+        // تولید تراکنش خودکار (در صورت آنلاین بودن)
+        setInterval(() => {
+            if (isOnline && Math.random() > 0.5) newTransaction();
+        }, 12000);
+
+        console.log('🏛️ Horizon Core · بانک مرکزی ایران – نسخهٔ متصل به Core Engine');
+    });
 </script>
-
-<!-- ===== اضافه شدن فایل جاوااسکریپت جداگانه برای اتصال به Core Engine ===== -->
-<script src="assets/js/dashboard.js"></script>
-
 </body>
 </html>
