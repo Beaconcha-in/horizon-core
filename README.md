@@ -1,65 +1,95 @@
-# 🌍 Horizon Core Engine · «Afogh-e Fereshteh» Command Center
+# 🔷 Horizon Architecture License (HAL) v1.0
 
-> **Offline‑first, API‑based blockchain validator and commercial license manager.**  
-> Built with **Go**, **SQLite**, **Merkle trees**, and **ECDSA signatures**.
-
-Horizon is a security‑hardened, open‑source blockchain monitoring platform that powers a volume‑based prepaid API model using provable Merkle trees.  
-**The «Afogh-e Fereshteh» Command Center is now fully operational – live dashboard, real‑time data, and full offline capability.**
+<p align="center">
+  <img src="https://img.shields.io/badge/License-HAL%20v1.0-4f9eff?style=for-the-badge&logo=open-source-initiative&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Active-4ade80?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Term-Perpetual-facc15?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Protected-Architecture-c084fc?style=for-the-badge"/>
+</p>
 
 ---
 
-## 🏆 Real‑World Achievements
+## 📋 مشخصات سند
 
-| 🏅 Achievement | 📈 Status |
+| **عنصر** | **مشخصات** |
 | :--- | :--- |
-| **Global Rank** | 🥉 **#3** among blockchain explorers (May 2026) |
-| **Security Score** | 🔒 **92/100** – audited by independent security team |
-| **Validator Support** | ⚡ **100,000+** validators simultaneously |
-| **Offline Readiness** | 📴 **Fully functional offline** – IndexedDB cache + virtual scrolling |
-| **Live Data** | 📡 **Connected to Core Engine API** – real‑time validator, transaction, and license data |
-| **Auto‑Deployment** | 🚀 **GitHub Pages + Actions** – continuous deployment on every push |
-| **License Management** | 🪪 **Prepaid Merkle‑based licenses** with ECDSA signatures |
+| **نام مجوز** | Horizon Architecture License (HAL) v1.0 |
+| **Licensor (صاحب‌امتیاز)** | Mahdi Amolimoghaddam |
+| **Licensed Asset (دارایی مجوزدار)** | Horizon Ecosystem Architecture (the "Path") |
+| **Effective Date (تاریخ اجرا)** | 2026-07-26 |
+| **Term (مدت اعتبار)** | Perpetual (بدون تاریخ انقضا و بدون تبدیل به مجوز آزاد) |
 
 ---
 
-## 🚀 Features
+## 🧭 1. The Path (مسیر)
 
-- ✅ **REST API** – `/api/v1/validators`, `/api/v1/licenses`, `/api/v1/transactions`, `/api/v1/status`
-- ✅ **Prepaid license generation** – Merkle tree + ECDSA signing
-- ✅ **Offline‑first architecture** – works without internet (cached data)
-- ✅ **Security‑hardened** – CSP nonce, SHA‑256, XSS protection, GDPR compliance
-- ✅ **Scalable** – handles 100,000+ validators with sub‑second response
-- ✅ **Self‑hosted or cloud‑ready** – runs anywhere with Go
-- ✅ **Commercial license enforcement** – built‑in protection for commercial use
+**«مسیر» (The Path)** به معنای **معماری، ساختار و الگوهای تعامل** اکوسیستم Horizon است که شامل موارد زیر می‌شود (اما محدود به این موارد نیست):
 
----
-
-## 📊 Live Dashboard – «Afogh-e Fereshteh»
-
-The **«Afogh-e Fereshteh» Command Center** is live and publicly accessible:
-
-🔗 [**https://beaconchain-horizon.github.io/horizon-core-engine/**](https://beaconchain-horizon.github.io/horizon-core-engine/)
-
-- Real‑time validator count, online/offline status
-- Issued licenses and recent transactions
-- Interactive world map with node locations
-- List of active AI agents (from `agency-agents`)
-- Emergency shutdown (with password protection)
-- Edit‑mode for live tweaking of panel values
+| بخش | توضیح |
+| :--- | :--- |
+| 🏛️ **ساختار کلی** | چیدمان و سازمان‌دهی کلی اکوسیستم Horizon |
+| 🔄 **الگوهای تعامل** | نحوه‌ی ارتباط بین مؤلفه‌های اصلی (Core Engine، ماژول‌های امنیتی، Panel، Store) |
+| 🌊 **جریان داده** | پروتکل‌های ارتباطی و جریان داده بین مؤلفه‌ها |
+| 🔐 **مدل امنیتی** | معماری Offline‑First، امضای ECDSA، Merkle Tree، رمزنگاری AES‑GCM |
+| 📜 **موتور اعتبارسنجی** | سیستم صدور و راستی‌آزمایی لایسنس‌های مبتنی بر Merkle |
+| 🏦 **الگوهای استقرار** | روش‌های یکپارچه‌سازی با بانک‌ها، صرافی‌ها و فروشگاه‌ها |
+| 🧩 **معماری‌های مشتق‌شده** | هر ساختاری که الگوهای مشابه را تکرار کند، صرف‌نظر از زبان یا پیاده‌سازی |
 
 ---
 
-## 🛠️ Quick Start
+## 📖 2. Using the Path (استفاده از مسیر)
 
-### Prerequisites
+شما مجاز به استفاده از **مسیر** برای **اهداف غیرتجاری** هستید، از جمله:
 
-- Go 1.24+
-- SQLite3 (embedded, no separate installation needed)
+- 🎓 **آموزش و پژوهش**
+- 🧪 **پروژه‌های شخصی و تست**
+- 📚 **مطالعه و یادگیری معماری**
 
-### Installation
+**به شرط اینکه:**
 
-```bash
-git clone https://github.com/beaconchain-horizon/horizon-core-engine.git
-cd horizon-core-engine
-cp .env.example .env
-go mod tidy
+- ✅ این مجوز را در اثر خود حفظ کنید.
+- ✅ ادعای مالکیت مسیر نکنید.
+- ✅ از مسیر برای هیچ‌گونه هدف تجاری استفاده نکنید.
+
+---
+
+## 🚫 3. Commercial Use of the Path (استفاده‌ی تجاری از مسیر)
+
+**هرگونه استفاده‌ی تجاری از مسیر، بدون مجوز کتبی جداگانه از Licensor، به‌شدت ممنوع است.**
+
+**مصادیق استفاده‌ی تجاری عبارتند از (اما محدود به این موارد نیستند):**
+
+| نوع استفاده | توضیح |
+| :--- | :--- |
+| 🏗️ **ساخت محصول یا سرویس** | هر محصول یا سرویسی که مسیر را تکرار کند. |
+| 🌀 **ارائه‌ی سرویس مشابه** | سرویسی که ساختار Horizon را تقلید کند. |
+| 📐 **استفاده به‌عنوان نقشه** | استفاده از مسیر به‌عنوان الگو برای سیستم تجاری. |
+| 🔗 **ادغام در محصول تجاری** | استفاده از مسیر در یک محصول یا سرویس تجاری. |
+| 💰 **فروش یا صدور مجوز** | فروش یا صدور مجوز مسیر به اشخاص ثالث. |
+| 📈 **کسب درآمد** | هرگونه استفاده از مسیر برای کسب درآمد یا مزیت تجاری. |
+
+---
+
+## 🚗 4. The Vehicles Don't Matter (وسایل نقلیه مهم نیستند)
+
+این مجوز به **خود مسیر** تعلق دارد، نه به پیاده‌سازی خاص (کد، زبان، وسیله‌ی نقلیه).
+
+> 🛵 **فرقی نمی‌کند از Go، JavaScript، Python یا هر فناوری دیگری استفاده کنید — اگر مسیر را تکرار کنید، این مجوز اعمال می‌شود.**
+
+---
+
+## 🔒 5. No Automatic Conversion (عدم تبدیل خودکار)
+
+این مجوز **هرگز** به هیچ مجوز دیگری (از جمله GPL، MIT، Apache یا هر مجوز متن‌باز دیگری) تبدیل نمی‌شود.
+
+> 🔑 **Licensor کنترل کامل و دائمی بر مسیر را در اختیار دارد.**
+
+---
+
+## ✍️ 6. Attribution (انتساب)
+
+هرگونه استفاده از مسیر (حتی غیرتجاری) باید شامل موارد زیر باشد:
+
+```text
+This architecture is based on the Horizon Ecosystem Architecture,
+designed by Mahdi Amolimoghaddam.
