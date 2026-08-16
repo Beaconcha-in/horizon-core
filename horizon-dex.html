@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horizon DEX · صرافی غیرمتمرکز</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #060b18;
+      color: #eef2ff;
+      padding: 1rem;
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 20%, #0a0f1e, #03050a);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      max-width: 1600px;
+      width: 100%;
+      background: rgba(12, 18, 34, 0.75);
+      backdrop-filter: blur(24px);
+      border-radius: 2.5rem;
+      border: 1px solid rgba(79, 158, 255, 0.15);
+      padding: 1.8rem;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(79, 158, 255, 0.15);
+      position: relative;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #4f9eff, #c084fc, transparent);
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, #4f9eff, #c084fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .logo span {
+      font-size: 0.7rem;
+      color: #8fa2dc;
+      display: block;
+    }
+    .badge-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: rgba(79, 158, 255, 0.1);
+      border: 1px solid #4f9eff33;
+      padding: 0.2rem 0.8rem;
+      border-radius: 60px;
+      font-size: 0.6rem;
+      color: #9bb2ff;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .badge.green { background: rgba(74,222,128,0.12); border-color: #4ade8044; color: #4ade80; }
+    .badge.red { background: rgba(248,113,113,0.12); border-color: #f8717144; color: #f87171; }
+    .badge.gold { background: rgba(251,191,36,0.12); border-color: #facc1544; color: #facc15; }
+    .badge.purple { background: rgba(192,132,252,0.12); border-color: #c084fc44; color: #c084fc; }
+
+    /* ===== GRIDS ===== */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+    @media (max-width:1200px) { .grid-4 { grid-template-columns: 1fr 1fr; } .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width:768px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: rgba(20, 26, 44, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      padding: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: 0.3s;
+    }
+    .card:hover { border-color: #4f9eff55; transform: translateY(-3px); }
+    .card h3 {
+      font-size: 0.9rem;
+      color: #4f9eff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card h3 .badge-sm {
+      font-size: 0.6rem;
+      background: rgba(79,158,255,0.15);
+      padding: 0.1rem 0.6rem;
+      border-radius: 40px;
+      color: #4f9eff;
+      margin-right: auto;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #1a2238;
+      font-size: 0.75rem;
+    }
+    .stat-row .label { color: #8fa2dc; }
+    .stat-row .value { font-weight: 600; }
+    .stat-row .value.green { color: #4ade80; }
+    .stat-row .value.red { color: #f87171; }
+    .stat-row .value.gold { color: #facc15; }
+    .stat-row .value.blue { color: #4f9eff; }
+    .stat-row .value.purple { color: #c084fc; }
+
+    /* ===== TRADING PAIRS ===== */
+    .pair-list { max-height: 300px; overflow-y: auto; }
+    .pair-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.7rem;
+      padding: 0.4rem 0.8rem;
+      margin-bottom: 0.2rem;
+      border-right: 3px solid #4f9eff;
+      font-size: 0.7rem;
+      transition: 0.2s;
+    }
+    .pair-item:hover { background: rgba(79,158,255,0.08); }
+    .pair-item .pair-name { font-weight: 600; color: #eef2ff; }
+    .pair-item .pair-price { font-weight: 700; color: #4ade80; }
+    .pair-item .pair-change { font-size: 0.6rem; padding: 0.1rem 0.5rem; border-radius: 40px; }
+    .pair-item .pair-change.positive { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .pair-item .pair-change.negative { background: rgba(248,113,113,0.15); color: #f87171; }
+
+    /* ===== ORDER FORM ===== */
+    .order-form { display: flex; flex-direction: column; gap: 0.5rem; }
+    .order-form .form-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .order-form .form-row input, .order-form .form-row select {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid #1a2240;
+      padding: 0.4rem 0.8rem;
+      border-radius: 1rem;
+      color: white;
+      font-size: 0.75rem;
+      outline: none;
+      min-width: 60px;
+    }
+    .order-form .form-row input:focus, .order-form .form-row select:focus { border-color: #4f9eff; }
+    .btn {
+      background: #4f9eff;
+      border: none;
+      padding: 0.4rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: #0a0f1e;
+      cursor: pointer;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn:hover { background: #3a7bd5; transform: scale(1.02); }
+    .btn.success { background: #4ade80; }
+    .btn.success:hover { background: #22c55e; }
+    .btn.danger { background: #f87171; }
+    .btn.danger:hover { background: #ef4444; }
+    .btn.gold { background: #facc15; }
+    .btn.gold:hover { background: #eab308; }
+    .btn.outline { background: transparent; border: 1px solid #4f9eff55; color: #4f9eff; box-shadow: none; }
+    .btn.outline:hover { background: rgba(79,158,255,0.15); }
+
+    /* ===== WALLET ===== */
+    .wallet-list .wallet-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #1a2238;
+      font-size: 0.75rem;
+    }
+    .wallet-list .wallet-item .asset { color: #eef2ff; font-weight: 600; }
+    .wallet-list .wallet-item .balance { font-weight: 600; }
+    .wallet-list .wallet-item .balance.usd { color: #4ade80; }
+
+    /* ===== TOOLBOX QUICK ACCESS ===== */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.5rem;
+    }
+    .tool-grid .tool-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.7rem;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.6rem;
+      color: #8fa2dc;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid transparent;
+    }
+    .tool-grid .tool-item:hover {
+      border-color: #4f9eff;
+      color: #eef2ff;
+      background: rgba(79,158,255,0.05);
+    }
+    .tool-grid .tool-item i { font-size: 1.2rem; display: block; margin-bottom: 0.2rem; color: #4f9eff; }
+
+    /* ===== MISC ===== */
+    .footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.65rem;
+      color: #475569;
+      border-top: 1px solid #1a2240;
+      padding-top: 1rem;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #4f9eff; border-radius: 4px; }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: rgba(20,26,44,0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid #4ade80;
+      padding: 0.9rem 1.8rem;
+      border-radius: 1rem;
+      color: #eef2ff;
+      font-size: 0.9rem;
+      z-index: 9999;
+      display: none;
+      animation: slideUp 0.3s ease-out;
+    }
+    .toast.error { border-color: #f87171; }
+    @keyframes slideUp { 0%{opacity:0;transform:translateY(30px)} 100%{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- ========== HEADER ========== -->
+  <div class="header">
+    <div class="logo">
+      <h1><i class="fas fa-exchange-alt" style="color:#c084fc;"></i> Horizon DEX</h1>
+      <span>صرافی غیرمتمرکز · مبتنی بر اکوسیستم Horizon</span>
+    </div>
+    <div class="badge-group">
+      <span class="badge green"><i class="fas fa-circle"></i> شبکه: <span id="networkStatus">متصل</span></span>
+      <span class="badge gold"><i class="fas fa-wallet"></i> کیف پول: <span id="walletStatus">۰x7F...E3</span></span>
+      <span class="badge purple"><i class="fas fa-key"></i> لایسنس: <span id="licenseStatus">فعال</span></span>
+    </div>
+  </div>
+
+  <!-- ========== ROW 1: MARKET OVERVIEW ========== -->
+  <div class="grid-4" id="marketStats">
+    <div class="card"><h3><i class="fas fa-chart-line"></i> حجم کل</h3><div class="stat-row"><span class="label">۲۴ ساعت</span><span class="value green" id="totalVolume">$۱۲.۴M</span></div></div>
+    <div class="card"><h3><i class="fas fa-coins"></i> دارایی‌های فعال</h3><div class="stat-row"><span class="label">توکن‌ها</span><span class="value blue" id="activeTokens">۱۴</span></div></div>
+    <div class="card"><h3><i class="fas fa-users"></i> کاربران آنلاین</h3><div class="stat-row"><span class="label">هم‌اکنون</span><span class="value gold" id="onlineUsers">۱,۲۴۰</span></div></div>
+    <div class="card"><h3><i class="fas fa-tachometer-alt"></i> کارمزد</h3><div class="stat-row"><span class="label">پایه</span><span class="value purple" id="baseFee">۰.۳%</span></div></div>
+  </div>
+
+  <!-- ========== ROW 2: TRADING PAIRS + ORDER FORM ========== -->
+  <div class="grid-2">
+    <!-- بازار -->
+    <div class="card">
+      <h3><i class="fas fa-list-ul"></i> جفت‌ارزها <span class="badge-sm">قیمت‌های لحظه‌ای</span></h3>
+      <div class="pair-list" id="pairList"></div>
+    </div>
+    <!-- فرم معامله -->
+    <div class="card">
+      <h3><i class="fas fa-exchange-alt"></i> معامله <span class="badge-sm">خرید / فروش</span></h3>
+      <div class="order-form">
+        <div class="form-row">
+          <select id="tradePair"><option value="BTC/USDT">BTC/USDT</option><option value="ETH/USDT">ETH/USDT</option><option value="SOL/USDT">SOL/USDT</option><option value="USDC/USDT">USDC/USDT</option></select>
+          <select id="tradeType"><option value="buy">خرید</option><option value="sell">فروش</option></select>
+        </div>
+        <div class="form-row">
+          <input type="number" id="tradeAmount" placeholder="مقدار" value="0.01" />
+          <input type="number" id="tradePrice" placeholder="قیمت" value="0" step="any" />
+        </div>
+        <div class="form-row">
+          <button class="btn success" id="buyBtn"><i class="fas fa-arrow-up"></i> خرید</button>
+          <button class="btn danger" id="sellBtn"><i class="fas fa-arrow-down"></i> فروش</button>
+          <button class="btn outline" id="marketBtn"><i class="fas fa-bolt"></i> بازار</button>
+        </div>
+        <div style="font-size:0.65rem; color:#8fa2dc; margin-top:0.3rem;">
+          موجودی: <span id="balanceDisplay">۰.۰۰</span> USDT
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ROW 3: WALLET + TOOLBOX + LICENSE ========== -->
+  <div class="grid-3">
+    <!-- کیف پول -->
+    <div class="card">
+      <h3><i class="fas fa-wallet"></i> کیف پول <span class="badge-sm">دارایی‌ها</span></h3>
+      <div class="wallet-list" id="walletList"></div>
+    </div>
+    <!-- ابزارهای امنیتی (Toolbox) -->
+    <div class="card">
+      <h3><i class="fas fa-toolbox"></i> جعبه‌ابزار <span class="badge-sm">۳۶ ابزار آفلاین</span></h3>
+      <div class="tool-grid" id="toolGrid">
+        <div class="tool-item" data-tool="hash"><i class="fas fa-fingerprint"></i> هش</div>
+        <div class="tool-item" data-tool="encrypt"><i class="fas fa-lock"></i> رمزنگاری</div>
+        <div class="tool-item" data-tool="decrypt"><i class="fas fa-unlock"></i> رمزگشایی</div>
+        <div class="tool-item" data-tool="subnet"><i class="fas fa-network-wired"></i> زیرشبکه</div>
+        <div class="tool-item" data-tool="mac"><i class="fas fa-microchip"></i> MAC</div>
+        <div class="tool-item" data-tool="base64"><i class="fas fa-code"></i> Base64</div>
+        <div class="tool-item" data-tool="uuid"><i class="fas fa-id-card"></i> UUID</div>
+        <div class="tool-item" data-tool="pass"><i class="fas fa-key"></i> رمز</div>
+      </div>
+    </div>
+    <!-- وضعیت لایسنس و Core -->
+    <div class="card">
+      <h3><i class="fas fa-server"></i> وضعیت سیستم <span class="badge-sm">Core + License</span></h3>
+      <div class="stat-row"><span class="label">Core Engine</span><span class="value green" id="coreStatusText">✅ آنلاین</span></div>
+      <div class="stat-row"><span class="label">License Server</span><span class="value green" id="licenseStatusText">✅ معتبر</span></div>
+      <div class="stat-row"><span class="label">Horizon Switch</span><span class="value green" id="switchStatusText">✅ فعال</span></div>
+      <div class="stat-row"><span class="label">آخرین همگام‌سازی</span><span class="value blue" id="lastSyncTime">هم‌اکنون</span></div>
+      <button class="btn outline" style="width:100%; margin-top:0.5rem;" id="syncBtn"><i class="fas fa-sync"></i> همگام‌سازی</button>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <div class="footer">
+    <span style="color:#4f9eff;">Horizon DEX</span> · مبتنی بر اکوسیستم Horizon · قیمت‌های لحظه‌ای شبیه‌سازی‌شده
+  </div>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div id="toast" class="toast">✅ عملیات موفق</div>
+
+<script>
+// ============================================================
+// ۱. DATA — PAIRS & WALLET
+// ============================================================
+const pairs = [
+  { name: 'BTC/USDT', price: 67250.00, change: 2.4 },
+  { name: 'ETH/USDT', price: 3450.80, change: 1.8 },
+  { name: 'SOL/USDT', price: 172.35, change: -0.5 },
+  { name: 'USDC/USDT', price: 0.9998, change: 0.01 },
+  { name: 'ADA/USDT', price: 0.456, change: 3.2 },
+  { name: 'DOT/USDT', price: 7.82, change: -1.1 },
+  { name: 'AVAX/USDT', price: 38.45, change: 5.6 },
+  { name: 'MATIC/USDT', price: 0.72, change: 0.8 },
+];
+
+const walletAssets = [
+  { asset: 'USDT', balance: 12450.75, usdValue: 12450.75 },
+  { asset: 'BTC', balance: 0.023, usdValue: 1546.75 },
+  { asset: 'ETH', balance: 0.45, usdValue: 1552.86 },
+  { asset: 'SOL', balance: 12.5, usdValue: 2154.38 },
+  { asset: 'USDC', balance: 5000.00, usdValue: 5000.00 },
+];
+
+// ============================================================
+// ۲. RENDER FUNCTIONS
+// ============================================================
+function renderPairs() {
+  const container = document.getElementById('pairList');
+  container.innerHTML = pairs.map(p => `
+    <div class="pair-item">
+      <span class="pair-name">${p.name}</span>
+      <span class="pair-price">$${p.price.toFixed(4)}</span>
+      <span class="pair-change ${p.change >= 0 ? 'positive' : 'negative'}">
+        ${p.change >= 0 ? '▲' : '▼'} ${Math.abs(p.change).toFixed(1)}%
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderWallet() {
+  const container = document.getElementById('walletList');
+  container.innerHTML = walletAssets.map(a => `
+    <div class="wallet-item">
+      <span class="asset">${a.asset}</span>
+      <span class="balance">${a.balance.toFixed(4)}</span>
+      <span class="balance usd">$${a.usdValue.toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// ۳. PRICE SIMULATION (Real-time mock)
+// ============================================================
+function updatePrices() {
+  pairs.forEach(p => {
+    const volatility = (Math.random() - 0.5) * 0.02;
+    p.price = Math.max(0, p.price * (1 + volatility));
+    p.change = (volatility * 100) + (Math.random() - 0.5) * 0.5;
+  });
+  renderPairs();
+  updateMarketStats();
+}
+
+function updateMarketStats() {
+  const total = pairs.reduce((sum, p) => sum + p.price, 0);
+  document.getElementById('totalVolume').textContent = `$${(total * 1.8).toFixed(1)}M`;
+  document.getElementById('activeTokens').textContent = pairs.length;
+  document.getElementById('onlineUsers').textContent = Math.floor(1000 + Math.random() * 500);
+}
+
+// ============================================================
+// ۴. TRADE ACTION (simulate)
+// ============================================================
+function executeTrade(type) {
+  const pair = document.getElementById('tradePair').value;
+  const amount = parseFloat(document.getElementById('tradeAmount').value) || 0;
+  const price = parseFloat(document.getElementById('tradePrice').value) || 0;
+  if (amount <= 0 || price <= 0) {
+    showToast('⚠️ مقدار و قیمت را به‌درستی وارد کنید.', true);
+    return;
+  }
+  const total = amount * price;
+  showToast(`✅ ${type === 'buy' ? 'خرید' : 'فروش'} ${amount} ${pair} با قیمت ${price} انجام شد. مبلغ: $${total.toFixed(2)}`);
+  // به‌روزرسانی موجودی (شبیه‌سازی)
+  const usdtAsset = walletAssets.find(a => a.asset === 'USDT');
+  if (usdtAsset) {
+    if (type === 'buy') usdtAsset.balance -= total;
+    else usdtAsset.balance += total;
+    usdtAsset.usdValue = usdtAsset.balance;
+    renderWallet();
+  }
+}
+
+// ============================================================
+// ۵. TOAST
+// ============================================================
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.style.display = 'block';
+  clearTimeout(t._hide);
+  t._hide = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// ============================================================
+// ۶. TOOLBOX QUICK ACTIONS
+// ============================================================
+document.querySelectorAll('.tool-item').forEach(el => {
+  el.addEventListener('click', function() {
+    const tool = this.dataset.tool;
+    const msgs = {
+      hash: '🔐 هش SHA-256: ' + Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+      encrypt: '🔒 رمزنگاری AES-GCM: 0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+      decrypt: '🔓 رمزگشایی: "Horizon DEX"',
+      subnet: '🌐 زیرشبکه محاسبه شد: 192.168.1.0/24',
+      mac: '🔌 MAC OUI: Cisco Systems',
+      base64: '📦 Base64: SG9yaXpvbiBERVg=',
+      uuid: '🆔 UUID: ' + crypto.randomUUID(),
+      pass: '🔑 رمز تولید شد: ' + Math.random().toString(36).slice(2, 12) + '@#4' + Math.random().toString(36).slice(2, 6)
+    };
+    showToast(msgs[tool] || '🧰 ابزار ' + tool + ' اجرا شد.');
+  });
+});
+
+// ============================================================
+// ۷. SYNC & STATUS
+// ============================================================
+document.getElementById('syncBtn').addEventListener('click', function() {
+  showToast('🔄 در حال همگام‌سازی با Core Engine...');
+  setTimeout(() => {
+    document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString('fa-IR');
+    showToast('✅ همگام‌سازی کامل شد.');
+  }, 1200);
+});
+
+// ============================================================
+// ۸. INIT & INTERVALS
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  renderPairs();
+  renderWallet();
+  updateMarketStats();
+
+  // خرید/فروش
+  document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
+  document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
+  document.getElementById('marketBtn').addEventListener('click', () => {
+    showToast('📊 سفارش بازار با بهترین قیمت ثبت شد.');
+  });
+
+  // قیمت‌گذاری لحظه‌ای (هر ۲ ثانیه)
+  setInterval(updatePrices, 2000);
+
+  // به‌روزرسانی موجودی
+  setInterval(() => {
+    const total = walletAssets.reduce((s, a) => s + a.usdValue, 0);
+    document.getElementById('balanceDisplay').textContent = total.toFixed(2);
+  }, 3000);
+
+  // نمایش آدرس کیف پول
+  document.getElementById('walletStatus').textContent = '۰x7F...E3' + Math.floor(Math.random() * 100);
+});
+</script>
+</body>
+</html>
