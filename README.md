@@ -1,10 +1,9 @@
-# 🔷 Horizon Architecture License (HAL) v1.0
+# 🔷 Horizon Architecture License (HAL) v1.1
 
 <p align="center">
-  <img src="https://img.shields.io/badge/License-HAL%20v1.0-4f9eff?style=for-the-badge&logo=open-source-initiative&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Status-Active-4ade80?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Term-Perpetual-facc15?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Protected-Architecture-c084fc?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/License-HAL%20v1.1-4f9eff?style=for-the-badge&logo=open-source-initiative&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Enforced-4ade80?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Jurisdiction-Germany-1e40af?style=for-the-badge"/>
 </p>
 
 ---
@@ -13,11 +12,20 @@
 
 | **عنصر** | **مشخصات** |
 | :--- | :--- |
-| **نام مجوز** | Horizon Architecture License (HAL) v1.0 |
+| **نام مجوز** | Horizon Architecture License (HAL) v1.1 |
 | **Licensor (صاحب‌امتیاز)** | Mahdi Amolimoghaddam |
+| **نمایندهٔ حقوقی و بازوی تجاری** | **Euro** (Postfach 404, 24784, 755954, GLADBECK 45954, Germany) |
 | **Licensed Asset (دارایی مجوزدار)** | Horizon Ecosystem Architecture (the "Path") |
-| **Effective Date (تاریخ اجرا)** | 2026-07-26 |
-| **Term (مدت اعتبار)** | Perpetual (بدون تاریخ انقضا و بدون تبدیل به مجوز آزاد) |
+| **Effective Date (تاریخ اجرا)** | 2026-08-25 |
+| **مدت اعتبار** | Perpetual (بدون تاریخ انقضا و بدون تبدیل به مجوز آزاد) |
+| **دادگاه صالح (Governing Law)** | **قوانین جمهوری فدرال آلمان (Germany)** |
+
+---
+
+## 🧾 مقدمه (بر اساس مستندات معتبر تجاری)
+
+صاحب‌امتیاز این مجوز دارای شخصیت حقوقی و تجاری فعال در سطح بین‌المللی بوده و به‌استناد **قرارداد استاندارد انتقال داده‌ها (SCC) که با شرکت GBG (بریتانیا) منعقد شده**، هویت حقوقی خود را در چارچوب مقررات سخت‌گیرانهٔ اتحادیه اروپا (GDPR) به‌اثبات رسانده است.  
+نهاد **Euro** در آلمان، به‌عنوان بازوی رسمی اجرایی و حقوقی صاحب‌امتیاز، مسئولیت پیگیری هرگونه نقض این مجوز را بر عهده دارد.
 
 ---
 
@@ -55,7 +63,7 @@
 
 ## 🚫 3. Commercial Use of the Path (استفاده‌ی تجاری از مسیر)
 
-**هرگونه استفاده‌ی تجاری از مسیر، بدون مجوز کتبی جداگانه از Licensor، به‌شدت ممنوع است.**
+**هرگونه استفاده‌ی تجاری از مسیر، بدون مجوز کتبی جداگانه از Licensor (که از طریق نهاد Euro در آلمان قابل پیگیری است)، به‌شدت ممنوع است.**
 
 **مصادیق استفاده‌ی تجاری عبارتند از (اما محدود به این موارد نیستند):**
 
@@ -92,4 +100,4 @@
 
 ```text
 This architecture is based on the Horizon Ecosystem Architecture,
-designed by Mahdi Amolimoghaddam.
+designed by Mahdi Amolimoghaddam and exclusively represented by Euro (Germany).
