@@ -1,11 +1,11 @@
-# 1. Rename local branch from main to mine
-git branch -m main mine
+# 1. تغییر نام برنچ محلی از mine به main
+git branch -m mine main
 
-# 2. Fetch latest updates from remote
+# 2. دریافت آخرین تغییرات از مخزن راه‌دور
 git fetch origin
 
-# 3. Set the mine branch to track origin/mine
-git branch -u origin/mine mine
+# 3. تنظیم برنچ main برای دنبال کردن origin/main
+git branch -u origin/main main
 
-# 4. Set remote HEAD to point to the mine branch
-git remote set-head origin -a
+# 4. تنظیم HEAD راه‌دور به برنچ main
+git remote set-head origin main
