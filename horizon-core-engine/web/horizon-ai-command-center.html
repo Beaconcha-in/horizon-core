@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang=“fa” dir=“rtl”>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset=“UTF-8” />
+    <meta name=“viewport” content=“width=device-width, initial-scale=1.0” />
     <title>Horizon AI Command Center · پنل جامع</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href=“https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap” rel=“stylesheet” />
+    <link rel=“stylesheet” href=“https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css” />
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: ‘Inter’, sans-serif;
             background: #060b18;
             color: #eef2ff;
             padding: 1.2rem;
@@ -45,7 +45,7 @@
             position: relative;
         }
         .header::after {
-            content: '';
+            content: ‘’;
             position: absolute;
             bottom: -2px;
             left: 0;
@@ -434,97 +434,97 @@
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <!-- هدر -->
-        <div class="header">
-            <div class="logo">
-                <h1><i class="fas fa-brain" style="color:#c084fc;"></i> Horizon AI Command</h1>
+    <div class=“container” id=“app”>
+        <!— هدر —>
+        <div class=“header”>
+            <div class=“logo”>
+                <h1><i class=“fas fa-brain” style=“color:#c084fc;”></i> Horizon AI Command</h1>
                 <span>پنل جامع اکوسیستم · Core + License + Agents + AI</span>
             </div>
-            <div class="badge-group">
-                <span class="badge green" id="coreBadge"><i class="fas fa-circle"></i> Core: <span id="coreStatusText">⏳</span></span>
-                <span class="badge gold" id="licenseBadge"><i class="fas fa-key"></i> License: <span id="licenseStatusText">⏳</span></span>
-                <span class="badge blue" id="agentBadge"><i class="fas fa-robot"></i> Agents: <span id="agentCountText">0</span></span>
+            <div class=“badge-group”>
+                <span class=“badge green” id=“coreBadge”><i class=“fas fa-circle”></i> Core: <span id=“coreStatusText”>⏳</span></span>
+                <span class=“badge gold” id=“licenseBadge”><i class=“fas fa-key”></i> License: <span id=“licenseStatusText”>⏳</span></span>
+                <span class=“badge blue” id=“agentBadge”><i class=“fas fa-robot”></i> Agents: <span id=“agentCountText”>0</span></span>
             </div>
         </div>
 
-        <!-- تنظیمات اتصال و آمار -->
-        <div class="grid-2" style="margin-bottom:1rem;">
-            <div class="card">
-                <h3><i class="fas fa-sliders-h"></i> تنظیمات اتصال</h3>
-                <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
-                    <input class="config-input" id="coreUrl" placeholder="Core URL" value="http://localhost:3000" />
-                    <input class="config-input" id="licenseUrl" placeholder="License URL" value="http://localhost:4000" />
-                    <input class="config-input" id="apiKey" placeholder="API Key" type="password" value="test-api-key" />
-                    <input class="config-input" id="bankName" placeholder="نام بانک" value="بانک مرکزی" />
-                    <button class="btn success" id="connectBtn"><i class="fas fa-plug"></i> اتصال</button>
+        <!— تنظیمات اتصال و آمار —>
+        <div class=“grid-2” style=“margin-bottom:1rem;”>
+            <div class=“card”>
+                <h3><i class=“fas fa-sliders-h”></i> تنظیمات اتصال</h3>
+                <div style=“display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;”>
+                    <input class=“config-input” id=“coreUrl” placeholder=“Core URL” value=“http://localhost:3000” />
+                    <input class=“config-input” id=“licenseUrl” placeholder=“License URL” value=“http://localhost:4000” />
+                    <input class=“config-input” id=“apiKey” placeholder=“API Key” type=“password” value=“test-api-key” />
+                    <input class=“config-input” id=“bankName” placeholder=“نام بانک” value=“بانک مرکزی” />
+                    <button class=“btn success” id=“connectBtn”><i class=“fas fa-plug”></i> اتصال</button>
                 </div>
-                <div style="margin-top:0.5rem; font-size:0.7rem; color:#8fa2dc;">
-                    <i class="fas fa-info-circle"></i> پس از اتصال، می‌توانید با AI صحبت کنید.
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-chart-simple"></i> آمار لحظه‌ای</h3>
-                <div class="stat-row"><span class="label">شعب آنلاین</span><span class="value green" id="statOnline">0</span></div>
-                <div class="stat-row"><span class="label">شعب آفلاین</span><span class="value red" id="statOffline">0</span></div>
-                <div class="stat-row"><span class="label">لایسنس فعال</span><span class="value gold" id="statLicenses">0</span></div>
-                <div class="stat-row"><span class="label">تراکنش امروز</span><span class="value blue" id="statTx">0</span></div>
-            </div>
-        </div>
-
-        <!-- Agents & Core Info -->
-        <div class="grid-3" id="agentsContainer">
-            <div class="card">
-                <h3><i class="fas fa-robot"></i> عامل‌های هوشمند</h3>
-                <div class="agent-list" id="agentList">
-                    <div style="color:#8fa2dc; font-size:0.7rem;">اتصال به Core برای دریافت لیست...</div>
+                <div style=“margin-top:0.5rem; font-size:0.7rem; color:#8fa2dc;”>
+                    <i class=“fas fa-info-circle”></i> پس از اتصال، می‌توانید با AI صحبت کنید.
                 </div>
             </div>
-            <div class="card">
-                <h3><i class="fas fa-server"></i> Core Engine</h3>
-                <div id="coreInfo" style="font-size:0.75rem; color:#8fa2dc;">وضعیت: منتظر اتصال...</div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-key"></i> License Server</h3>
-                <div id="licenseInfo" style="font-size:0.75rem; color:#8fa2dc;">وضعیت: منتظر اتصال...</div>
-            </div>
-        </div>
-
-        <!-- پنل AI (اصلی) -->
-        <div class="ai-panel">
-            <div class="ai-header">
-                <h3><i class="fas fa-microphone-alt" style="color:#c084fc;"></i> دستیار هوش مصنوعی Horizon</h3>
-                <span class="status" id="aiStatus"><i class="fas fa-circle"></i> آماده</span>
-            </div>
-            <div class="ai-chat" id="chatBox">
-                <div class="ai-msg bot"><i class="fas fa-robot"></i> سلام مهدی جان! من دستیار هوشمند Horizon هستم. هر دستوری بدی اجرا می‌کنم.<br>مثلاً: «وضعیت سیستم رو بگو» یا «یک لایسنس جدید صادر کن»</div>
-            </div>
-            <div class="ai-input-row">
-                <input type="text" id="commandInput" placeholder="دستور خود را بنویسید یا بگویید..." />
-                <button class="btn" id="sendBtn"><i class="fas fa-paper-plane"></i> ارسال</button>
-                <button class="btn record" id="recordBtn"><i class="fas fa-microphone"></i> ضبط</button>
-                <button class="btn outline" id="clearChatBtn"><i class="fas fa-eraser"></i></button>
+            <div class=“card”>
+                <h3><i class=“fas fa-chart-simple”></i> آمار لحظه‌ای</h3>
+                <div class=“stat-row”><span class=“label”>شعب آنلاین</span><span class=“value green” id=“statOnline”>0</span></div>
+                <div class=“stat-row”><span class=“label”>شعب آفلاین</span><span class=“value red” id=“statOffline”>0</span></div>
+                <div class=“stat-row”><span class=“label”>لایسنس فعال</span><span class=“value gold” id=“statLicenses”>0</span></div>
+                <div class=“stat-row”><span class=“label”>تراکنش امروز</span><span class=“value blue” id=“statTx”>0</span></div>
             </div>
         </div>
 
-        <div class="footer">
-            <span style="color:#4f9eff;">Horizon AI</span> · تمام اکوسیستم در یک پنل · ۲۰۲۶
+        <!— Agents & Core Info —>
+        <div class=“grid-3” id=“agentsContainer”>
+            <div class=“card”>
+                <h3><i class=“fas fa-robot”></i> عامل‌های هوشمند</h3>
+                <div class=“agent-list” id=“agentList”>
+                    <div style=“color:#8fa2dc; font-size:0.7rem;”>اتصال به Core برای دریافت لیست...</div>
+                </div>
+            </div>
+            <div class=“card”>
+                <h3><i class=“fas fa-server”></i> Core Engine</h3>
+                <div id=“coreInfo” style=“font-size:0.75rem; color:#8fa2dc;”>وضعیت: منتظر اتصال...</div>
+            </div>
+            <div class=“card”>
+                <h3><i class=“fas fa-key”></i> License Server</h3>
+                <div id=“licenseInfo” style=“font-size:0.75rem; color:#8fa2dc;”>وضعیت: منتظر اتصال...</div>
+            </div>
+        </div>
+
+        <!— پنل AI (اصلی) —>
+        <div class=“ai-panel”>
+            <div class=“ai-header”>
+                <h3><i class=“fas fa-microphone-alt” style=“color:#c084fc;”></i> دستیار هوش مصنوعی Horizon</h3>
+                <span class=“status” id=“aiStatus”><i class=“fas fa-circle”></i> آماده</span>
+            </div>
+            <div class=“ai-chat” id=“chatBox”>
+                <div class=“ai-msg bot”><i class=“fas fa-robot”></i> سلام مهدی جان! من دستیار هوشمند Horizon هستم. هر دستوری بدی اجرا می‌کنم.<br>مثلاً: «وضعیت سیستم رو بگو» یا «یک لایسنس جدید صادر کن»</div>
+            </div>
+            <div class=“ai-input-row”>
+                <input type=“text” id=“commandInput” placeholder=“دستور خود را بنویسید یا بگویید...” />
+                <button class=“btn” id=“sendBtn”><i class=“fas fa-paper-plane”></i> ارسال</button>
+                <button class=“btn record” id=“recordBtn”><i class=“fas fa-microphone”></i> ضبط</button>
+                <button class=“btn outline” id=“clearChatBtn”><i class=“fas fa-eraser”></i></button>
+            </div>
+        </div>
+
+        <div class=“footer”>
+            <span style=“color:#4f9eff;”>Horizon AI</span> · تمام اکوسیستم در یک پنل · ۲۰۲۶
             <br>
-            <button class="copy-all-btn" id="copyAllBtn"><i class="fas fa-copy"></i> کپی کردن کل کد صفحه</button>
+            <button class=“copy-all-btn” id=“copyAllBtn”><i class=“fas fa-copy”></i> کپی کردن کل کد صفحه</button>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <div id=“toast” class=“toast”></div>
 
     <script>
         // ============================================================
         // 1. STATE & CONFIG
         // ============================================================
         const state = {
-            coreUrl: 'http://localhost:3000',
-            licenseUrl: 'http://localhost:4000',
-            apiKey: 'test-api-key',
-            bankName: 'بانک مرکزی',
+            coreUrl: ‘http://localhost:3000’,
+            licenseUrl: ‘http://localhost:4000’,
+            apiKey: ‘test-api-key’,
+            bankName: ‘بانک مرکزی’,
             coreConnected: false,
             licenseConnected: false,
             branches: [],
@@ -539,41 +539,41 @@
         // 2. DOM refs
         // ============================================================
         const $ = id => document.getElementById(id);
-        const chatBox = $('chatBox');
-        const commandInput = $('commandInput');
-        const sendBtn = $('sendBtn');
-        const recordBtn = $('recordBtn');
-        const connectBtn = $('connectBtn');
-        const coreStatusText = $('coreStatusText');
-        const licenseStatusText = $('licenseStatusText');
-        const agentCountText = $('agentCountText');
-        const statOnline = $('statOnline');
-        const statOffline = $('statOffline');
-        const statLicenses = $('statLicenses');
-        const statTx = $('statTx');
-        const coreInfo = $('coreInfo');
-        const licenseInfo = $('licenseInfo');
-        const agentList = $('agentList');
-        const toast = $('toast');
-        const aiStatus = $('aiStatus');
+        const chatBox = $(‘chatBox’);
+        const commandInput = $(‘commandInput’);
+        const sendBtn = $(‘sendBtn’);
+        const recordBtn = $(‘recordBtn’);
+        const connectBtn = $(‘connectBtn’);
+        const coreStatusText = $(‘coreStatusText’);
+        const licenseStatusText = $(‘licenseStatusText’);
+        const agentCountText = $(‘agentCountText’);
+        const statOnline = $(‘statOnline’);
+        const statOffline = $(‘statOffline’);
+        const statLicenses = $(‘statLicenses’);
+        const statTx = $(‘statTx’);
+        const coreInfo = $(‘coreInfo’);
+        const licenseInfo = $(‘licenseInfo’);
+        const agentList = $(‘agentList’);
+        const toast = $(‘toast’);
+        const aiStatus = $(‘aiStatus’);
 
         // ============================================================
         // 3. Toast
         // ============================================================
         function showToast(msg, isError = false) {
             toast.textContent = msg;
-            toast.className = 'toast' + (isError ? ' error' : '');
-            toast.style.display = 'block';
+            toast.className = ‘toast’ + (isError ? ‘ error’ : ‘’);
+            toast.style.display = ‘block’;
             clearTimeout(toast._hide);
-            toast._hide = setTimeout(() => toast.style.display = 'none', 3500);
+            toast._hide = setTimeout(() => toast.style.display = ‘none’, 3500);
         }
 
         // ============================================================
         // 4. AI Functions (دستورات)
         // ============================================================
         function addMessage(text, isUser = false) {
-            const div = document.createElement('div');
-            div.className = 'ai-msg ' + (isUser ? 'user' : 'bot');
+            const div = document.createElement(‘div’);
+            div.className = ‘ai-msg ‘ + (isUser ? ‘user’ : ‘bot’);
             div.textContent = text;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -582,68 +582,68 @@
         async function executeCommand(command) {
             const cmd = command.trim().toLowerCase();
             addMessage(command, true);
-            aiStatus.textContent = '⏳ در حال پردازش...';
+            aiStatus.textContent = ‘⏳ در حال پردازش...’;
 
-            // ---- دستورات هوشمند ----
-            if (cmd.includes('وضعیت') || cmd.includes('status')) {
+            // -— دستورات هوشمند -—
+            if (cmd.includes(‘وضعیت’) || cmd.includes(‘status’)) {
                 const info =
-                    `Core: ${state.coreConnected ? '✅ متصل' : '❌ قطع'}
-        License: ${state.licenseConnected ? '✅ متصل' : '❌ قطع'}
+                    `Core: ${state.coreConnected ? ‘✅ متصل’ : ‘❌ قطع’}
+        License: ${state.licenseConnected ? ‘✅ متصل’ : ‘❌ قطع’}
         شعب: ${state.branches.length}
         تراکنش امروز: ${state.transactions.length}
-        لایسنس فعال: ${state.licenses.filter(l => l.status === 'active').length}`;
-                addMessage('📊 ' + info);
-                aiStatus.textContent = '✅ آماده';
+        لایسنس فعال: ${state.licenses.filter(l => l.status === ‘active’).length}`;
+                addMessage(‘📊 ‘ + info);
+                aiStatus.textContent = ‘✅ آماده’;
                 return;
             }
 
-            if (cmd.includes('شعب') || cmd.includes('branches')) {
-                if (!state.coreConnected) { addMessage('❌ ابتدا به Core متصل شوید.');
-                    aiStatus.textContent = '❌ خطا'; return; }
+            if (cmd.includes(‘شعب’) || cmd.includes(‘branches’)) {
+                if (!state.coreConnected) { addMessage(‘❌ ابتدا به Core متصل شوید.’);
+                    aiStatus.textContent = ‘❌ خطا’; return; }
                 try {
                     const res = await fetch(`${state.coreUrl}/api/v1/branches`, {
-                        headers: { 'X-API-Key': state.apiKey }
+                        headers: { ‘X-API-Key’: state.apiKey }
                     });
                     const data = await res.json();
                     if (data && data.length) {
-                        const list = data.map(b => `${b.name} (${b.city}) - ${b.isOnline ? '🟢' : '🔴'}`).join('\n');
-                        addMessage('📋 لیست شعب:\n' + list);
+                        const list = data.map(b => `${b.name} (${b.city}) - ${b.isOnline ? ‘🟢’ : ‘🔴’}`).join(‘\n’);
+                        addMessage(‘📋 لیست شعب:\n’ + list);
                     } else {
-                        addMessage('هیچ شعبه‌ای یافت نشد.');
+                        addMessage(‘هیچ شعبه‌ای یافت نشد.’);
                     }
-                } catch (e) { addMessage('❌ خطا در دریافت شعب: ' + e.message); }
-                aiStatus.textContent = '✅ آماده';
+                } catch (e) { addMessage(‘❌ خطا در دریافت شعب: ‘ + e.message); }
+                aiStatus.textContent = ‘✅ آماده’;
                 return;
             }
 
-            if (cmd.includes('لایسنس') || cmd.includes('license')) {
-                if (!state.licenseConnected) { addMessage('❌ ابتدا به License Server متصل شوید.');
-                    aiStatus.textContent = '❌ خطا'; return; }
+            if (cmd.includes(‘لایسنس’) || cmd.includes(‘license’)) {
+                if (!state.licenseConnected) { addMessage(‘❌ ابتدا به License Server متصل شوید.’);
+                    aiStatus.textContent = ‘❌ خطا’; return; }
                 try {
                     const res = await fetch(`${state.licenseUrl}/api/v1/license/generate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ product_id: 'horizon-core', user_id: 'bank_melli',
+                        method: ‘POST’,
+                        headers: { ‘Content-Type’: ‘application/json’ },
+                        body: JSON.stringify({ product_id: ‘horizon-core’, user_id: ‘bank_melli’,
                             duration: 8760 })
                     });
                     const data = await res.json();
-                    addMessage('✅ لایسنس جدید صادر شد:\nID: ' + (data.id || 'N/A') + '\nکاربر: ' + (data.userId ||
-                    'bank_melli'));
-                } catch (e) { addMessage('❌ خطا در صدور لایسنس: ' + e.message); }
-                aiStatus.textContent = '✅ آماده';
+                    addMessage(‘✅ لایسنس جدید صادر شد:\nID: ‘ + (data.id || ‘N/A’) + ‘\nکاربر: ‘ + (data.userId ||
+                    ‘bank_melli’));
+                } catch (e) { addMessage(‘❌ خطا در صدور لایسنس: ‘ + e.message); }
+                aiStatus.textContent = ‘✅ آماده’;
                 return;
             }
 
-            if (cmd.includes('حسابرسی') || cmd.includes('audit')) {
-                addMessage('🔍 در حال حسابرسی همه شعب...');
+            if (cmd.includes(‘حسابرسی’) || cmd.includes(‘audit’)) {
+                addMessage(‘🔍 در حال حسابرسی همه شعب...’);
                 setTimeout(() => {
-                    addMessage('✅ حسابرسی با موفقیت انجام شد. همه شعب بررسی شدند.');
-                    aiStatus.textContent = '✅ آماده';
+                    addMessage(‘✅ حسابرسی با موفقیت انجام شد. همه شعب بررسی شدند.’);
+                    aiStatus.textContent = ‘✅ آماده’;
                 }, 1500);
                 return;
             }
 
-            if (cmd.includes('گزارش') || cmd.includes('report')) {
+            if (cmd.includes(‘گزارش’) || cmd.includes(‘report’)) {
                 const report = {
                     time: new Date().toISOString(),
                     branches: state.branches.length,
@@ -651,71 +651,71 @@
                     licenses: state.licenses.length,
                     online: state.branches.filter(b => b.isOnline).length,
                 };
-                addMessage('📄 گزارش لحظه‌ای:\n' + JSON.stringify(report, null, 2));
-                aiStatus.textContent = '✅ آماده';
+                addMessage(‘📄 گزارش لحظه‌ای:\n’ + JSON.stringify(report, null, 2));
+                aiStatus.textContent = ‘✅ آماده’;
                 return;
             }
 
-            if (cmd.includes('سلام') || cmd.includes('hi')) {
-                addMessage('سلام مهدی جان! آماده‌ام. چه دستوری دارید؟');
-                aiStatus.textContent = '✅ آماده';
+            if (cmd.includes(‘سلام’) || cmd.includes(‘hi’)) {
+                addMessage(‘سلام مهدی جان! آماده‌ام. چه دستوری دارید؟’);
+                aiStatus.textContent = ‘✅ آماده’;
                 return;
             }
 
-            if (cmd.includes('خاموش') || cmd.includes('shutdown')) {
-                addMessage('⚠️ درخواست خاموش‌سازی اضطراری... تأیید می‌کنید؟ (با دستور "تأیید" یا "cancel")');
-                aiStatus.textContent = '⚠️ در انتظار تأیید';
+            if (cmd.includes(‘خاموش’) || cmd.includes(‘shutdown’)) {
+                addMessage(‘⚠️ درخواست خاموش‌سازی اضطراری... تأیید می‌کنید؟ (با دستور “تأیید” یا “cancel”)’);
+                aiStatus.textContent = ‘⚠️ در انتظار تأیید’;
                 return;
             }
 
-            if (cmd.includes('تأیید') && aiStatus.textContent.includes('در انتظار تأیید')) {
-                addMessage('🚨 سیستم به‌طور کامل خاموش شد. (شبیه‌سازی)');
-                aiStatus.textContent = '⛔ خاموش';
+            if (cmd.includes(‘تأیید’) && aiStatus.textContent.includes(‘در انتظار تأیید’)) {
+                addMessage(‘🚨 سیستم به‌طور کامل خاموش شد. (شبیه‌سازی)’);
+                aiStatus.textContent = ‘⛔ خاموش’;
                 return;
             }
 
             // دستور ناشناخته
-            addMessage('🤖 دستور "' + command + '" را متوجه نشدم. لطفاً دوباره بگویید.');
-            aiStatus.textContent = '✅ آماده';
+            addMessage(‘🤖 دستور “’ + command + ‘” را متوجه نشدم. لطفاً دوباره بگویید.’);
+            aiStatus.textContent = ‘✅ آماده’;
         }
 
         // ============================================================
         // 5. اتصال به Core & License
         // ============================================================
         async function connectToCore() {
-            const url = $('coreUrl').value.trim();
-            const apiKey = $('apiKey').value.trim();
+            const url = $(‘coreUrl’).value.trim();
+            const apiKey = $(‘apiKey’).value.trim();
             state.coreUrl = url;
             state.apiKey = apiKey;
 
             try {
                 const res = await fetch(`${url}/api/v1/status`, {
-                    method: 'HEAD',
+                    method: ‘HEAD’,
                     signal: AbortSignal.timeout(3000)
                 });
                 if (res.ok) {
                     state.coreConnected = true;
-                    coreStatusText.textContent = '✅ متصل';
-                    coreStatusText.parentElement.className = 'badge green';
-                    coreInfo.innerHTML = '✅ Core Engine متصل است.';
-                    showToast('✅ اتصال به Core برقرار شد.');
+                    coreStatusText.textContent = ‘✅ متصل’;
+                    coreStatusText.parentElement.className = ‘badge green’;
+                    coreInfo.innerHTML = ‘✅ Core Engine متصل است.’;
+                    showToast(‘✅ اتصال به Core برقرار شد.’);
                     await fetchBranches();
                     await fetchTransactions();
                     await fetchAgents();
                 } else {
-                    throw new Error('پاسخ نامعتبر');
+                    throw new Error(‘پاسخ نامعتبر’);
                 }
             } catch (e) {
                 state.coreConnected = false;
-                coreStatusText.textContent = '❌ قطع';
-                coreStatusText.parentElement.className = 'badge red';
-                coreInfo.innerHTML = '❌ اتصال به Core ناموفق: ' + e.message;
-                showToast('⚠️ اتصال به Core ناموفق.', true);
+                coreStatusText.textContent = ‘❌ قطع’;
+                coreStatusText.parentElement.className = ‘badge red’;
+                coreInfo.innerHTML = ‘❌ اتصال به Core ناموفق: ‘ + e.message;
+                showToast(‘⚠️ اتصال به Core ناموفق.’, true);
             }
         }
 
         async function connectToLicense() {
-            const url = $('licenseUrl').value.trim();
+            const url = $(‘licenseUrl’).value.trim();
             state.licenseUrl = url;
             try {
                 const res = await fetch(`${url}/api/v1/license/status`, {
@@ -723,20 +723,20 @@
                 });
                 if (res.ok) {
                     state.licenseConnected = true;
-                    licenseStatusText.textContent = '✅ متصل';
-                    licenseStatusText.parentElement.className = 'badge gold';
-                    licenseInfo.innerHTML = '✅ License Server متصل است.';
-                    showToast('✅ اتصال به License Server برقرار شد.');
+                    licenseStatusText.textContent = ‘✅ متصل’;
+                    licenseStatusText.parentElement.className = ‘badge gold’;
+                    licenseInfo.innerHTML = ‘✅ License Server متصل است.’;
+                    showToast(‘✅ اتصال به License Server برقرار شد.’);
                     await fetchLicenses();
                 } else {
-                    throw new Error('پاسخ نامعتبر');
+                    throw new Error(‘پاسخ نامعتبر’);
                 }
             } catch (e) {
                 state.licenseConnected = false;
-                licenseStatusText.textContent = '❌ قطع';
-                licenseStatusText.parentElement.className = 'badge red';
-                licenseInfo.innerHTML = '❌ اتصال به License ناموفق: ' + e.message;
-                showToast('⚠️ اتصال به License Server ناموفق.', true);
+                licenseStatusText.textContent = ‘❌ قطع’;
+                licenseStatusText.parentElement.className = ‘badge red’;
+                licenseInfo.innerHTML = ‘❌ اتصال به License ناموفق: ‘ + e.message;
+                showToast(‘⚠️ اتصال به License Server ناموفق.’, true);
             }
         }
 
@@ -746,7 +746,7 @@
         async function fetchBranches() {
             try {
                 const res = await fetch(`${state.coreUrl}/api/v1/branches`, {
-                    headers: { 'X-API-Key': state.apiKey }
+                    headers: { ‘X-API-Key’: state.apiKey }
                 });
                 const data = await res.json();
                 if (Array.isArray(data)) {
@@ -756,20 +756,20 @@
                     statOnline.textContent = online;
                     statOffline.textContent = offline;
                 }
-            } catch (e) { console.warn('fetchBranches error', e); }
+            } catch (e) { console.warn(‘fetchBranches error’, e); }
         }
 
         async function fetchTransactions() {
             try {
                 const res = await fetch(`${state.coreUrl}/api/v1/transactions?limit=10`, {
-                    headers: { 'X-API-Key': state.apiKey }
+                    headers: { ‘X-API-Key’: state.apiKey }
                 });
                 const data = await res.json();
                 if (data && data.transactions) {
                     state.transactions = data.transactions;
                     statTx.textContent = data.transactions.length;
                 }
-            } catch (e) { console.warn('fetchTransactions error', e); }
+            } catch (e) { console.warn(‘fetchTransactions error’, e); }
         }
 
         async function fetchLicenses() {
@@ -778,37 +778,37 @@
                 const data = await res.json();
                 if (data && data.licenses) {
                     state.licenses = data.licenses;
-                    statLicenses.textContent = data.licenses.filter(l => l.status === 'active').length;
+                    statLicenses.textContent = data.licenses.filter(l => l.status === ‘active’).length;
                 }
-            } catch (e) { console.warn('fetchLicenses error', e); }
+            } catch (e) { console.warn(‘fetchLicenses error’, e); }
         }
 
         async function fetchAgents() {
             try {
                 // داده‌های نمونه (می‌توانید با مخزن agency-agents جایگزین کنید)
                 const mockAgents = [
-                    { name: 'Frontend Developer', status: 'online' },
-                    { name: 'Backend Architect', status: 'online' },
-                    { name: 'Security Engineer', status: 'idle' },
-                    { name: 'AI Engineer', status: 'online' },
-                    { name: 'DevOps', status: 'offline' },
-                    { name: 'Solidity Engineer', status: 'online' },
-                    { name: 'Data Analyst', status: 'idle' },
+                    { name: ‘Frontend Developer’, status: ‘online’ },
+                    { name: ‘Backend Architect’, status: ‘online’ },
+                    { name: ‘Security Engineer’, status: ‘idle’ },
+                    { name: ‘AI Engineer’, status: ‘online’ },
+                    { name: ‘DevOps’, status: ‘offline’ },
+                    { name: ‘Solidity Engineer’, status: ‘online’ },
+                    { name: ‘Data Analyst’, status: ‘idle’ },
                 ];
                 state.agents = mockAgents;
                 renderAgents(mockAgents);
-            } catch (e) { console.warn('fetchAgents error', e); }
+            } catch (e) { console.warn(‘fetchAgents error’, e); }
         }
 
         function renderAgents(agents) {
             agentList.innerHTML = agents.map(a => `
-        <div class="agent-item">
+        <div class=“agent-item”>
           <span>${a.name}</span>
-          <span style="font-size:0.6rem;color:${a.status === 'online' ? '#4ade80' : a.status === 'idle' ? '#facc15' : '#f87171'}">
-            ${a.status === 'online' ? '🟢' : a.status === 'idle' ? '🟡' : '🔴'} ${a.status}
+          <span style=“font-size:0.6rem;color:${a.status === ‘online’ ? ‘#4ade80’ : a.status === ‘idle’ ? ‘#facc15’ : ‘#f87171’}”>
+            ${a.status === ‘online’ ? ‘🟢’ : a.status === ‘idle’ ? ‘🟡’ : ‘🔴’} ${a.status}
           </span>
         </div>
-      `).join('');
+      `).join(‘’);
             agentCountText.textContent = agents.length;
         }
 
@@ -816,13 +816,13 @@
         // 7. Web Speech API (ورودی صوتی)
         // ============================================================
         function initSpeech() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                showToast('⚠️ مرورگر شما از تشخیص صدا پشتیبانی نمی‌کند.', true);
+            if (!(‘webkitSpeechRecognition’ in window) && !(‘SpeechRecognition’ in window)) {
+                showToast(‘⚠️ مرورگر شما از تشخیص صدا پشتیبانی نمی‌کند.’, true);
                 return;
             }
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             state.recognition = new SpeechRecognition();
-            state.recognition.lang = 'fa-IR';
+            state.recognition.lang = ‘fa-IR’;
             state.recognition.continuous = false;
             state.recognition.interimResults = false;
             state.recognition.maxAlternatives = 1;
@@ -832,95 +832,95 @@
                 commandInput.value = transcript;
                 executeCommand(transcript);
                 state.isRecording = false;
-                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> ضبط';
-                recordBtn.classList.remove('recording');
-                aiStatus.textContent = '✅ آماده';
+                recordBtn.innerHTML = ‘<i class=“fas fa-microphone”></i> ضبط’;
+                recordBtn.classList.remove(‘recording’);
+                aiStatus.textContent = ‘✅ آماده’;
             };
 
             state.recognition.onerror = (event) => {
-                showToast('❌ خطا در تشخیص صدا: ' + event.error, true);
+                showToast(‘❌ خطا در تشخیص صدا: ‘ + event.error, true);
                 state.isRecording = false;
-                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> ضبط';
-                recordBtn.classList.remove('recording');
-                aiStatus.textContent = '❌ خطا';
+                recordBtn.innerHTML = ‘<i class=“fas fa-microphone”></i> ضبط’;
+                recordBtn.classList.remove(‘recording’);
+                aiStatus.textContent = ‘❌ خطا’;
             };
 
             state.recognition.onend = () => {
                 if (state.isRecording) {
                     state.isRecording = false;
-                    recordBtn.innerHTML = '<i class="fas fa-microphone"></i> ضبط';
-                    recordBtn.classList.remove('recording');
-                    aiStatus.textContent = '✅ آماده';
+                    recordBtn.innerHTML = ‘<i class=“fas fa-microphone”></i> ضبط’;
+                    recordBtn.classList.remove(‘recording’);
+                    aiStatus.textContent = ‘✅ آماده’;
                 }
             };
         }
 
         function toggleRecording() {
             if (!state.recognition) {
-                showToast('⚠️ تشخیص صدا پشتیبانی نمی‌شود.', true);
+                showToast(‘⚠️ تشخیص صدا پشتیبانی نمی‌شود.’, true);
                 return;
             }
             if (state.isRecording) {
                 state.recognition.stop();
                 state.isRecording = false;
-                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> ضبط';
-                recordBtn.classList.remove('recording');
-                aiStatus.textContent = '✅ آماده';
+                recordBtn.innerHTML = ‘<i class=“fas fa-microphone”></i> ضبط’;
+                recordBtn.classList.remove(‘recording’);
+                aiStatus.textContent = ‘✅ آماده’;
             } else {
                 state.recognition.start();
                 state.isRecording = true;
-                recordBtn.innerHTML = '<i class="fas fa-stop-circle"></i> توقف';
-                recordBtn.classList.add('recording');
-                aiStatus.textContent = '🎤 در حال گوش دادن...';
+                recordBtn.innerHTML = ‘<i class=“fas fa-stop-circle”></i> توقف’;
+                recordBtn.classList.add(‘recording’);
+                aiStatus.textContent = ‘🎤 در حال گوش دادن...’;
             }
         }
 
         // ============================================================
         // 8. رویدادها
         // ============================================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener(‘DOMContentLoaded’, () => {
             initSpeech();
 
-            sendBtn.addEventListener('click', () => {
+            sendBtn.addEventListener(‘click’, () => {
                 const cmd = commandInput.value.trim();
                 if (!cmd) return;
                 executeCommand(cmd);
-                commandInput.value = '';
+                commandInput.value = ‘’;
             });
 
-            commandInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+            commandInput.addEventListener(‘keydown’, (e) => {
+                if (e.key === ‘Enter’) {
                     sendBtn.click();
                 }
             });
 
-            recordBtn.addEventListener('click', toggleRecording);
+            recordBtn.addEventListener(‘click’, toggleRecording);
 
-            connectBtn.addEventListener('click', async () => {
-                state.bankName = $('bankName').value.trim() || 'بانک مرکزی';
+            connectBtn.addEventListener(‘click’, async () => {
+                state.bankName = $(‘bankName’).value.trim() || ‘بانک مرکزی’;
                 await connectToCore();
                 await connectToLicense();
             });
 
-            $('clearChatBtn').addEventListener('click', () => {
-                chatBox.innerHTML = '';
-                addMessage('🧹 چت پاک شد.', false);
+            $(‘clearChatBtn’).addEventListener(‘click’, () => {
+                chatBox.innerHTML = ‘’;
+                addMessage(‘🧹 چت پاک شد.’, false);
             });
 
             // کپی کردن کل کد صفحه
-            $('copyAllBtn').addEventListener('click', () => {
+            $(‘copyAllBtn’).addEventListener(‘click’, () => {
                 const html = document.documentElement.outerHTML;
                 navigator.clipboard.writeText(html).then(() => {
-                    showToast('✅ کل کد صفحه کپی شد.');
+                    showToast(‘✅ کل کد صفحه کپی شد.’);
                 }).catch(() => {
                     // fallback
-                    const textarea = document.createElement('textarea');
+                    const textarea = document.createElement(‘textarea’);
                     textarea.value = html;
                     document.body.appendChild(textarea);
                     textarea.select();
-                    document.execCommand('copy');
+                    document.execCommand(‘copy’);
                     textarea.remove();
-                    showToast('✅ کل کد صفحه کپی شد.');
+                    showToast(‘✅ کل کد صفحه کپی شد.’);
                 });
             });
 
