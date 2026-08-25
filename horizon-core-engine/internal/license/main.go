@@ -1,18 +1,27 @@
 package main
 
 import (
-	"log"
-	"horizon-core-engine/internal/license"
+    "log"
+    "horizon-core-engine/internal/license"
 )
 
 func main() {
-	// راه‌اندازی License Guard
-	guard := license.NewLicenseGuard()
-	if err := guard.Start(); err != nil {
-		log.Fatalf("❌ %v", err)
-	}
-	defer guard.Stop()
+    // ============================================================
+    // 1. Initialize License Guard (executed first)
+    // ============================================================
+    guard := license.NewLicenseGuard()
+    if err := guard.Start(); err != nil {
+        log.Fatalf("❌ Startup halted: %v", err)
+    }
+    defer guard.Stop()
 
-	// بقیه کدهای Core Engine...
-	// اگر guard.IsValid() false باشد، سیستم نباید تراکنش‌ها را پردازش کند.
+    // ============================================================
+    // 2. Core Engine startup logic (only if license is valid)
+    // ============================================================
+    // Example: start HTTP server
+    // if !guard.IsValid() {
+    //     log.Fatal("❌ Invalid license. System halted.")
+    // }
+
+    // ... rest of Core Engine code ...
 }
