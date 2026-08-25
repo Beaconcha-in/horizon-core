@@ -1,0 +1,936 @@
+openapi: 3.0.0
+info:
+  title: Horizon Core Engine API
+  description: |
+    Central engine of the Horizon Ecosystem for managing branches, financial transactions, licenses, and auditing with offline-first architecture.
+
+    ## Key Features
+    - Branch management with online/offline capability
+    - Financial transactions with offline support and sync queue
+    - License system with ECDSA signatures and Merkle trees
+    - Real-time auditing with Merkle root
+    - IP and network security management
+  version: 2.0.0
+  contact:
+    name: Horizon Ecosystem
+    email: beaconchain@beaconchain.us
+    url: https://beaconchain-horizon.github.io
+  license:
+    name: GPL-3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+
+servers:
+  - url: https://your-core-engine.com/api/v1
+    description: Production Core Engine server
+  - url: http://localhost:3000/api/v1
+    description: Local development environment
+
+tags:
+  - name: Status
+    description: Health status and general Core Engine information
+  - name: Branches
+    description: Bank branch management, status, balance, and IP
+  - name: Transactions
+    description: Financial transaction registration, verification, and synchronization
+  - name: License
+    description: License generation, verification, and management (admin access)
+  - name: Audit
+    description: Audit reports with Merkle tree
+
+paths:
+  /health:
+    get:
+      tags:
+        - Status
+      summary: Check Core Engine health (no auth required)
+      description: This endpoint checks if Core Engine is alive. No authentication required.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /status:
+    get:
+      tags:
+        - Status
+      summary: Get Core Engine health status
+      description: This endpoint checks if Core Engine is online and verifies authentication.
+      operationId: getStatus
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+              example:
+                status: online
+                version: 2.0.0
+                uptime: 86400
+                license_valid: true
+                branches_online: 28
+                branches_total: 32
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /branches:
+    get:
+      tags:
+        - Branches
+      summary: Get all branches
+      description: Full list of bank branches with status, balance, and IP details
+      operationId: getBranches
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Number of branches per response (default 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+        - name: offset
+          in: query
+          description: Number of branches to skip (pagination)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: status
+          in: query
+          description: Filter by online/offline status
+          schema:
+            type: string
+            enum: [online, offline, all]
+            default: all
+        - name: city
+          in: query
+          description: Filter by city
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Branch list received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  branches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Branch'
+              example:
+                total: 32
+                branches:
+                  - id: 1
+                    name: Central Branch Tehran
+                    city: Tehran
+                    balance: 125000000000
+                    ip: 192.168.1.10
+                    isOnline: true
+                    lastSync: 2025-08-12 14:30
+                    lat: 35.6892
+                    lng: 51.3890
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Branches
+      summary: Create a new branch (admin only)
+      operationId: createBranch
+      security:
+        - ApiKeyAuth: []
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+      responses:
+        '201':
+          description: Branch created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthorized access (admin role required)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /branches/{branchId}:
+    get:
+      tags:
+        - Branches
+      summary: Get a single branch by ID
+      operationId: getBranchById
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Numeric branch ID
+      responses:
+        '200':
+          description: Branch information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          description: Branch not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags:
+        - Branches
+      summary: Update branch information (admin only)
+      operationId: updateBranch
+      security:
+        - ApiKeyAuth: []
+        - AdminAuth: []
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchUpdate'
+      responses:
+        '200':
+          description: Branch updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          description: Branch not found
+        '400':
+          description: Invalid input data
+
+  /transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction list
+      operationId: getTransactions
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: branchId
+          in: query
+          description: Filter by branch
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by transaction status
+          schema:
+            type: string
+            enum: [confirmed, pending, offline, failed]
+        - name: fromDate
+          in: query
+          description: Start date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: toDate
+          in: query
+          description: End date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Transactions
+      summary: Create a new transaction
+      operationId: createTransaction
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreate'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid input data (insufficient balance, offline branch, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Invalid or expired license
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction details by ID
+      operationId: getTransactionById
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transaction not found
+
+  /license/generate:
+    post:
+      tags:
+        - License
+      summary: Generate new license (admin only)
+      operationId: generateLicense
+      security:
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseGenerateRequest'
+      responses:
+        '201':
+          description: License generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '400':
+          description: Invalid input data
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access (admin role required)
+
+  /license/verify:
+    post:
+      tags:
+        - License
+      summary: Verify license validity
+      operationId: verifyLicense
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseVerifyRequest'
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseVerifyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          description: Invalid request
+
+  /license/status:
+    get:
+      tags:
+        - License
+      summary: Get all licenses status (admin only)
+      operationId: getLicensesStatus
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          description: List of licenses with status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  licenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/License'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access
+
+  /license/suspend-all:
+    post:
+      tags:
+        - License
+      summary: Suspend all active licenses (admin only)
+      operationId: suspendAllLicenses
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Suspension successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  suspended_count:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access
+
+  /license/renew-all:
+    post:
+      tags:
+        - License
+      summary: Renew all licenses (admin only)
+      operationId: renewAllLicenses
+      security:
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: integer
+                  description: New license duration in hours
+                  default: 8760
+      responses:
+        '200':
+          description: Renewal successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  renewed_count:
+                    type: integer
+
+  /license/emergency-disable:
+    post:
+      tags:
+        - License
+      summary: Emergency disable a license (admin only)
+      description: This endpoint disables a specific license immediately. Use only in critical situations.
+      operationId: emergencyDisableLicense
+      security:
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                license_id:
+                  type: string
+                  description: License ID to disable
+                reason:
+                  type: string
+                  description: Reason for emergency disable (optional)
+      responses:
+        '200':
+          description: License disabled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  license_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [disabled]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access
+        '404':
+          description: License not found
+
+  /audit/merkle-root:
+    get:
+      tags:
+        - Audit
+      summary: Get system-wide Merkle root
+      description: This endpoint returns the Merkle root of all transactions for immutable audit purposes.
+      operationId: getMerkleRoot
+      security:
+        - ApiKeyAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          description: Merkle root and related information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merkle_root:
+                    type: string
+                    example: 0x8a4f3c2e5b1d9f0a7c6e4d2f8b1a3c5e7d9f0a2b4c6d8e0f1a2b3c4d5e6f7a8b
+                  timestamp:
+                    type: string
+                    format: date-time
+                  total_transactions:
+                    type: integer
+                  branches_included:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access
+
+  /audit/report:
+    post:
+      tags:
+        - Audit
+      summary: Generate comprehensive audit report
+      description: |
+        Generates an audit report using Merkle tree and digital signature.
+        The report includes a full transaction list, Merkle root, and digital signature for integrity verification.
+      operationId: generateAuditReport
+      security:
+        - ApiKeyAuth: []
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branch_id:
+                  type: integer
+                  description: If specified, generates report only for that branch
+                from_date:
+                  type: string
+                  format: date-time
+                to_date:
+                  type: string
+                  format: date-time
+                include_signatures:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                  merkle_root:
+                    type: string
+                  signature:
+                    type: string
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  generated_at:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Unauthorized access
+
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [online, offline, maintenance]
+        version:
+          type: string
+        uptime:
+          type: integer
+          description: Uptime in seconds
+        license_valid:
+          type: boolean
+        branches_online:
+          type: integer
+        branches_total:
+          type: integer
+        last_audit:
+          type: string
+          format: date-time
+      required:
+        - status
+        - version
+
+    Branch:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Central Branch Tehran
+        city:
+          type: string
+          example: Tehran
+        balance:
+          type: integer
+          description: Balance in Rial
+          example: 125000000000
+        ip:
+          type: string
+          example: 192.168.1.10
+        isOnline:
+          type: boolean
+          example: true
+        lastSync:
+          type: string
+          format: date-time
+          example: 2025-08-12 14:30
+        lat:
+          type: number
+          format: float
+          example: 35.6892
+        lng:
+          type: number
+          format: float
+          example: 51.3890
+      required:
+        - id
+        - name
+        - city
+
+    BranchCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        city:
+          type: string
+          minLength: 2
+          maxLength: 50
+        ip:
+          type: string
+          pattern: '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+        lat:
+          type: number
+          format: float
+        lng:
+          type: number
+          format: float
+        initial_balance:
+          type: integer
+          default: 0
+      required:
+        - name
+        - city
+
+    BranchUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+        city:
+          type: string
+        ip:
+          type: string
+        balance:
+          type: integer
+        isOnline:
+          type: boolean
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          example: TX-1001
+        type:
+          type: string
+          enum: [deposit, withdrawal, transfer, purchase, sale, profit]
+        amount:
+          type: integer
+          description: Amount in Rial
+        from:
+          type: string
+          description: Source (customer or branch)
+        to:
+          type: string
+          description: Destination (bank or receiver)
+        status:
+          type: string
+          enum: [confirmed, pending, offline, failed]
+        statusClass:
+          type: string
+          enum: [online, offline]
+        time:
+          type: string
+          format: date-time
+        hash:
+          type: string
+          description: Transaction hash
+      required:
+        - id
+        - type
+        - amount
+
+    TransactionCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [deposit, withdrawal, transfer, purchase, sale, profit]
+        amount:
+          type: integer
+          minimum: 1
+        from:
+          type: string
+        to:
+          type: string
+        branch_id:
+          type: integer
+        sync_mode:
+          type: string
+          enum: [online, offline]
+          default: online
+      required:
+        - type
+        - amount
+        - from
+        - to
+
+    License:
+      type: object
+      properties:
+        id:
+          type: string
+          example: LIC-1001
+        productId:
+          type: string
+          example: horizon-core
+        userId:
+          type: string
+          example: bank_melli
+        duration:
+          type: integer
+          description: Validity period in hours
+        status:
+          type: string
+          enum: [active, expired, suspended]
+        expiry:
+          type: string
+          format: date
+        signature:
+          type: string
+          description: Digital signature of the license
+      required:
+        - id
+        - userId
+        - status
+
+    LicenseGenerateRequest:
+      type: object
+      properties:
+        product_id:
+          type: string
+        user_id:
+          type: string
+        duration:
+          type: integer
+          description: Validity period in hours
+          default: 8760
+      required:
+        - product_id
+        - user_id
+
+    LicenseVerifyRequest:
+      type: object
+      properties:
+        license:
+          type: string
+          description: Complete license string
+      required:
+        - license
+
+    LicenseVerifyResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        expiry:
+          type: string
+          format: date
+        user_id:
+          type: string
+        product_id:
+          type: string
+        reason:
+          type: string
+          description: Reason for invalidity (if valid=false)
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required:
+        - code
+        - message
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key issued via Admin Panel
+    AdminAuth:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+      description: Admin token for accessing management endpoints
+
+  responses:
+    Unauthorized:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 401
+            message: Authentication failed. Please provide a valid API Key.
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 500
+            message: Internal server error occurred. Please try again.
+
+security:
+  - ApiKeyAuth: []
+  - AdminAuth: []
