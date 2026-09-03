@@ -1,4 +1,0 @@
-git pull origin main
-git add index.html
-git commit -m "update: upgrade Horizon Angel Panel to latest version"
-git push origin main
