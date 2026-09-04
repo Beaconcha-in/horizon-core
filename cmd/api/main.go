@@ -54,7 +54,6 @@ func main() {
 	if err != nil {
 		log.Fatal("خطا در اتصال به دیتابیس:", err)
 	}
-
 	db.AutoMigrate(&Bank{}, &IPWhitelist{})
 	log.Println("✅ اتصال به دیتابیس برقرار شد")
 
@@ -67,6 +66,17 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	// مسیر ریشه برای سلامت لیارا (200 OK)
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "Horizon Backend"})
+	})
+
+	// مسیر سلامت اختصاصی
+	r.GET("/api/v1/status", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": isSystemActive, "service": "Horizon Backend"})
+	})
+
+	// استارت و خاموشی سیستم (Switch)
 	r.POST("/api/v1/admin/init", func(c *gin.Context) {
 		if c.GetHeader("X-Admin-Key") != os.Getenv("ADMIN_TOKEN") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "توکن اشتباه است"})
@@ -85,10 +95,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "سیستم خاموش شد"})
 	})
 
-	r.GET("/api/v1/status", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": isSystemActive, "service": "Horizon Backend"})
-	})
-
+	// ثبت و لیست بانک‌ها
 	r.POST("/api/v1/banks", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "سیستم خاموش است"})
@@ -110,6 +117,7 @@ func main() {
 		c.JSON(http.StatusOK, banks)
 	})
 
+	// مدیریت IP
 	r.POST("/api/v1/ip/whitelist", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "سیستم خاموش است"})
@@ -121,6 +129,7 @@ func main() {
 		c.JSON(http.StatusCreated, ip)
 	})
 
+	// تأیید لایسنس
 	r.POST("/api/v1/license/verify", func(c *gin.Context) {
 		var req struct {
 			LicenseID string `json:"license_id"`
