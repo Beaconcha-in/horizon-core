@@ -1,0 +1,13 @@
+{
+  "app": "trusting-rubin-oxf0xqvfp",
+  "port": 3000,
+  "build": {
+    "location": "iran",
+    "builder": "go",
+    "command": "go build -o horizon ./cmd && ./horizon"
+  },
+  "disks": [],
+  "env": {
+    "GO_VERSION": "1.23"
+  }
+}
