@@ -7,7 +7,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
-	"math/big"
 	"net/http"
 	"os"
 	"strconv"
@@ -52,9 +51,9 @@ type IPWhitelist struct {
 type Transaction struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	BranchID  uint      `json:"branch_id"`
-	Type      string    `json:"type"` // deposit, withdrawal, transfer
+	Type      string    `json:"type"`
 	Amount    int64     `json:"amount"`
-	Status    string    `json:"status"` // pending, confirmed, offline
+	Status    string    `json:"status"`
 	Hash      string    `json:"hash"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -67,7 +66,7 @@ type License struct {
 	Root      string    `json:"root"`
 	Seed      string    `json:"seed"`
 	Signature string    `json:"signature"`
-	Status    string    `json:"status"` // active, expired, suspended
+	Status    string    `json:"status"`
 	Expiry    time.Time `json:"expiry"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -81,7 +80,6 @@ var isSystemActive = false
 // ------------------- Helper Functions -------------------
 
 func init() {
-	// Generate ECDSA key for license signing (in production, load from env or DB)
 	var err error
 	privateKey, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -90,7 +88,7 @@ func init() {
 	log.Println("✅ ECDSA key generated for license signing")
 }
 
-func sha256(data []byte) string {
+func doSha256(data []byte) string {
 	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
 }
@@ -108,10 +106,7 @@ func generateLicense(productID, userID string, volume int, durationDays int) Lic
 	seed := make([]byte, 32)
 	_, _ = rand.Read(seed)
 
-	// Create Merkle Root (simplified for demonstration)
-	root := sha256(seed)
-
-	// Sign the root
+	root := doSha256(seed)
 	signature := signData([]byte(root), privateKey)
 
 	license := License{
@@ -131,12 +126,10 @@ func generateLicense(productID, userID string, volume int, durationDays int) Lic
 // ------------------- Main Server -------------------
 
 func main() {
-	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")
 	}
 
-	// Database connection
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = "postgresql://root:KrWfSJFMQlPqbGMqMyMwgGad@horizon:5432/postgres?sslmode=disable"
@@ -149,16 +142,13 @@ func main() {
 	}
 	log.Println("✅ Database connection established")
 
-	// Auto-migrate all tables
 	if err := db.AutoMigrate(&Bank{}, &Branch{}, &IPWhitelist{}, &Transaction{}, &License{}); err != nil {
 		log.Fatal("Failed to auto-migrate database:", err)
 	}
 	log.Println("✅ Database schema synced")
 
-	// Initialize Gin router
 	r := gin.Default()
 
-	// CORS configuration
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -167,19 +157,14 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// ------------------- Routes -------------------
-
-	// Health check (public)
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "timestamp": time.Now()})
 	})
 
-	// System status
 	r.GET("/api/v1/status", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": isSystemActive})
 	})
 
-	// System init/shutdown (admin only)
 	r.POST("/api/v1/admin/init", func(c *gin.Context) {
 		if c.GetHeader("X-Admin-Key") != os.Getenv("ADMIN_TOKEN") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid admin token"})
@@ -198,7 +183,6 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "System deactivated"})
 	})
 
-	// Bank endpoints
 	r.POST("/api/v1/banks", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "System is offline"})
@@ -229,7 +213,6 @@ func main() {
 		c.JSON(http.StatusOK, banks)
 	})
 
-	// Branch endpoints
 	r.POST("/api/v1/branches", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "System is offline"})
@@ -260,7 +243,6 @@ func main() {
 		c.JSON(http.StatusOK, branches)
 	})
 
-	// IP Whitelist endpoints
 	r.POST("/api/v1/ip/whitelist", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "System is offline"})
@@ -278,7 +260,6 @@ func main() {
 		c.JSON(http.StatusCreated, ip)
 	})
 
-	// Transaction endpoints
 	r.POST("/api/v1/transactions", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "System is offline"})
@@ -289,7 +270,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		tx.Hash = sha256([]byte(strconv.FormatInt(time.Now().UnixNano(), 10)))
+		tx.Hash = doSha256([]byte(strconv.FormatInt(time.Now().UnixNano(), 10)))
 		if err := db.Create(&tx).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -310,7 +291,6 @@ func main() {
 		c.JSON(http.StatusOK, txs)
 	})
 
-	// License endpoints
 	r.POST("/api/v1/license/generate", func(c *gin.Context) {
 		if !isSystemActive {
 			c.JSON(http.StatusForbidden, gin.H{"error": "System is offline"})
@@ -320,7 +300,7 @@ func main() {
 			ProductID string `json:"product_id"`
 			UserID    string `json:"user_id"`
 			Volume    int    `json:"volume"`
-			Duration  int    `json:"duration"` // in days
+			Duration  int    `json:"duration"`
 		}
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -351,7 +331,6 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"valid": valid, "expiry": license.Expiry, "user_id": license.UserID, "product_id": license.ProductID})
 	})
 
-	// Start server
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8080"
